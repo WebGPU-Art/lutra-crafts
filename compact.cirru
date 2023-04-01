@@ -10,23 +10,9 @@
           defn comp-container (store)
             group nil (memof1-call comp-tabs)
               case-default (:tab store) (group nil)
-                :cube $ comp-cube
-        |comp-cube $ quote
-          defn comp-cube () $ object
-            {} (:shader cube-wgsl)
-              :topology $ do :line-strip :triangle-list
-              :attrs-list $ []
-                {} (:field :position) (:format "\"float32x3")
-              :data $ []
-                {} $ :position ([] 0 0 0)
-                {} $ :position ([] 0 100 0)
-                {} $ :position ([] 0 100 100)
-                {} $ :position ([] 0 0 100)
-                {} $ :position ([] 100 0 0)
-                {} $ :position ([] 100 100 0)
-                {} $ :position ([] 100 100 100)
-                {} $ :position ([] 100 0 100)
-              :indices $ [] ([] 0 1 2 0 2 3 ) ([] 0 1 5 0 4 5) ([] 1 2 6 1 6 5) ([] 2 3 6 3 6 7) ([] 0 3 4 3 4 7) ([] 4 5 6 4 6 7)
+                :cube $ group nil &
+                  -> (range 30)
+                    map $ fn (idx) (comp-cube idx)
         |comp-tabs $ quote
           defn comp-tabs () $ group nil
             comp-button
@@ -50,6 +36,68 @@
           lagopus.comp.spots :refer $ comp-spots
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+
+          app.comp.cube-combo :refer $ comp-cube
+    |app.comp.cube-combo $ {}
+      :defs $ {}
+        |comp-cube $ quote
+          defn comp-cube (idx)
+            let
+                area 300 
+                base $ [] (rand-shift 0 area) (rand-shift 0 area) (rand-shift 0 area)
+                size-bound 80
+                offsets $ []
+                  + 10 $ rand size-bound
+                  + 10 $ rand size-bound
+                  + 10 $ rand size-bound
+              object $ {} (:shader cube-combo-wgsl)
+                :topology $ do :line-strip :triangle-list
+                :attrs-list $ []
+                  {} (:field :position) (:format "\"float32x3")
+                  {} (:field :metrics) (:format "\"float32x3")
+                  {} (:field :idx) (:format "\"uint32")
+                :data $ []
+                  {} (:idx idx)
+                    :metrics $ [] -1 -1 1
+                    :position $ v+ base
+                      -> offsets (update 0 negate) (update 1 negate)
+                  {} (:idx idx)
+                    :metrics $ [] 1 -1 1
+                    :position $ v+ base
+                      -> offsets $ update 1 negate
+                  {} (:idx idx)
+                    :metrics $ [] 1 -1 -1
+                    :position $ v+ base
+                      -> offsets (update 1 negate) (update 2 negate)
+                  {} (:idx idx)
+                    :metrics $ [] -1 -1 -1
+                    :position $ v+ base
+                      -> offsets (update 0 negate) (update 1 negate) (update 2 negate)
+                  {} (:idx idx)
+                    :metrics $ [] -1 1 1
+                    :position $ v+ base
+                      -> offsets $ update 0 negate
+                  {} (:idx idx)
+                    :metrics $ [] 1 1 1
+                    :position $ v+ base offsets
+                  {} (:idx idx)
+                    :metrics $ [] 1 1 -1
+                    :position $ v+ base
+                      -> offsets $ update 2 negate
+                  {} (:idx idx)
+                    :metrics $ [] -1 1 -1
+                    :position $ v+ base
+                      -> offsets (update 0 negate) (update 2 negate)
+                :indices $ [] ([] 0 1 2 0 2 3 ) ([] 0 1 5 0 4 5) ([] 1 2 6 1 6 5) ([] 2 3 6 3 6 7) ([] 0 3 4 3 4 7) ([] 4 5 6 4 6 7)
+      :ns $ quote
+        ns app.comp.cube-combo $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/cube-combo.wgsl" :default cube-combo-wgsl
+          lagopus.comp.button :refer $ comp-button
+          lagopus.comp.curves :refer $ comp-curves
+          lagopus.comp.spots :refer $ comp-spots
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+
+          "\"@calcit/std" :refer $ rand rand-shift
     |app.config $ {}
       :defs $ {}
         |dev? $ quote

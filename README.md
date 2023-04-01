@@ -1,8 +1,6 @@
-## Lagopus Workflow
+## Lutra Crafts
 
-> based on [Lagopus](https://github.com/Triadica/lagopus)
-
-Demo https://r.tiye.me/Triadica/lagopus-workflow .
+Demo https://r.tiye.me/Triadica/lutra-crafts .
 
 ### Workflow
 
