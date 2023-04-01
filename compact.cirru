@@ -125,6 +125,7 @@
           defn main! () (hint-fn async)
             if dev? $ load-console-formatter!
             js-await $ initializeContext
+            reset-clear-color! $ {} (:r 0) (:g 0) (:b 0) (:a 0.08)
             render-app!
             renderControl
             startControlLoop 10 onControlEvent
@@ -153,4 +154,4 @@
           "\"bottom-tip" :default hud!
           "\"./calcit.build-errors" :default build-errors
           memof.once :refer $ reset-memof1-caches!
-          lagopus.main :refer $ handle-compilation
+          lagopus.util :refer $ handle-compilation reset-clear-color!
