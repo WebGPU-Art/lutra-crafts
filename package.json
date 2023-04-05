@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "@calcit/procs": "^0.6.26",
-    "@triadica/lagopus": "^0.0.1-a11",
+    "@calcit/std": "^0.0.2",
+    "@triadica/lagopus": "^0.0.1",
     "@triadica/touch-control": "^0.0.2"
   },
   "devDependencies": {
