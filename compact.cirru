@@ -11,7 +11,8 @@
             group nil
               if (not hide-tabs?) (memof1-call comp-tabs)
               case-default (:tab store) (group nil)
-                :cube $ group nil (comp-cubes)
+                :cube $ comp-cubes
+                :helicoid $ comp-hyperbolic-helicoid
         |comp-tabs $ quote
           defn comp-tabs () $ group nil
             comp-button
@@ -25,7 +26,7 @@
                 :position $ [] 40 200 0
                 :color $ [] 0.8 0.3 1 1
                 :size 20
-              fn (e d!) (d! :tab :todo)
+              fn (e d!) (d! :tab :helicoid)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -37,6 +38,7 @@
           quaternion.core :refer $ c+
           app.comp.cube-combo :refer $ comp-cubes
           app.config :refer $ hide-tabs?
+          app.comp.helicoid :refer $ comp-hyperbolic-helicoid
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -109,6 +111,30 @@
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+
           "\"@calcit/std" :refer $ rand rand-shift
+    |app.comp.helicoid $ {}
+      :defs $ {}
+        |comp-hyperbolic-helicoid $ quote
+          defn comp-hyperbolic-helicoid () $ comp-plate
+            {} (; :topology :line-strip)
+              :shader $ inline-shader "\"helicoid"
+              :iteration 120
+              :radius 160
+              :color $ [] 0.56 0.8 0.84
+              ; :x-direction $ [] 1 0 0
+              ; :y-direction $ [] 0 1 0
+              :chromatism 0.14
+      :ns $ quote
+        ns app.comp.helicoid $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/cube-combo.wgsl" :default cube-combo-wgsl
+          lagopus.comp.button :refer $ comp-button
+          lagopus.comp.curves :refer $ comp-curves
+          lagopus.comp.spots :refer $ comp-spots
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+
+          "\"@calcit/std" :refer $ rand rand-shift
+          lagopus.comp.plate :refer $ comp-plate
+          app.config :refer $ inline-shader
     |app.config $ {}
       :defs $ {}
         |bloom? $ quote
@@ -127,7 +153,7 @@
     |app.main $ {}
       :defs $ {}
         |*store $ quote
-          defatom *store $ {} (:tab :cube)
+          defatom *store $ {} (:tab :helicoid)
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
@@ -147,7 +173,7 @@
             if dev? $ load-console-formatter!
             js-await $ initializeContext
             initializeCanvasTextures
-            reset-clear-color! $ {} (:r 0) (:g 0) (:b 0) (:a 0.08)
+            reset-clear-color! $ {} (:r 0) (:g 0) (:b 0) (:a 0.16)
             render-app!
             renderControl
             startControlLoop 10 onControlEvent
