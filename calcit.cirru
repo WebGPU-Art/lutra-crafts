@@ -867,6 +867,19 @@
       |app.config $ {}
         :configs $ {}
         :defs $ {}
+          |bloom? $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:type :expr)
+            :data $ {}
+              |T $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:text |def) (:type :leaf)
+              |b $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:text |bloom?) (:type :leaf)
+              |h $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:type :expr)
+                :data $ {}
+                  |T $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:text |=) (:type :leaf)
+                  |b $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:text "|\"true") (:type :leaf)
+                  |h $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:type :expr)
+                    :data $ {}
+                      |T $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:text |get-env) (:type :leaf)
+                      |b $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:text "|\"bloom") (:type :leaf)
+                      |h $ {} (:at 1681145746050) (:by |rJG4IHzWf) (:text "|\"false") (:type :leaf)
           |dev? $ {} (:at 1677605432427) (:by |rJG4IHzWf) (:type :expr)
             :data $ {}
               |T $ {} (:at 1677605434118) (:by |rJG4IHzWf) (:text |def) (:type :leaf)
@@ -909,10 +922,26 @@
                       |L $ {} (:at 1677692463151) (:by |rJG4IHzWf) (:text "|\"shaders/") (:type :leaf)
                       |T $ {} (:at 1677692455592) (:by |rJG4IHzWf) (:text |path) (:type :leaf)
                       |b $ {} (:at 1677692479319) (:by |rJG4IHzWf) (:text "|\".wgsl") (:type :leaf)
+          |mobile-info $ {} (:at 1681145773199) (:by |rJG4IHzWf) (:type :expr)
+            :data $ {}
+              |T $ {} (:at 1681145773199) (:by |rJG4IHzWf) (:text |def) (:type :leaf)
+              |b $ {} (:at 1681145773199) (:by |rJG4IHzWf) (:text |mobile-info) (:type :leaf)
+              |h $ {} (:at 1681145773199) (:by |rJG4IHzWf) (:type :expr)
+                :data $ {}
+                  |T $ {} (:at 1681145773199) (:by |rJG4IHzWf) (:text |ismobile) (:type :leaf)
+                  |b $ {} (:at 1681145773199) (:by |rJG4IHzWf) (:text |js/window.navigator) (:type :leaf)
         :ns $ {} (:at 1677605429745) (:by |rJG4IHzWf) (:type :expr)
           :data $ {}
             |T $ {} (:at 1677605429745) (:by |rJG4IHzWf) (:text |ns) (:type :leaf)
             |b $ {} (:at 1677605429745) (:by |rJG4IHzWf) (:text |app.config) (:type :leaf)
+            |h $ {} (:at 1681145751908) (:by |rJG4IHzWf) (:type :expr)
+              :data $ {}
+                |T $ {} (:at 1681145754636) (:by |rJG4IHzWf) (:text |:require) (:type :leaf)
+                |b $ {} (:at 1681145755183) (:by |rJG4IHzWf) (:type :expr)
+                  :data $ {}
+                    |T $ {} (:at 1681145755183) (:by |rJG4IHzWf) (:text "|\"ismobilejs") (:type :leaf)
+                    |b $ {} (:at 1681145755183) (:by |rJG4IHzWf) (:text |:default) (:type :leaf)
+                    |h $ {} (:at 1681145755183) (:by |rJG4IHzWf) (:text |ismobile) (:type :leaf)
       |app.main $ {}
         :configs $ {}
         :defs $ {}
@@ -1010,6 +1039,23 @@
                 :data $ {}
                   |T $ {} (:at 1677433200584) (:by |rJG4IHzWf) (:text |hint-fn) (:type :leaf)
                   |b $ {} (:at 1677433201589) (:by |rJG4IHzWf) (:text |async) (:type :leaf)
+              |mD $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:type :expr)
+                :data $ {}
+                  |T $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:text |if) (:type :leaf)
+                  |b $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:type :expr)
+                    :data $ {}
+                      |T $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:text |and) (:type :leaf)
+                      |b $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:text |bloom?) (:type :leaf)
+                      |h $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:type :expr)
+                        :data $ {}
+                          |T $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:text |not) (:type :leaf)
+                          |b $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:type :expr)
+                            :data $ {}
+                              |T $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:text |.-any) (:type :leaf)
+                              |b $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:text |mobile-info) (:type :leaf)
+                  |h $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:type :expr)
+                    :data $ {}
+                      |T $ {} (:at 1681145805769) (:by |rJG4IHzWf) (:text |enableBloom) (:type :leaf)
               |mT $ {} (:at 1677605414138) (:by |rJG4IHzWf) (:type :expr)
                 :data $ {}
                   |T $ {} (:at 1677605414611) (:by |rJG4IHzWf) (:text |if) (:type :leaf)
@@ -1023,6 +1069,9 @@
                   |b $ {} (:at 1677433401569) (:by |rJG4IHzWf) (:type :expr)
                     :data $ {}
                       |T $ {} (:at 1677433216378) (:by |rJG4IHzWf) (:text |initializeContext) (:type :leaf)
+              |nD $ {} (:at 1681145795219) (:by |rJG4IHzWf) (:type :expr)
+                :data $ {}
+                  |T $ {} (:at 1681145795219) (:by |rJG4IHzWf) (:text |initializeCanvasTextures) (:type :leaf)
               |nT $ {} (:at 1680375075869) (:by |rJG4IHzWf) (:type :expr)
                 :data $ {}
                   |T $ {} (:at 1680375116827) (:by |rJG4IHzWf) (:text |reset-clear-color!) (:type :leaf)
@@ -1058,8 +1107,7 @@
                   |h $ {} (:at 1677433330679) (:by |rJG4IHzWf) (:text |onControlEvent) (:type :leaf)
               |tT $ {} (:at 1677607896853) (:by |rJG4IHzWf) (:type :expr)
                 :data $ {}
-                  |T $ {} (:at 1677607917317) (:by |rJG4IHzWf) (:text |set!) (:type :leaf)
-                  |b $ {} (:at 1677607931417) (:by |rJG4IHzWf) (:text |js/window.__lagopusHandleCompilationInfo) (:type :leaf)
+                  |T $ {} (:at 1681145788468) (:by |rJG4IHzWf) (:text |registerShaderResult) (:type :leaf)
                   |h $ {} (:at 1677607942741) (:by |rJG4IHzWf) (:text |handle-compilation) (:type :leaf)
               |u $ {} (:at 1677433332929) (:by |rJG4IHzWf) (:type :expr)
                 :data $ {}
@@ -1073,14 +1121,17 @@
                           |T $ {} (:at 1677604731253) (:by |rJG4IHzWf) (:text |e) (:type :leaf)
                       |e $ {} (:at 1679819899455) (:by |rJG4IHzWf) (:type :expr)
                         :data $ {}
-                          |T $ {} (:at 1679819904072) (:by |rJG4IHzWf) (:text |resetCanvasHeight) (:type :leaf)
+                          |T $ {} (:at 1681238559900) (:by |rJG4IHzWf) (:text |resetCanvasSize) (:type :leaf)
                           |b $ {} (:at 1679819936880) (:by |rJG4IHzWf) (:text |canvas) (:type :leaf)
+                      |f $ {} (:at 1681145884300) (:by |rJG4IHzWf) (:type :expr)
+                        :data $ {}
+                          |T $ {} (:at 1681145884300) (:by |rJG4IHzWf) (:text |initializeCanvasTextures) (:type :leaf)
                       |h $ {} (:at 1677433354368) (:by |rJG4IHzWf) (:type :expr)
                         :data $ {}
                           |T $ {} (:at 1678027099048) (:by |rJG4IHzWf) (:text |paintLagopusTree) (:type :leaf)
               |uD $ {} (:at 1679819952782) (:by |rJG4IHzWf) (:type :expr)
                 :data $ {}
-                  |T $ {} (:at 1679819952782) (:by |rJG4IHzWf) (:text |resetCanvasHeight) (:type :leaf)
+                  |T $ {} (:at 1681238561691) (:by |rJG4IHzWf) (:text |resetCanvasSize) (:type :leaf)
                   |b $ {} (:at 1679819952782) (:by |rJG4IHzWf) (:text |canvas) (:type :leaf)
               |uT $ {} (:at 1677948445310) (:by |rJG4IHzWf) (:type :expr)
                 :data $ {}
@@ -1205,7 +1256,10 @@
                         |h $ {} (:at 1678027026259) (:by |rJG4IHzWf) (:text |paintLagopusTree) (:type :leaf)
                         |l $ {} (:at 1678027030023) (:by |rJG4IHzWf) (:text |renderLagopusTree) (:type :leaf)
                         |o $ {} (:at 1678027037402) (:by |rJG4IHzWf) (:text |initializeContext) (:type :leaf)
-                        |q $ {} (:at 1679819906900) (:by |rJG4IHzWf) (:text |resetCanvasHeight) (:type :leaf)
+                        |q $ {} (:at 1681238564933) (:by |rJG4IHzWf) (:text |resetCanvasSize) (:type :leaf)
+                        |s $ {} (:at 1681145715065) (:by |rJG4IHzWf) (:text |initializeCanvasTextures) (:type :leaf)
+                        |t $ {} (:at 1681145719885) (:by |rJG4IHzWf) (:text |registerShaderResult) (:type :leaf)
+                        |u $ {} (:at 1681145723570) (:by |rJG4IHzWf) (:text |enableBloom) (:type :leaf)
                 |q $ {} (:at 1677433288307) (:by |rJG4IHzWf) (:type :expr)
                   :data $ {}
                     |T $ {} (:at 1677433295405) (:by |rJG4IHzWf) (:text "|\"@triadica/touch-control") (:type :leaf)
@@ -1221,6 +1275,8 @@
                     |h $ {} (:at 1677605457731) (:by |rJG4IHzWf) (:type :expr)
                       :data $ {}
                         |T $ {} (:at 1677605458461) (:by |rJG4IHzWf) (:text |dev?) (:type :leaf)
+                        |b $ {} (:at 1681145730287) (:by |rJG4IHzWf) (:text |mobile-info) (:type :leaf)
+                        |h $ {} (:at 1681145738513) (:by |rJG4IHzWf) (:text |bloom?) (:type :leaf)
                 |t $ {} (:at 1677608567728) (:by |rJG4IHzWf) (:type :expr)
                   :data $ {}
                     |T $ {} (:at 1677608568258) (:by |rJG4IHzWf) (:text "|\"bottom-tip") (:type :leaf)
