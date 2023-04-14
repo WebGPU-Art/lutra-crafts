@@ -46,9 +46,11 @@ fn vertex_main(
   var output: VertexOut;
 
   let y = position.y;
+  let ya = atan2(y, 160);
+  let yb = tan(ya * 2.0);
   let d = length(position);
-  let p1 = rotate_around(position, vec3(0,1,0), 0.08 * y);
-  let p2 = rotate_around(p1, vec3(1,0,0), 0.008 * y);
+  let p1 = rotate_around(position, vec3(0,1,0), 4.0 * yb);
+  let p2 = rotate_around(p1, vec3(1,0,0), 1.4 * ya);
 
   let p = transform_perspective(p2.xyz).point_position;
   let scale: f32 = 0.002;

@@ -9,10 +9,11 @@
         |comp-container $ quote
           defn comp-container (store)
             group nil
-              if (not hide-tabs?) (memof1-call comp-tabs)
+              ; if (not hide-tabs?) (memof1-call comp-tabs)
               case-default (:tab store) (group nil)
                 :cube $ comp-cubes
-                :helicoid $ comp-hyperbolic-helicoid
+                :helicoid $ comp-helicoid
+                :hyperbolic-helicoid $ comp-hyperbolic-helicoid (:tau store)
         |comp-tabs $ quote
           defn comp-tabs () $ group nil
             comp-button
@@ -27,6 +28,12 @@
                 :color $ [] 0.8 0.3 1 1
                 :size 20
               fn (e d!) (d! :tab :helicoid)
+            comp-button
+              {}
+                :position $ [] 80 200 0
+                :color $ [] 0.6 0.3 1 1
+                :size 20
+              fn (e d!) (d! :tab :hyperbolic-helicoid)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -38,7 +45,7 @@
           quaternion.core :refer $ c+
           app.comp.cube-combo :refer $ comp-cubes
           app.config :refer $ hide-tabs?
-          app.comp.helicoid :refer $ comp-hyperbolic-helicoid
+          app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -113,8 +120,26 @@
           "\"@calcit/std" :refer $ rand rand-shift
     |app.comp.helicoid $ {}
       :defs $ {}
-        |comp-hyperbolic-helicoid $ quote
-          defn comp-hyperbolic-helicoid () $ comp-plate
+        |build-01-grid $ quote
+          defn build-01-grid (size s)
+            -> (range-bothway size)
+              map $ fn (x)
+                -> (range-bothway size)
+                  map $ fn (y)
+                    let
+                        r $ * s (&/ 1 size)
+                        p0 $ [] (* r x) (* r y)
+                        p1 $ []
+                          * r $ inc x
+                          * r y
+                        p2 $ [] (* r x)
+                          * r $ inc y
+                        p3 $ []
+                          * r $ inc x
+                          * r $ inc y
+                      [] (&{} :position p0) (&{} :position p1) (&{} :position p2) (&{} :position p1) (&{} :position p2) (&{} :position p3)
+        |comp-helicoid $ quote
+          defn comp-helicoid () $ comp-plate
             {} (; :topology :line-strip)
               :shader $ inline-shader "\"helicoid"
               :iteration 120
@@ -123,10 +148,26 @@
               ; :x-direction $ [] 1 0 0
               ; :y-direction $ [] 0 1 0
               :chromatism 0.14
+        |comp-hyperbolic-helicoid $ quote
+          defn comp-hyperbolic-helicoid (tau)
+            group nil
+              object $ {} (:shader hyperbolic-helicoid-wgsl)
+                :topology $ do :triangle-list :line-strip
+                :attrs-list $ [] (:: :float32x2 :position)
+                :data $ build-01-grid 80 6
+                :add-uniform $ fn () (js-array tau 0 0 0)
+              compSlider
+                to-js-data $ {}
+                  :position $ [] 0 240 0
+                  :size 12
+                  :color $ [] 0.7 0.6 0.5 1.0
+                fn (delta d!)
+                  d! :tau $ + tau
+                    * 0.01 $ .-0 delta
       :ns $ quote
         ns app.comp.helicoid $ :require
           lagopus.alias :refer $ group object
-          "\"../shaders/cube-combo.wgsl" :default cube-combo-wgsl
+          "\"../shaders/hyperbolic-helicoid.wgsl" :default hyperbolic-helicoid-wgsl
           lagopus.comp.button :refer $ comp-button
           lagopus.comp.curves :refer $ comp-curves
           lagopus.comp.spots :refer $ comp-spots
@@ -135,6 +176,7 @@
           "\"@calcit/std" :refer $ rand rand-shift
           lagopus.comp.plate :refer $ comp-plate
           app.config :refer $ inline-shader
+          "\"@triadica/lagopus" :refer $ compSlider
     |app.config $ {}
       :defs $ {}
         |bloom? $ quote
@@ -153,7 +195,7 @@
     |app.main $ {}
       :defs $ {}
         |*store $ quote
-          defatom *store $ {} (:tab :helicoid)
+          defatom *store $ {} (:tab :hyperbolic-helicoid) (:tau 4.0)
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
@@ -164,6 +206,7 @@
                 next-store $ case-default op
                   do (js/console.warn ":unknown op" op data) store
                   :tab $ assoc store :tab data
+                  :tau $ assoc store :tau data
               if (not= next-store store) (reset! *store next-store)
         |main! $ quote
           defn main! () (hint-fn async)
