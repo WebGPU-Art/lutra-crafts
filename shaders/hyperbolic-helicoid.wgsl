@@ -2,11 +2,11 @@ struct UBO {
   cone_back_scale: f32,
   viewport_ratio: f32,
   look_distance: f32,
-  forward: vec3<f32>,
+  forward: vec3f,
   // direction up overhead, better unit vector
-  upward: vec3<f32>,
-  rightward: vec3<f32>,
-  camera_position: vec3<f32>,
+  upward: vec3f,
+  rightward: vec3f,
+  camera_position: vec3f,
   _pad: f32,
 
   tau: f32,
@@ -22,13 +22,13 @@ var<uniform> uniforms: UBO;
 // main
 
 struct VertexOut {
-  @builtin(position) position : vec4<f32>,
-  @location(0) original: vec3<f32>,
+  @builtin(position) position : vec4f,
+  @location(0) original: vec3f,
 };
 
 @vertex
 fn vertex_main(
-  @location(0) position: vec2<f32>,
+  @location(0) position: vec2f,
 ) -> VertexOut {
   var output: VertexOut;
   let u = position.x;
@@ -51,7 +51,7 @@ fn vertex_main(
 const limit: f32 = 0.9;
 
 @fragment
-fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4<f32> {
+fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
   let l = 0.1;
   return vec4(l, l, l, 0.8);
 }
