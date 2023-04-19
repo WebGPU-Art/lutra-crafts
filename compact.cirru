@@ -9,11 +9,12 @@
         |comp-container $ quote
           defn comp-container (store)
             group nil
-              ; if (not hide-tabs?) (memof1-call comp-tabs)
+              if (not hide-tabs?) (memof1-call comp-tabs)
               case-default (:tab store) (group nil)
                 :cube $ comp-cubes
                 :helicoid $ comp-helicoid
                 :hyperbolic-helicoid $ comp-hyperbolic-helicoid (:tau store)
+                :globe $ comp-globe
         |comp-tabs $ quote
           defn comp-tabs () $ group nil
             comp-button
@@ -34,6 +35,12 @@
                 :color $ [] 0.6 0.3 1 1
                 :size 20
               fn (e d!) (d! :tab :hyperbolic-helicoid)
+            comp-button
+              {}
+                :position $ [] 120 200 0
+                :color $ [] 0.3 0.9 0.5 1
+                :size 20
+              fn (e d!) (d! :tab :globe)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -46,6 +53,7 @@
           app.comp.cube-combo :refer $ comp-cubes
           app.config :refer $ hide-tabs?
           app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
+          app.comp.globe :refer $ comp-globe
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -118,6 +126,26 @@
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+
           "\"@calcit/std" :refer $ rand rand-shift
+    |app.comp.globe $ {}
+      :defs $ {}
+        |comp-globe $ quote
+          defn comp-globe () $ comp-sphere
+            {} (; :topology :line-strip) (:shader wgsl-globe) (:iteration 7) (:radius 1200)
+              :color $ [] 0.6 0.9 0.7
+        |wgsl-globe $ quote
+          def wgsl-globe $ inline-shader "\"globe"
+      :ns $ quote
+        ns app.comp.globe $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/cube-combo.wgsl" :default cube-combo-wgsl
+          lagopus.comp.button :refer $ comp-button
+          lagopus.comp.curves :refer $ comp-curves
+          lagopus.comp.spots :refer $ comp-spots
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+
+          "\"@calcit/std" :refer $ rand rand-shift
+          lagopus.comp.sphere :refer $ comp-sphere
+          app.config :refer $ inline-shader
     |app.comp.helicoid $ {}
       :defs $ {}
         |build-01-grid $ quote
