@@ -130,7 +130,7 @@
       :defs $ {}
         |comp-globe $ quote
           defn comp-globe () $ comp-sphere
-            {} (; :topology :line-strip) (:shader wgsl-globe) (:iteration 7) (:radius 1200)
+            {} (; :topology :line-strip) (:shader wgsl-globe) (:iteration 7) (:radius 1800)
               :color $ [] 0.6 0.9 0.7
         |wgsl-globe $ quote
           def wgsl-globe $ inline-shader "\"globe"

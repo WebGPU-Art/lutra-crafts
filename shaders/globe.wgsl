@@ -39,11 +39,12 @@ fn vertex_main(
   @location(1) idx: u32,
 ) -> VertexOut {
   var output: VertexOut;
-  let theta1 = atan2(position.y, 160);
+  var theta1 = atan2(position.y, 160);
+  theta1 = pow(theta1, 7.);
   let theta2 = atan2(position.x, position.z);
-  let a = noise2(vec2f(theta1, theta2) * 18.0);
-  let a2 = noise2(vec2f(theta1, theta2) * 3.0);
-  let b = max(1, (0.9 + a2 * 0.06 + a * 0.12));
+  let a = noise2(vec2f(theta1, theta2) * 40.0);
+  let a2 = noise2(vec2f(theta1, theta2) * 2.0);
+  let b = max(1, (0.9 + a2 * 0.1 + a * 0.06));
   let p1 = position * b;
   let p = transform_perspective(p1.xyz).point_position;
   let scale: f32 = 0.002;
@@ -52,7 +53,7 @@ fn vertex_main(
   output.idx = f32(idx);
   if (b <= 1.0) {
     output.color = vec3f(0.6, 0.6, 0.9);
-  } else if (b > 1.04) {
+  } else if (b > 1.03) {
     output.color = vec3f(1 , 1, 1);
   } else {
     output.color = vec3f(0.6, 0.7, 0.6);
