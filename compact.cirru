@@ -17,6 +17,25 @@
                   :helicoid $ comp-helicoid
                   :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh )
                   :globe $ comp-globe
+                  :fur $ comp-fur (>> states :fur)
+        |comp-fur $ quote
+          defn comp-fur (states)
+            comp-curves $ {} (:shader wgsl-fur)
+              :curves $ -> (range 200)
+                map $ fn (idx)
+                  let
+                      radian $ * 0.2 idx
+                      r $ * 0.8 (sqrt idx)
+                      base $ []
+                        * r $ cos radian 
+                        , 0
+                          * r $ sin radian 
+                    -> (range 100)
+                      map $ fn (hi)
+                        {}
+                          :position $ v+ base
+                            [] 0 (* 2 hi) 0
+                          :width 0.6
         |comp-tabs $ quote
           defn comp-tabs () $ group nil
             comp-button
@@ -43,15 +62,22 @@
                 :color $ [] 0.3 0.9 0.5 1
                 :size 20
               fn (e d!) (d! :tab :globe)
+            comp-button
+              {}
+                :position $ [] 160 200 0
+                :color $ [] 0.9 0.5 0.6 1
+                :size 20
+              fn (e d!) (d! :tab :fur)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/cube.wgsl" :default cube-wgsl
+          "\"../shaders/fur.wgsl" :default wgsl-fur
           lagopus.comp.button :refer $ comp-button
           lagopus.comp.curves :refer $ comp-curves
           lagopus.comp.spots :refer $ comp-spots
           memof.once :refer $ memof1-call
-          quaternion.core :refer $ c+
+          quaternion.core :refer $ c+ v+ &v+
           app.comp.cube-combo :refer $ comp-cubes
           app.config :refer $ hide-tabs?
           app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
@@ -233,7 +259,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :hyperbolic-helicoid
+            :tab :fur
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
