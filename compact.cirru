@@ -8,13 +8,15 @@
       :defs $ {}
         |comp-container $ quote
           defn comp-container (store)
-            group nil
-              if (not hide-tabs?) (memof1-call comp-tabs)
-              case-default (:tab store) (group nil)
-                :cube $ comp-cubes
-                :helicoid $ comp-helicoid
-                :hyperbolic-helicoid $ comp-hyperbolic-helicoid (:tau store)
-                :globe $ comp-globe
+            let
+                states $ :states store
+              group nil
+                if (not hide-tabs?) (memof1-call comp-tabs)
+                case-default (:tab store) (group nil)
+                  :cube $ comp-cubes
+                  :helicoid $ comp-helicoid
+                  :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh )
+                  :globe $ comp-globe
         |comp-tabs $ quote
           defn comp-tabs () $ group nil
             comp-button
@@ -54,6 +56,7 @@
           app.config :refer $ hide-tabs?
           app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
           app.comp.globe :refer $ comp-globe
+          lagopus.cursor :refer $ >>
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -177,21 +180,26 @@
               ; :y-direction $ [] 0 1 0
               :chromatism 0.14
         |comp-hyperbolic-helicoid $ quote
-          defn comp-hyperbolic-helicoid (tau)
-            group nil
-              object $ {} (:shader hyperbolic-helicoid-wgsl)
-                :topology $ do :triangle-list :line-strip
-                :attrs-list $ [] (:: :float32x2 :position)
-                :data $ build-01-grid 80 6
-                :add-uniform $ fn () (js-array tau 0 0 0)
-              compSlider
-                to-js-data $ {}
-                  :position $ [] 0 240 0
-                  :size 12
-                  :color $ [] 0.7 0.6 0.5 1.0
-                fn (delta d!)
-                  d! :tau $ + tau
-                    * 0.01 $ .-0 delta
+          defn comp-hyperbolic-helicoid (states)
+            let
+                cursor $ :cursor states
+                state $ either (:data states)
+                  {} $ :tau 4.0
+                tau $ :tau state
+              group nil
+                object $ {} (:shader hyperbolic-helicoid-wgsl)
+                  :topology $ do :triangle-list :line-strip
+                  :attrs-list $ [] (:: :float32x2 :position)
+                  :data $ build-01-grid 80 6
+                  :add-uniform $ fn () (js-array tau 0 0 0)
+                compSlider
+                  to-js-data $ {}
+                    :position $ [] 0 240 0
+                    :size 12
+                    :color $ [] 0.7 0.6 0.5 1.0
+                  fn (delta d!)
+                    d! cursor $ assoc state :tau
+                      + tau $ * 0.01 (.-0 delta)
       :ns $ quote
         ns app.comp.helicoid $ :require
           lagopus.alias :refer $ group object
@@ -223,7 +231,9 @@
     |app.main $ {}
       :defs $ {}
         |*store $ quote
-          defatom *store $ {} (:tab :hyperbolic-helicoid) (:tau 4.0)
+          defatom *store $ {}
+            :states $ {}
+            :tab :hyperbolic-helicoid
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
@@ -231,10 +241,7 @@
             if dev? $ js/console.log op data
             let
                 store @*store
-                next-store $ case-default op
-                  do (js/console.warn ":unknown op" op data) store
-                  :tab $ assoc store :tab data
-                  :tau $ assoc store :tau data
+                next-store $ if (list? op) (update-states store op data) (updater store op data)
               if (not= next-store store) (reset! *store next-store)
         |main! $ quote
           defn main! () (hint-fn async)
@@ -274,3 +281,14 @@
           "\"./calcit.build-errors" :default build-errors
           memof.once :refer $ reset-memof1-caches!
           lagopus.util :refer $ handle-compilation reset-clear-color!
+          lagopus.cursor :refer $ update-states
+          app.updater :refer $ updater
+    |app.updater $ {}
+      :defs $ {}
+        |updater $ quote
+          defn updater (store op data)
+            case-default op
+              do (js/console.warn ":unknown op" op data) store
+              :tab $ assoc store :tab data
+              :tau $ assoc store :tau data
+      :ns $ quote (ns app.updater)
