@@ -18,6 +18,7 @@
                   :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh )
                   :globe $ comp-globe
                   :fur $ comp-fur (>> states :fur)
+                  :petal-wireframe $ comp-petal-wireframe
         |comp-fur $ quote
           defn comp-fur (states)
             comp-curves $ {} (:shader wgsl-fur)
@@ -36,6 +37,31 @@
                           :position $ v+ base
                             [] 0 (* 2 hi) 0
                           :width 0.6
+        |comp-petal-wireframe $ quote
+          defn comp-petal-wireframe () $ let
+              large-frame $ fibo-grid-range 36
+              small-frame $ fibo-grid-range 20
+              lines $ -> large-frame
+                mapcat $ fn (x)
+                  map small-frame $ fn (y) ([] x y)
+            comp-curves $ {} (:shader wgsl-petal-wireframe)
+              :curves $ -> lines
+                map $ fn (pair)
+                  let
+                      from $ nth pair 0
+                      to $ nth pair 1
+                    map
+                      interoplate-line
+                        v-scale
+                          update from 1 $ fn (y) (* 0.6 y)
+                          , 230
+                        v-scale
+                          update to 1 $ fn (y)
+                            - (* 0.4 y) 0.8
+                          , 80
+                        , 4
+                      fn (p)
+                        {} (:position p) (:width 0.6)
         |comp-tabs $ quote
           defn comp-tabs () $ group nil
             comp-button
@@ -68,21 +94,38 @@
                 :color $ [] 0.9 0.5 0.6 1
                 :size 20
               fn (e d!) (d! :tab :fur)
+            comp-button
+              {}
+                :position $ [] 200 200 0
+                :color $ [] 0.0 0.5 0.6 1
+                :size 20
+              fn (e d!) (d! :tab :petal-wireframe)
+        |interoplate-line $ quote
+          defn interoplate-line (from to n)
+            ->
+              range $ inc n
+              map $ fn (i)
+                let
+                    a $ / i n
+                    b $ - 1 a
+                  v+ (v-scale from a) (v-scale to b)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/cube.wgsl" :default cube-wgsl
           "\"../shaders/fur.wgsl" :default wgsl-fur
+          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
           lagopus.comp.button :refer $ comp-button
           lagopus.comp.curves :refer $ comp-curves
           lagopus.comp.spots :refer $ comp-spots
           memof.once :refer $ memof1-call
-          quaternion.core :refer $ c+ v+ &v+
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length
           app.comp.cube-combo :refer $ comp-cubes
           app.config :refer $ hide-tabs?
           app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
           app.comp.globe :refer $ comp-globe
           lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
