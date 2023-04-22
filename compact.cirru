@@ -6,12 +6,35 @@
   :files $ {}
     |app.comp.container $ {}
       :defs $ {}
+        |build-quadratic-curve $ quote
+          defn build-quadratic-curve (p q step gravity) (println "\"args" p q step gravity)
+            let
+                v $ &v- q p
+                l $ v-length v
+                dd $ &/ l step
+                size $ js/Math.floor dd
+                left $ &* 0.5
+                  - l $ &* size step
+                unit $ v-normalize v
+                dist $ ->
+                  range $ inc size
+                  map $ fn (idx)
+                    + left $ * idx step
+                l-middle $ * 0.25 l l
+              -> dist $ map
+                fn (ratio)
+                  let
+                      s $ js/Math.abs
+                        &- ratio $ &* 0.5 l
+                    &v+
+                      &v+ p $ v-scale unit ratio
+                      v-scale gravity $ &- l-middle (pow s 2)
         |comp-container $ quote
           defn comp-container (store)
             let
                 states $ :states store
               group nil
-                if (not hide-tabs?) (memof1-call comp-tabs)
+                ; if (not hide-tabs?) (memof1-call comp-tabs)
                 case-default (:tab store) (group nil)
                   :cube $ comp-cubes
                   :helicoid $ comp-helicoid
@@ -39,8 +62,8 @@
                           :width 0.6
         |comp-petal-wireframe $ quote
           defn comp-petal-wireframe () $ let
-              large-frame $ fibo-grid-range 36
-              small-frame $ fibo-grid-range 20
+              large-frame $ fibo-grid-range 48
+              small-frame $ fibo-grid-range 12
               lines $ -> large-frame
                 mapcat $ fn (x)
                   map small-frame $ fn (y) ([] x y)
@@ -50,18 +73,17 @@
                   let
                       from $ nth pair 0
                       to $ nth pair 1
-                    map
-                      interoplate-line
+                      points $ build-quadratic-curve
                         v-scale
-                          update from 1 $ fn (y) (* 0.6 y)
-                          , 230
+                          update from 1 $ fn (y) (* 0.4 y)
+                          , 400
                         v-scale
                           update to 1 $ fn (y)
-                            - (* 0.4 y) 0.8
-                          , 80
-                        , 4
-                      fn (p)
-                        {} (:position p) (:width 0.6)
+                            - (* 0.4 y) 0.5
+                          , 180
+                        , 16 ([] 0 -0.0016 0)
+                    map points $ fn (p)
+                      {} (:position p) (:width 1.)
         |comp-tabs $ quote
           defn comp-tabs () $ group nil
             comp-button
@@ -119,7 +141,7 @@
           lagopus.comp.curves :refer $ comp-curves
           lagopus.comp.spots :refer $ comp-spots
           memof.once :refer $ memof1-call
-          quaternion.core :refer $ c+ v+ &v+ v-scale v-length
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize
           app.comp.cube-combo :refer $ comp-cubes
           app.config :refer $ hide-tabs?
           app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
@@ -302,7 +324,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :fur
+            :tab :petal-wireframe
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote

@@ -66,6 +66,6 @@ const limit: f32 = 48.0;
 @fragment
 fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
   // return vec4f(vtx_out.color, 1.0);
-  let l = length(vtx_out.original.xzy);
-  return vec4(0.7, 0.6, 0.5, pow(l, 1.6) * 0.00016);
+  let l = length(vec3f(vtx_out.original.xz, vtx_out.original.y + 100));
+  return vec4(0.7, 0.6, 0.5, pow(l, 1.8) * 0.00003);
 }
