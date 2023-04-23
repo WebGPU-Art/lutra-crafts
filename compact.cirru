@@ -342,7 +342,8 @@
             if dev? $ load-console-formatter!
             js-await $ initializeContext
             initializeCanvasTextures
-            reset-clear-color! $ {} (:r 0) (:g 0) (:b 0) (:a 0.16)
+            reset-clear-color! $ either bg-color
+              {} (:r 0) (:g 0) (:b 0) (:a 0.16)
             render-app!
             renderControl
             startControlLoop 10 onControlEvent
@@ -367,6 +368,7 @@
           app.comp.container :refer $ comp-container
           "\"@triadica/lagopus" :refer $ setupMouseEvents onControlEvent paintLagopusTree renderLagopusTree initializeContext resetCanvasSize initializeCanvasTextures registerShaderResult enableBloom
           "\"@triadica/touch-control" :refer $ renderControl startControlLoop
+          lagopus.config :refer $ bg-color
           app.config :refer $ dev? mobile-info bloom?
           "\"bottom-tip" :default hud!
           "\"./calcit.build-errors" :default build-errors
