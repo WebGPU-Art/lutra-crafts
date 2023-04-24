@@ -7,7 +7,7 @@
     |app.comp.container $ {}
       :defs $ {}
         |build-quadratic-curve $ quote
-          defn build-quadratic-curve (p q step gravity) (println "\"args" p q step gravity)
+          defn build-quadratic-curve (p q step gravity)
             let
                 v $ &v- q p
                 l $ v-length v
@@ -34,7 +34,7 @@
             let
                 states $ :states store
               group nil
-                ; if (not hide-tabs?) (memof1-call comp-tabs)
+                if (not hide-tabs?) (memof1-call comp-tabs)
                 case-default (:tab store) (group nil)
                   :cube $ comp-cubes
                   :helicoid $ comp-helicoid
@@ -42,6 +42,7 @@
                   :globe $ comp-globe
                   :fur $ comp-fur (>> states :fur)
                   :petal-wireframe $ comp-petal-wireframe
+                  :mums $ comp-mums
         |comp-fur $ quote
           defn comp-fur (states)
             comp-curves $ {} (:shader wgsl-fur)
@@ -60,6 +61,22 @@
                           :position $ v+ base
                             [] 0 (* 2 hi) 0
                           :width 0.6
+        |comp-mums $ quote
+          defn comp-mums () $ let
+              points $ fibo-grid-range 120
+            comp-curves $ {} (:shader wgsl-mums)
+              :curves $ -> points
+                map $ fn (p)
+                  let
+                      v $ v-scale p
+                        * 320 $ pow
+                          v-length $ assoc p 1 0
+                          , 3
+                    []
+                      {}
+                        :position $ v-scale v 0.04
+                        :width 3
+                      {} (:position v) (:width 3)
         |comp-petal-wireframe $ quote
           defn comp-petal-wireframe () $ let
               large-frame $ fibo-grid-range 48
@@ -122,6 +139,12 @@
                 :color $ [] 0.0 0.5 0.6 1
                 :size 20
               fn (e d!) (d! :tab :petal-wireframe)
+            comp-button
+              {}
+                :position $ [] 240 200 0
+                :color $ [] 0.9 0.5 0.6 1
+                :size 20
+              fn (e d!) (d! :tab :mums)
         |interoplate-line $ quote
           defn interoplate-line (from to n)
             ->
@@ -137,6 +160,7 @@
           "\"../shaders/cube.wgsl" :default cube-wgsl
           "\"../shaders/fur.wgsl" :default wgsl-fur
           "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          "\"../shaders/mums.wgsl" :default wgsl-mums
           lagopus.comp.button :refer $ comp-button
           lagopus.comp.curves :refer $ comp-curves
           lagopus.comp.spots :refer $ comp-spots
