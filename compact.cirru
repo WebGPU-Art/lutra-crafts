@@ -69,14 +69,16 @@
                 map $ fn (p)
                   let
                       v $ v-scale p
-                        * 320 $ pow
+                        * 2 $ pow
                           v-length $ assoc p 1 0
                           , 3
-                    []
-                      {}
-                        :position $ v-scale v 0.04
-                        :width 3
-                      {} (:position v) (:width 3)
+                      path $ roll-curve v
+                        v-normalize $ v-cross ([] 0 1 0) v
+                        / 0.03 $ pow (v-length v) 2
+                    ; js/console.log path
+                    -> path $ map
+                      fn (p2)
+                        {} (:position p2) (:width 3)
         |comp-petal-wireframe $ quote
           defn comp-petal-wireframe () $ let
               large-frame $ fibo-grid-range 48
@@ -154,6 +156,23 @@
                     a $ / i n
                     b $ - 1 a
                   v+ (v-scale from a) (v-scale to b)
+        |roll-curve $ quote
+          defn roll-curve (v0 axis delta)
+            let
+                steps 80
+                dt 2
+                p0 $ [] 0 0 0
+              apply-args
+                  []
+                  , p0 v0 0
+                fn (acc position v s)
+                  if (>= s steps) (conj acc position)
+                    let
+                        rotate $ rotate-3d-fn ([] 0 0 0) axis
+                          pow (* s delta) 5
+                        next $ v+ position (v-scale v dt)
+                        v-next $ rotate v
+                      recur (conj acc position) next v-next (inc s) 
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -165,13 +184,13 @@
           lagopus.comp.curves :refer $ comp-curves
           lagopus.comp.spots :refer $ comp-spots
           memof.once :refer $ memof1-call
-          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
           app.comp.cube-combo :refer $ comp-cubes
           app.config :refer $ hide-tabs?
           app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
           app.comp.globe :refer $ comp-globe
           lagopus.cursor :refer $ >>
-          lagopus.math :refer $ fibo-grid-range
+          lagopus.math :refer $ fibo-grid-range rotate-3d-fn
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
