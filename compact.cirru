@@ -78,7 +78,7 @@
                     ; js/console.log path
                     -> path $ map
                       fn (p2)
-                        {} (:position p2) (:width 3)
+                        {} (:position p2) (:width 6)
         |comp-petal-wireframe $ quote
           defn comp-petal-wireframe () $ let
               large-frame $ fibo-grid-range 48
@@ -166,12 +166,12 @@
                   []
                   , p0 v0 0
                 fn (acc position v s)
-                  if (>= s steps) (conj acc position)
+                  if (&>= s steps) (conj acc position)
                     let
-                        rotate $ rotate-3d-fn ([] 0 0 0) axis
-                          pow (* s delta) 5
-                        next $ v+ position (v-scale v dt)
-                        v-next $ rotate v
+                        v-next $ rotate-3d ([] 0 0 0) axis
+                          pow (&* s delta) 5
+                          , v
+                        next $ &v+ position (v-scale v dt)
                       recur (conj acc position) next v-next (inc s) 
       :ns $ quote
         ns app.comp.container $ :require
@@ -190,7 +190,7 @@
           app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
           app.comp.globe :refer $ comp-globe
           lagopus.cursor :refer $ >>
-          lagopus.math :refer $ fibo-grid-range rotate-3d-fn
+          lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
