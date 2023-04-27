@@ -7,7 +7,7 @@
     |app.comp.container $ {}
       :defs $ {}
         |build-quadratic-curve $ quote
-          defn build-quadratic-curve (p q step gravity) (println "\"args" p q step gravity)
+          defn build-quadratic-curve (p q step gravity)
             let
                 v $ &v- q p
                 l $ v-length v
@@ -34,7 +34,7 @@
             let
                 states $ :states store
               group nil
-                ; if (not hide-tabs?) (memof1-call comp-tabs)
+                if (not hide-tabs?) (memof1-call comp-tabs)
                 case-default (:tab store) (group nil)
                   :cube $ comp-cubes
                   :helicoid $ comp-helicoid
@@ -42,6 +42,7 @@
                   :globe $ comp-globe
                   :fur $ comp-fur (>> states :fur)
                   :petal-wireframe $ comp-petal-wireframe
+                  :mums $ comp-mums
         |comp-fur $ quote
           defn comp-fur (states)
             comp-curves $ {} (:shader wgsl-fur)
@@ -60,6 +61,24 @@
                           :position $ v+ base
                             [] 0 (* 2 hi) 0
                           :width 0.6
+        |comp-mums $ quote
+          defn comp-mums () $ let
+              points $ fibo-grid-range 120
+            comp-curves $ {} (:shader wgsl-mums)
+              :curves $ -> points
+                map $ fn (p)
+                  let
+                      v $ v-scale p
+                        * 2 $ pow
+                          v-length $ assoc p 1 0
+                          , 3
+                      path $ roll-curve v
+                        v-normalize $ v-cross ([] 0 1 0) v
+                        / 0.03 $ pow (v-length v) 2
+                    ; js/console.log path
+                    -> path $ map
+                      fn (p2)
+                        {} (:position p2) (:width 6)
         |comp-petal-wireframe $ quote
           defn comp-petal-wireframe () $ let
               large-frame $ fibo-grid-range 48
@@ -122,6 +141,12 @@
                 :color $ [] 0.0 0.5 0.6 1
                 :size 20
               fn (e d!) (d! :tab :petal-wireframe)
+            comp-button
+              {}
+                :position $ [] 240 200 0
+                :color $ [] 0.9 0.5 0.6 1
+                :size 20
+              fn (e d!) (d! :tab :mums)
         |interoplate-line $ quote
           defn interoplate-line (from to n)
             ->
@@ -131,23 +156,41 @@
                     a $ / i n
                     b $ - 1 a
                   v+ (v-scale from a) (v-scale to b)
+        |roll-curve $ quote
+          defn roll-curve (v0 axis delta)
+            let
+                steps 80
+                dt 2
+                p0 $ [] 0 0 0
+              apply-args
+                  []
+                  , p0 v0 0
+                fn (acc position v s)
+                  if (&>= s steps) (conj acc position)
+                    let
+                        v-next $ rotate-3d ([] 0 0 0) axis
+                          pow (&* s delta) 5
+                          , v
+                        next $ &v+ position (v-scale v dt)
+                      recur (conj acc position) next v-next (inc s) 
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/cube.wgsl" :default cube-wgsl
           "\"../shaders/fur.wgsl" :default wgsl-fur
           "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          "\"../shaders/mums.wgsl" :default wgsl-mums
           lagopus.comp.button :refer $ comp-button
           lagopus.comp.curves :refer $ comp-curves
           lagopus.comp.spots :refer $ comp-spots
           memof.once :refer $ memof1-call
-          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
           app.comp.cube-combo :refer $ comp-cubes
           app.config :refer $ hide-tabs?
           app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
           app.comp.globe :refer $ comp-globe
           lagopus.cursor :refer $ >>
-          lagopus.math :refer $ fibo-grid-range
+          lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
