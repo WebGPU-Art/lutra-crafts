@@ -20,6 +20,7 @@
                   :fur $ comp-fur (>> states :fur)
                   :petal-wireframe $ comp-petal-wireframe
                   :mums $ comp-mums
+                  :flower-ball $ comp-flower-ball
         |comp-fur $ quote
           defn comp-fur (states)
             comp-curves $ {} (:shader wgsl-fur)
@@ -82,6 +83,12 @@
                 :color $ [] 0.9 0.5 0.6 1
                 :size 20
               fn (e d!) (d! :tab :mums)
+            comp-button
+              {}
+                :position $ [] 280 200 0
+                :color $ [] 0.3 0.9 0.3 1
+                :size 20
+              fn (e d!) (d! :tab :flower-ball)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -100,6 +107,7 @@
           lagopus.math :refer $ fibo-grid-range rotate-3d
           app.comp.mums :refer $ comp-mums
           app.comp.patels :refer $ comp-petal-wireframe
+          app.comp.flower-ball :refer $ comp-flower-ball
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -172,6 +180,75 @@
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+
           "\"@calcit/std" :refer $ rand rand-shift
+    |app.comp.flower-ball $ {}
+      :defs $ {}
+        |build-umbrella $ quote
+          defn build-umbrella (p0 v0 relative parts elevation decay step)
+            []
+              {} (:from p0) (:line v0)
+              if (<= step 0) ([])
+                let
+                    forward $ v-normalize v0
+                    rightward $ v-normalize (v-cross v0 relative)
+                    upward $ v-normalize (v-cross rightward v0)
+                    l0 $ v-length v0
+                    line0 $ v-scale
+                      v+
+                        v-scale forward (cos elevation) 
+                        v-scale upward (sin elevation) 
+                      * l0 decay
+                    p-next $ v+ p0 v0
+                    theta0 $ / (* 2 &PI) parts
+                    lines $ -> (range parts)
+                      map $ fn (idx)
+                        rotate-3d ([] 0 0 0) forward (* theta0 idx) line0 
+                    branches $ -> lines
+                      map $ fn (line)
+                        []
+                          {} (:from p-next) (:line line)
+                          build-umbrella p-next line v0 parts elevation decay $ dec step
+                  [] branches
+                    {}
+                      :from $ v+ p0 v0
+                      :line $ v-scale v0 decay
+                    build-umbrella p-next (v-scale v0 decay) relative parts elevation decay $ dec step
+        |comp-flower-ball $ quote
+          defn comp-flower-ball () $ let
+              origin $ [] 0 0 0
+              parts 5
+              elevation $ * &PI 0.2
+              decay 0.75
+              iteration 4
+              ps $ ->
+                []
+                  [] ([] 0 80 0) ([] 0 0 1)
+                  [] ([] 0 -80 0) ([] 0 0 1)
+                  [] ([] 80 0 0) ([] 0 1 0)
+                  [] ([] -80 0 0) ([] 0 1 0)
+                  [] ([] 0 0 80) ([] 0 1 0)
+                  [] ([] 0 0 -80) ([] 0 1 0)
+                map $ fn (pair)
+                  build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration
+            ; js/console.log $ .flatten ps
+            comp-curves $ {} (; :shader wgsl-petal-wireframe)
+              :curves $ -> ps (.flatten)
+                map $ fn (info)
+                  let
+                      from $ :from info
+                      to $ v+ from (:line info)
+                    []
+                      {} (:position from) (:width 3)
+                      {} (:position to) (:width 0)
+      :ns $ quote
+        ns app.comp.flower-ball $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          lagopus.comp.curves :refer $ comp-curves
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.globe $ {}
       :defs $ {}
         |comp-globe $ quote
@@ -381,7 +458,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :petal-wireframe
+            :tab :flower-ball
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
