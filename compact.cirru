@@ -186,22 +186,22 @@
           defn build-umbrella (p0 v0 relative parts elevation decay step)
             []
               {} (:from p0) (:line v0)
-              if (<= step 0) ([])
+              if (&<= step 0) ([])
                 let
                     forward $ v-normalize v0
                     rightward $ v-normalize (v-cross v0 relative)
                     upward $ v-normalize (v-cross rightward v0)
                     l0 $ v-length v0
                     line0 $ v-scale
-                      v+
+                      &v+
                         v-scale forward (cos elevation) 
                         v-scale upward (sin elevation) 
-                      * l0 decay
-                    p-next $ v+ p0 v0
-                    theta0 $ / (* 2 &PI) parts
+                      &* l0 decay
+                    p-next $ &v+ p0 v0
+                    theta0 $ &/ (&* 2 &PI) parts
                     lines $ -> (range parts)
                       map $ fn (idx)
-                        rotate-3d ([] 0 0 0) forward (* theta0 idx) line0 
+                        rotate-3d ([] 0 0 0) forward (&* theta0 idx) line0 
                     branches $ -> lines
                       map $ fn (line)
                         []
@@ -209,40 +209,40 @@
                           build-umbrella p-next line v0 parts elevation decay $ dec step
                   [] branches
                     {}
-                      :from $ v+ p0 v0
+                      :from $ &v+ p0 v0
                       :line $ v-scale v0 decay
                     build-umbrella p-next (v-scale v0 decay) relative parts elevation decay $ dec step
         |comp-flower-ball $ quote
           defn comp-flower-ball () $ let
               origin $ [] 0 0 0
-              parts 5
-              elevation $ * &PI 0.2
-              decay 0.75
+              parts 8
+              elevation $ * &PI 0.5
+              decay 0.44
               iteration 4
               ps $ ->
                 []
-                  [] ([] 0 80 0) ([] 0 0 1)
-                  [] ([] 0 -80 0) ([] 0 0 1)
-                  [] ([] 80 0 0) ([] 0 1 0)
-                  [] ([] -80 0 0) ([] 0 1 0)
-                  [] ([] 0 0 80) ([] 0 1 0)
-                  [] ([] 0 0 -80) ([] 0 1 0)
+                  [] ([] 0 200 0) ([] 0 0 1)
+                  [] ([] 0 -200 0) ([] 0 0 1)
+                  [] ([] 200 0 0) ([] 0 1 0)
+                  [] ([] -200 0 0) ([] 0 1 0)
+                  [] ([] 0 0 200) ([] 0 1 0)
+                  [] ([] 0 0 -200) ([] 0 1 0)
                 map $ fn (pair)
                   build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration
             ; js/console.log $ .flatten ps
-            comp-curves $ {} (; :shader wgsl-petal-wireframe)
+            comp-curves $ {} (:shader wgsl-flower-ball)
               :curves $ -> ps (.flatten)
                 map $ fn (info)
                   let
                       from $ :from info
                       to $ v+ from (:line info)
                     []
-                      {} (:position from) (:width 3)
-                      {} (:position to) (:width 0)
+                      {} (:position from) (:width 1)
+                      {} (:position to) (:width 1)
       :ns $ quote
         ns app.comp.flower-ball $ :require
           lagopus.alias :refer $ group object
-          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          "\"../shaders/flower-ball.wgsl" :default wgsl-flower-ball
           lagopus.comp.curves :refer $ comp-curves
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
