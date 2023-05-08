@@ -6,29 +6,6 @@
   :files $ {}
     |app.comp.container $ {}
       :defs $ {}
-        |build-quadratic-curve $ quote
-          defn build-quadratic-curve (p q step gravity)
-            let
-                v $ &v- q p
-                l $ v-length v
-                dd $ &/ l step
-                size $ js/Math.floor dd
-                left $ &* 0.5
-                  - l $ &* size step
-                unit $ v-normalize v
-                dist $ ->
-                  range $ inc size
-                  map $ fn (idx)
-                    + left $ * idx step
-                l-middle $ * 0.25 l l
-              -> dist $ map
-                fn (ratio)
-                  let
-                      s $ js/Math.abs
-                        &- ratio $ &* 0.5 l
-                    &v+
-                      &v+ p $ v-scale unit ratio
-                      v-scale gravity $ &- l-middle (pow s 2)
         |comp-container $ quote
           defn comp-container (store)
             let
@@ -43,6 +20,7 @@
                   :fur $ comp-fur (>> states :fur)
                   :petal-wireframe $ comp-petal-wireframe
                   :mums $ comp-mums
+                  :flower-ball $ comp-flower-ball
         |comp-fur $ quote
           defn comp-fur (states)
             comp-curves $ {} (:shader wgsl-fur)
@@ -61,48 +39,6 @@
                           :position $ v+ base
                             [] 0 (* 2 hi) 0
                           :width 0.6
-        |comp-mums $ quote
-          defn comp-mums () $ let
-              points $ fibo-grid-range 120
-            comp-curves $ {} (:shader wgsl-mums)
-              :curves $ -> points
-                map $ fn (p)
-                  let
-                      v $ v-scale p
-                        * 2 $ pow
-                          v-length $ assoc p 1 0
-                          , 3
-                      path $ roll-curve v
-                        v-normalize $ v-cross ([] 0 1 0) v
-                        / 0.03 $ pow (v-length v) 2
-                    ; js/console.log path
-                    -> path $ map
-                      fn (p2)
-                        {} (:position p2) (:width 6)
-        |comp-petal-wireframe $ quote
-          defn comp-petal-wireframe () $ let
-              large-frame $ fibo-grid-range 48
-              small-frame $ fibo-grid-range 12
-              lines $ -> large-frame
-                mapcat $ fn (x)
-                  map small-frame $ fn (y) ([] x y)
-            comp-curves $ {} (:shader wgsl-petal-wireframe)
-              :curves $ -> lines
-                map $ fn (pair)
-                  let
-                      from $ nth pair 0
-                      to $ nth pair 1
-                      points $ build-quadratic-curve
-                        v-scale
-                          update from 1 $ fn (y) (* 0.4 y)
-                          , 400
-                        v-scale
-                          update to 1 $ fn (y)
-                            - (* 0.4 y) 0.5
-                          , 180
-                        , 16 ([] 0 -0.0016 0)
-                    map points $ fn (p)
-                      {} (:position p) (:width 1.)
         |comp-tabs $ quote
           defn comp-tabs () $ group nil
             comp-button
@@ -147,39 +83,17 @@
                 :color $ [] 0.9 0.5 0.6 1
                 :size 20
               fn (e d!) (d! :tab :mums)
-        |interoplate-line $ quote
-          defn interoplate-line (from to n)
-            ->
-              range $ inc n
-              map $ fn (i)
-                let
-                    a $ / i n
-                    b $ - 1 a
-                  v+ (v-scale from a) (v-scale to b)
-        |roll-curve $ quote
-          defn roll-curve (v0 axis delta)
-            let
-                steps 80
-                dt 2
-                p0 $ [] 0 0 0
-              apply-args
-                  []
-                  , p0 v0 0
-                fn (acc position v s)
-                  if (&>= s steps) (conj acc position)
-                    let
-                        v-next $ rotate-3d ([] 0 0 0) axis
-                          pow (&* s delta) 5
-                          , v
-                        next $ &v+ position (v-scale v dt)
-                      recur (conj acc position) next v-next (inc s) 
+            comp-button
+              {}
+                :position $ [] 280 200 0
+                :color $ [] 0.3 0.9 0.3 1
+                :size 20
+              fn (e d!) (d! :tab :flower-ball)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/cube.wgsl" :default cube-wgsl
           "\"../shaders/fur.wgsl" :default wgsl-fur
-          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
-          "\"../shaders/mums.wgsl" :default wgsl-mums
           lagopus.comp.button :refer $ comp-button
           lagopus.comp.curves :refer $ comp-curves
           lagopus.comp.spots :refer $ comp-spots
@@ -191,6 +105,9 @@
           app.comp.globe :refer $ comp-globe
           lagopus.cursor :refer $ >>
           lagopus.math :refer $ fibo-grid-range rotate-3d
+          app.comp.mums :refer $ comp-mums
+          app.comp.patels :refer $ comp-petal-wireframe
+          app.comp.flower-ball :refer $ comp-flower-ball
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -263,6 +180,75 @@
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+
           "\"@calcit/std" :refer $ rand rand-shift
+    |app.comp.flower-ball $ {}
+      :defs $ {}
+        |build-umbrella $ quote
+          defn build-umbrella (p0 v0 relative parts elevation decay step)
+            []
+              {} (:from p0) (:line v0)
+              if (&<= step 0) ([])
+                let
+                    forward $ v-normalize v0
+                    rightward $ v-normalize (v-cross v0 relative)
+                    upward $ v-normalize (v-cross rightward v0)
+                    l0 $ v-length v0
+                    line0 $ v-scale
+                      &v+
+                        v-scale forward (cos elevation) 
+                        v-scale upward (sin elevation) 
+                      &* l0 decay
+                    p-next $ &v+ p0 v0
+                    theta0 $ &/ (&* 2 &PI) parts
+                    lines $ -> (range parts)
+                      map $ fn (idx)
+                        rotate-3d ([] 0 0 0) forward (&* theta0 idx) line0 
+                    branches $ -> lines
+                      map $ fn (line)
+                        []
+                          {} (:from p-next) (:line line)
+                          build-umbrella p-next line v0 parts elevation decay $ dec step
+                  [] branches
+                    {}
+                      :from $ &v+ p0 v0
+                      :line $ v-scale v0 decay
+                    build-umbrella p-next (v-scale v0 decay) relative parts elevation decay $ dec step
+        |comp-flower-ball $ quote
+          defn comp-flower-ball () $ let
+              origin $ [] 0 0 0
+              parts 8
+              elevation $ * &PI 0.5
+              decay 0.44
+              iteration 4
+              ps $ ->
+                []
+                  [] ([] 0 200 0) ([] 0 0 1)
+                  [] ([] 0 -200 0) ([] 0 0 1)
+                  [] ([] 200 0 0) ([] 0 1 0)
+                  [] ([] -200 0 0) ([] 0 1 0)
+                  [] ([] 0 0 200) ([] 0 1 0)
+                  [] ([] 0 0 -200) ([] 0 1 0)
+                map $ fn (pair)
+                  build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration
+            ; js/console.log $ .flatten ps
+            comp-curves $ {} (:shader wgsl-flower-ball)
+              :curves $ -> ps (.flatten)
+                map $ fn (info)
+                  let
+                      from $ :from info
+                      to $ v+ from (:line info)
+                    []
+                      {} (:position from) (:width 1)
+                      {} (:position to) (:width 1)
+      :ns $ quote
+        ns app.comp.flower-ball $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/flower-ball.wgsl" :default wgsl-flower-ball
+          lagopus.comp.curves :refer $ comp-curves
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.globe $ {}
       :defs $ {}
         |comp-globe $ quote
@@ -347,6 +333,111 @@
           lagopus.comp.plate :refer $ comp-plate
           app.config :refer $ inline-shader
           "\"@triadica/lagopus" :refer $ compSlider
+    |app.comp.mums $ {}
+      :defs $ {}
+        |comp-mums $ quote
+          defn comp-mums () $ let
+              points $ fibo-grid-range 120
+            comp-curves $ {} (:shader wgsl-mums)
+              :curves $ -> points
+                map $ fn (p)
+                  let
+                      v $ v-scale p
+                        * 2 $ pow
+                          v-length $ assoc p 1 0
+                          , 3
+                      path $ roll-curve v
+                        v-normalize $ v-cross ([] 0 1 0) v
+                        / 0.03 $ pow (v-length v) 2
+                    ; js/console.log path
+                    -> path $ map
+                      fn (p2)
+                        {} (:position p2) (:width 6)
+        |roll-curve $ quote
+          defn roll-curve (v0 axis delta)
+            let
+                steps 80
+                dt 2
+                p0 $ [] 0 0 0
+              apply-args
+                  []
+                  , p0 v0 0
+                fn (acc position v s)
+                  if (&>= s steps) (conj acc position)
+                    let
+                        v-next $ rotate-3d ([] 0 0 0) axis
+                          pow (&* s delta) 5
+                          , v
+                        next $ &v+ position (v-scale v dt)
+                      recur (conj acc position) next v-next (inc s) 
+      :ns $ quote
+        ns app.comp.mums $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/mums.wgsl" :default wgsl-mums
+          lagopus.comp.curves :refer $ comp-curves
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.patels $ {}
+      :defs $ {}
+        |build-quadratic-curve $ quote
+          defn build-quadratic-curve (p q step gravity)
+            let
+                v $ &v- q p
+                l $ v-length v
+                dd $ &/ l step
+                size $ js/Math.floor dd
+                left $ &* 0.5
+                  - l $ &* size step
+                unit $ v-normalize v
+                dist $ ->
+                  range $ inc size
+                  map $ fn (idx)
+                    + left $ * idx step
+                l-middle $ * 0.25 l l
+              -> dist $ map
+                fn (ratio)
+                  let
+                      s $ js/Math.abs
+                        &- ratio $ &* 0.5 l
+                    &v+
+                      &v+ p $ v-scale unit ratio
+                      v-scale gravity $ &- l-middle (pow s 2)
+        |comp-petal-wireframe $ quote
+          defn comp-petal-wireframe () $ let
+              large-frame $ fibo-grid-range 48
+              small-frame $ fibo-grid-range 12
+              lines $ -> large-frame
+                mapcat $ fn (x)
+                  map small-frame $ fn (y) ([] x y)
+            comp-curves $ {} (:shader wgsl-petal-wireframe)
+              :curves $ -> lines
+                map $ fn (pair)
+                  let
+                      from $ nth pair 0
+                      to $ nth pair 1
+                      points $ build-quadratic-curve
+                        v-scale
+                          update from 1 $ fn (y) (* 0.4 y)
+                          , 400
+                        v-scale
+                          update to 1 $ fn (y)
+                            - (* 0.4 y) 0.5
+                          , 180
+                        , 16 ([] 0 -0.0016 0)
+                    map points $ fn (p)
+                      {} (:position p) (:width 1.)
+      :ns $ quote
+        ns app.comp.patels $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          lagopus.comp.curves :refer $ comp-curves
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.config $ {}
       :defs $ {}
         |bloom? $ quote
@@ -367,7 +458,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :petal-wireframe
+            :tab :flower-ball
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
@@ -428,3 +519,15 @@
               :tab $ assoc store :tab data
               :tau $ assoc store :tau data
       :ns $ quote (ns app.updater)
+    |app.util $ {}
+      :defs $ {}
+        |interoplate-line $ quote
+          defn interoplate-line (from to n)
+            ->
+              range $ inc n
+              map $ fn (i)
+                let
+                    a $ / i n
+                    b $ - 1 a
+                  v+ (v-scale from a) (v-scale to b)
+      :ns $ quote (ns app.util)
