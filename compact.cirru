@@ -215,10 +215,10 @@
         |comp-flower-ball $ quote
           defn comp-flower-ball () $ let
               origin $ [] 0 0 0
-              parts 8
-              elevation $ * &PI 0.5
-              decay 0.44
-              iteration 4
+              parts 6
+              elevation $ * &PI 0.23
+              decay 0.54
+              iteration 5
               ps $ ->
                 []
                   [] ([] 0 200 0) ([] 0 0 1)
@@ -337,39 +337,47 @@
       :defs $ {}
         |comp-mums $ quote
           defn comp-mums () $ let
-              points $ fibo-grid-range 120
+              points $ fibo-grid-range 400
             comp-curves $ {} (:shader wgsl-mums)
               :curves $ -> points
                 map $ fn (p)
                   let
                       v $ v-scale p
-                        * 2 $ pow
-                          v-length $ assoc p 1 0
-                          , 3
+                        * 2
+                          pow
+                            v-length $ assoc p 1 0
+                            , 3
+                          + 0.3 $ js/Math.random
                       path $ roll-curve v
                         v-normalize $ v-cross ([] 0 1 0) v
                         / 0.03 $ pow (v-length v) 2
                     ; js/console.log path
                     -> path $ map
                       fn (p2)
-                        {} (:position p2) (:width 6)
+                        {} (:position p2) (:width 2)
         |roll-curve $ quote
-          defn roll-curve (v0 axis delta)
+          defn roll-curve (v0 axis0 delta)
             let
                 steps 80
                 dt 2
                 p0 $ [] 0 0 0
+                ad $ [] (js/Math.random) (js/Math.random) (js/Math.random)
               apply-args
                   []
-                  , p0 v0 0
-                fn (acc position v s)
+                  , p0 v0 axis0 0
+                fn (acc position v axis s)
                   if (&>= s steps) (conj acc position)
                     let
                         v-next $ rotate-3d ([] 0 0 0) axis
-                          pow (&* s delta) 5
+                          -
+                            pow (&* s delta) 7
+                            , 0.008
                           , v
+                        axis-next $ rotate-3d ([] 0 0 0) ad
+                          pow (&* s 0.011) 8
+                          , axis
                         next $ &v+ position (v-scale v dt)
-                      recur (conj acc position) next v-next (inc s) 
+                      recur (conj acc position) next v-next axis-next (inc s) 
       :ns $ quote
         ns app.comp.mums $ :require
           lagopus.alias :refer $ group object
@@ -458,7 +466,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :flower-ball
+            :tab :mums
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
