@@ -4,6 +4,31 @@
     :modules $ [] |memof/ |quaternion/ |lagopus/
   :entries $ {}
   :files $ {}
+    |app.comp.blow $ {}
+      :defs $ {}
+        |comp-blow $ quote
+          defn comp-blow () $ let
+              points $ fibo-grid-range 800
+            comp-curves $ {} (:shader wgsl-blow)
+              :curves $ -> points
+                map $ fn (p)
+                  []
+                    {}
+                      :position $ v-scale p (rand-shift 40 40)
+                      :width 1
+                    {}
+                      :position $ v-scale p (rand-shift 600 100)
+                      :width 3
+      :ns $ quote
+        ns app.comp.blow $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/blow.wgsl" :default wgsl-blow
+          lagopus.comp.curves :refer $ comp-curves
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
+          "\"@calcit/std" :refer $ rand rand-shift
     |app.comp.container $ {}
       :defs $ {}
         |comp-container $ quote
@@ -21,6 +46,7 @@
                   :petal-wireframe $ comp-petal-wireframe
                   :mums $ comp-mums
                   :flower-ball $ comp-flower-ball
+                  :blow $ comp-blow
         |comp-fur $ quote
           defn comp-fur (states)
             comp-curves $ {} (:shader wgsl-fur)
@@ -89,6 +115,12 @@
                 :color $ [] 0.3 0.9 0.3 1
                 :size 20
               fn (e d!) (d! :tab :flower-ball)
+            comp-button
+              {}
+                :position $ [] 320 200 0
+                :color $ [] 0.4 0.9 0.6 1
+                :size 20
+              fn (e d!) (d! :tab :blow)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -108,6 +140,7 @@
           app.comp.mums :refer $ comp-mums
           app.comp.patels :refer $ comp-petal-wireframe
           app.comp.flower-ball :refer $ comp-flower-ball
+          app.comp.blow :refer $ comp-blow
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -466,7 +499,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :mums
+            :tab :blow
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
