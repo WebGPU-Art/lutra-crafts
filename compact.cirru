@@ -4,6 +4,31 @@
     :modules $ [] |memof/ |quaternion/ |lagopus/
   :entries $ {}
   :files $ {}
+    |app.comp.blow $ {}
+      :defs $ {}
+        |comp-blow $ quote
+          defn comp-blow () $ let
+              points $ fibo-grid-range 800
+            comp-curves $ {} (:shader wgsl-blow)
+              :curves $ -> points
+                map $ fn (p)
+                  []
+                    {}
+                      :position $ v-scale p (rand-shift 40 40)
+                      :width 1
+                    {}
+                      :position $ v-scale p (rand-shift 600 100)
+                      :width 3
+      :ns $ quote
+        ns app.comp.blow $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/blow.wgsl" :default wgsl-blow
+          lagopus.comp.curves :refer $ comp-curves
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
+          "\"@calcit/std" :refer $ rand rand-shift
     |app.comp.container $ {}
       :defs $ {}
         |comp-container $ quote
@@ -21,6 +46,7 @@
                   :petal-wireframe $ comp-petal-wireframe
                   :mums $ comp-mums
                   :flower-ball $ comp-flower-ball
+                  :blow $ comp-blow
         |comp-fur $ quote
           defn comp-fur (states)
             comp-curves $ {} (:shader wgsl-fur)
@@ -89,6 +115,12 @@
                 :color $ [] 0.3 0.9 0.3 1
                 :size 20
               fn (e d!) (d! :tab :flower-ball)
+            comp-button
+              {}
+                :position $ [] 320 200 0
+                :color $ [] 0.4 0.9 0.6 1
+                :size 20
+              fn (e d!) (d! :tab :blow)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -108,6 +140,7 @@
           app.comp.mums :refer $ comp-mums
           app.comp.patels :refer $ comp-petal-wireframe
           app.comp.flower-ball :refer $ comp-flower-ball
+          app.comp.blow :refer $ comp-blow
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -215,10 +248,10 @@
         |comp-flower-ball $ quote
           defn comp-flower-ball () $ let
               origin $ [] 0 0 0
-              parts 8
-              elevation $ * &PI 0.5
-              decay 0.44
-              iteration 4
+              parts 6
+              elevation $ * &PI 0.23
+              decay 0.54
+              iteration 5
               ps $ ->
                 []
                   [] ([] 0 200 0) ([] 0 0 1)
@@ -337,39 +370,47 @@
       :defs $ {}
         |comp-mums $ quote
           defn comp-mums () $ let
-              points $ fibo-grid-range 120
+              points $ fibo-grid-range 400
             comp-curves $ {} (:shader wgsl-mums)
               :curves $ -> points
                 map $ fn (p)
                   let
                       v $ v-scale p
-                        * 2 $ pow
-                          v-length $ assoc p 1 0
-                          , 3
+                        * 2
+                          pow
+                            v-length $ assoc p 1 0
+                            , 3
+                          + 0.3 $ js/Math.random
                       path $ roll-curve v
                         v-normalize $ v-cross ([] 0 1 0) v
                         / 0.03 $ pow (v-length v) 2
                     ; js/console.log path
                     -> path $ map
                       fn (p2)
-                        {} (:position p2) (:width 6)
+                        {} (:position p2) (:width 2)
         |roll-curve $ quote
-          defn roll-curve (v0 axis delta)
+          defn roll-curve (v0 axis0 delta)
             let
                 steps 80
                 dt 2
                 p0 $ [] 0 0 0
+                ad $ [] (js/Math.random) (js/Math.random) (js/Math.random)
               apply-args
                   []
-                  , p0 v0 0
-                fn (acc position v s)
+                  , p0 v0 axis0 0
+                fn (acc position v axis s)
                   if (&>= s steps) (conj acc position)
                     let
                         v-next $ rotate-3d ([] 0 0 0) axis
-                          pow (&* s delta) 5
+                          -
+                            pow (&* s delta) 7
+                            , 0.008
                           , v
+                        axis-next $ rotate-3d ([] 0 0 0) ad
+                          pow (&* s 0.011) 8
+                          , axis
                         next $ &v+ position (v-scale v dt)
-                      recur (conj acc position) next v-next (inc s) 
+                      recur (conj acc position) next v-next axis-next (inc s) 
       :ns $ quote
         ns app.comp.mums $ :require
           lagopus.alias :refer $ group object
@@ -458,7 +499,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :flower-ball
+            :tab :blow
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
