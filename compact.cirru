@@ -8,21 +8,35 @@
       :defs $ {}
         |comp-blow $ quote
           defn comp-blow () $ let
-              points $ fibo-grid-range 800
-            comp-curves $ {} (:shader wgsl-blow)
+              points $ fibo-grid-range 400
+              width 0.016
+            comp-curves $ {} (; :topology :line-list)
+              :shader $ str wgsl-hsluv wgsl-blow
               :curves $ -> points
-                map $ fn (p)
-                  []
-                    {}
-                      :position $ v-scale p (rand-shift 40 40)
-                      :width 1
-                    {}
-                      :position $ v-scale p (rand-shift 600 100)
-                      :width 3
+                mapcat $ fn (p)
+                  apply-args
+                      []
+                      rand 100
+                      , 4
+                    fn (acc a step)
+                      if (<= step 0) acc $ let
+                          l $ + 40 (rand 160)
+                          gap $ + 3 (rand 8)
+                        recur
+                          conj acc $ []
+                            {}
+                              :position $ v-scale p (+ gap a)
+                              :width $ * (+ gap a) width
+                            {}
+                              :position $ v-scale p (+ a gap l)
+                              :width $ * (+ a gap l) width
+                          + a gap l
+                          dec step
       :ns $ quote
         ns app.comp.blow $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/blow.wgsl" :default wgsl-blow
+          "\"../shaders/hsluv.wgsl" :default wgsl-hsluv
           lagopus.comp.curves :refer $ comp-curves
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
@@ -148,11 +162,7 @@
               cube-count 60
             object $ {} (:shader cube-combo-wgsl)
               :topology $ do :line-strip :triangle-list
-              :attrs-list $ []
-                {} (:field :position) (:format "\"float32x3")
-                {} (:field :metrics) (:format "\"float32x3")
-                {} (:field :idx) (:format "\"uint32")
-                {} (:field :offsets) (:format "\"float32x3")
+              :attrs-list $ [] (:: :float32x3 :position) (:: :float32x3 :metrics) (:: :uint32 :idx) (:: :float32x3 :offsets)
               :data $ -> (range cube-count)
                 map $ fn (idx)
                   let
@@ -345,19 +355,19 @@
                   :attrs-list $ [] (:: :float32x2 :position)
                   :data $ build-01-grid 80 6
                   :add-uniform $ fn () (js-array tau 0 0 0)
-                compSlider
-                  to-js-data $ {}
+                comp-slider
+                  {}
                     :position $ [] 0 240 0
                     :size 12
                     :color $ [] 0.7 0.6 0.5 1.0
                   fn (delta d!)
                     d! cursor $ assoc state :tau
-                      + tau $ * 0.01 (.-0 delta)
+                      + tau $ * 0.01 (nth delta 0)
       :ns $ quote
         ns app.comp.helicoid $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/hyperbolic-helicoid.wgsl" :default hyperbolic-helicoid-wgsl
-          lagopus.comp.button :refer $ comp-button
+          lagopus.comp.button :refer $ comp-button comp-slider
           lagopus.comp.curves :refer $ comp-curves
           lagopus.comp.spots :refer $ comp-spots
           memof.once :refer $ memof1-call
@@ -365,7 +375,6 @@
           "\"@calcit/std" :refer $ rand rand-shift
           lagopus.comp.plate :refer $ comp-plate
           app.config :refer $ inline-shader
-          "\"@triadica/lagopus" :refer $ compSlider
     |app.comp.mums $ {}
       :defs $ {}
         |comp-mums $ quote
@@ -518,7 +527,7 @@
             js-await $ initializeContext
             initializeCanvasTextures
             reset-clear-color! $ either bg-color
-              {} (:r 0) (:g 0) (:b 0) (:a 0.16)
+              {} (:r 0) (:g 0) (:b 0) (:a 0.2)
             render-app!
             renderControl
             startControlLoop 10 onControlEvent

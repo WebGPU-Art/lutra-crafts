@@ -18,6 +18,8 @@ var<uniform> uniforms: UBO;
 
 {{rand}}
 
+// helper
+
 // main
 
 struct VertexOut {
@@ -57,7 +59,8 @@ fn vertex_main(
   output.position = vec4(p[0]*scale, p[1]*scale, p[2]*scale, 1.0);
   output.original = position;
   output.ratio = curve_ratio;
-  output.color = hsl(rand(curve_ratio), 0.8, 0.7);
+  // output.color = hsl(rand(curve_ratio), 0.8, 0.7);
+  output.color = hsluvToRgb(vec3f(fract(rand(curve_ratio)) * 360, 100, 70));
 
   return output;
 }
@@ -68,6 +71,7 @@ const limit: f32 = 48.0;
 @fragment
 fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
   return vec4f(vtx_out.color, 1.0);
+  // return vec4f(0,0,0,1);
   // return vec4(0.8, 0.3, 0.2, 0.4 + 0.1 * pow(vtx_out.ratio, 2.0));
   // return vec4f(1,1,1,1);
 }
