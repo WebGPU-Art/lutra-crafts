@@ -43,11 +43,7 @@
                           |b $ {} (:at 1683738378834) (:by |rJG4IHzWf) (:type :expr)
                             :data $ {}
                               |T $ {} (:at 1683738378834) (:by |rJG4IHzWf) (:text |:shader) (:type :leaf)
-                              |b $ {} (:at 1683962418016) (:by |rJG4IHzWf) (:type :expr)
-                                :data $ {}
-                                  |D $ {} (:at 1683962418825) (:by |rJG4IHzWf) (:text |str) (:type :leaf)
-                                  |L $ {} (:at 1683962419721) (:by |rJG4IHzWf) (:text |wgsl-hsluv) (:type :leaf)
-                                  |T $ {} (:at 1683738855037) (:by |rJG4IHzWf) (:text |wgsl-blow) (:type :leaf)
+                              |b $ {} (:at 1683738855037) (:by |rJG4IHzWf) (:text |wgsl-blow) (:type :leaf)
                           |h $ {} (:at 1683738378834) (:by |rJG4IHzWf) (:type :expr)
                             :data $ {}
                               |T $ {} (:at 1683738378834) (:by |rJG4IHzWf) (:text |:curves) (:type :leaf)
@@ -217,11 +213,6 @@
                     |T $ {} (:at 1683738850884) (:by |rJG4IHzWf) (:text "|\"../shaders/blow.wgsl") (:type :leaf)
                     |b $ {} (:at 1683738388214) (:by |rJG4IHzWf) (:text |:default) (:type :leaf)
                     |h $ {} (:at 1683738853076) (:by |rJG4IHzWf) (:text |wgsl-blow) (:type :leaf)
-                |j $ {} (:at 1683738388214) (:by |rJG4IHzWf) (:type :expr)
-                  :data $ {}
-                    |T $ {} (:at 1683962411486) (:by |rJG4IHzWf) (:text "|\"../shaders/hsluv.wgsl") (:type :leaf)
-                    |b $ {} (:at 1683738388214) (:by |rJG4IHzWf) (:text |:default) (:type :leaf)
-                    |h $ {} (:at 1683962414214) (:by |rJG4IHzWf) (:text |wgsl-hsluv) (:type :leaf)
                 |l $ {} (:at 1683738388214) (:by |rJG4IHzWf) (:type :expr)
                   :data $ {}
                     |T $ {} (:at 1683738388214) (:by |rJG4IHzWf) (:text |lagopus.comp.curves) (:type :leaf)

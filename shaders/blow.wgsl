@@ -14,9 +14,9 @@ var<uniform> uniforms: UBO;
 
 {{perspective}}
 
-{{colors}}
-
 {{rand}}
+
+{{hsluv}}
 
 // helper
 

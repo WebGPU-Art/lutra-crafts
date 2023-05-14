@@ -10,8 +10,7 @@
           defn comp-blow () $ let
               points $ fibo-grid-range 400
               width 0.016
-            comp-curves $ {} (; :topology :line-list)
-              :shader $ str wgsl-hsluv wgsl-blow
+            comp-curves $ {} (; :topology :line-list) (:shader wgsl-blow)
               :curves $ -> points
                 mapcat $ fn (p)
                   apply-args
@@ -36,7 +35,6 @@
         ns app.comp.blow $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/blow.wgsl" :default wgsl-blow
-          "\"../shaders/hsluv.wgsl" :default wgsl-hsluv
           lagopus.comp.curves :refer $ comp-curves
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
