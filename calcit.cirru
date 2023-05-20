@@ -3676,6 +3676,15 @@
                 :data $ {}
                   |T $ {} (:at 1681145773199) (:by |rJG4IHzWf) (:text |ismobile) (:type :leaf)
                   |b $ {} (:at 1681145773199) (:by |rJG4IHzWf) (:text |js/window.navigator) (:type :leaf)
+          |remote-control? $ {} (:at 1684604938080) (:by |rJG4IHzWf) (:type :expr)
+            :data $ {}
+              |T $ {} (:at 1684604938080) (:by |rJG4IHzWf) (:text |def) (:type :leaf)
+              |b $ {} (:at 1684604938080) (:by |rJG4IHzWf) (:text |remote-control?) (:type :leaf)
+              |h $ {} (:at 1684604938080) (:by |rJG4IHzWf) (:type :expr)
+                :data $ {}
+                  |T $ {} (:at 1684604943075) (:by |rJG4IHzWf) (:text |get-env) (:type :leaf)
+                  |b $ {} (:at 1684604946737) (:by |rJG4IHzWf) (:text "|\"remote-control") (:type :leaf)
+                  |h $ {} (:at 1684604948443) (:by |rJG4IHzWf) (:text |nil) (:type :leaf)
         :ns $ {} (:at 1677605429745) (:by |rJG4IHzWf) (:type :expr)
           :data $ {}
             |T $ {} (:at 1677605429745) (:by |rJG4IHzWf) (:text |ns) (:type :leaf)
@@ -3904,6 +3913,13 @@
                 :data $ {}
                   |T $ {} (:at 1677932976564) (:by |rJG4IHzWf) (:text |setupMouseEvents) (:type :leaf)
                   |b $ {} (:at 1677932986654) (:by |rJG4IHzWf) (:text |canvas) (:type :leaf)
+              |w $ {} (:at 1684604918814) (:by |rJG4IHzWf) (:type :expr)
+                :data $ {}
+                  |T $ {} (:at 1684604919202) (:by |rJG4IHzWf) (:text |if) (:type :leaf)
+                  |b $ {} (:at 1684604922498) (:by |rJG4IHzWf) (:text |remote-control?) (:type :leaf)
+                  |h $ {} (:at 1684604923864) (:by |rJG4IHzWf) (:type :expr)
+                    :data $ {}
+                      |T $ {} (:at 1684604926770) (:by |rJG4IHzWf) (:text |setupRemoteControl) (:type :leaf)
           |reload! $ {} (:at 1677433362201) (:by |rJG4IHzWf) (:type :expr)
             :data $ {}
               |T $ {} (:at 1677433362201) (:by |rJG4IHzWf) (:text |defn) (:type :leaf)
@@ -4036,6 +4052,7 @@
                         |T $ {} (:at 1677605458461) (:by |rJG4IHzWf) (:text |dev?) (:type :leaf)
                         |b $ {} (:at 1681145730287) (:by |rJG4IHzWf) (:text |mobile-info) (:type :leaf)
                         |h $ {} (:at 1681145738513) (:by |rJG4IHzWf) (:text |bloom?) (:type :leaf)
+                        |l $ {} (:at 1684604933883) (:by |rJG4IHzWf) (:text |remote-control?) (:type :leaf)
                 |t $ {} (:at 1677608567728) (:by |rJG4IHzWf) (:type :expr)
                   :data $ {}
                     |T $ {} (:at 1677608568258) (:by |rJG4IHzWf) (:text "|\"bottom-tip") (:type :leaf)
@@ -4075,6 +4092,13 @@
                     |h $ {} (:at 1682011652375) (:by |rJG4IHzWf) (:type :expr)
                       :data $ {}
                         |T $ {} (:at 1682011653172) (:by |rJG4IHzWf) (:text |updater) (:type :leaf)
+                |z $ {} (:at 1684604978835) (:by |rJG4IHzWf) (:type :expr)
+                  :data $ {}
+                    |T $ {} (:at 1684604980170) (:by |rJG4IHzWf) (:text "|\"@triadica/lagopus/lib/remote-control.mjs") (:type :leaf)
+                    |b $ {} (:at 1684604987014) (:by |rJG4IHzWf) (:text |:refer) (:type :leaf)
+                    |h $ {} (:at 1684604987334) (:by |rJG4IHzWf) (:type :expr)
+                      :data $ {}
+                        |T $ {} (:at 1684604987609) (:by |rJG4IHzWf) (:text |setupRemoteControl) (:type :leaf)
       |app.updater $ {}
         :configs $ {}
         :defs $ {}

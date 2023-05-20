@@ -499,6 +499,8 @@
             read-file $ str "\"shaders/" path "\".wgsl"
         |mobile-info $ quote
           def mobile-info $ ismobile js/window.navigator
+        |remote-control? $ quote
+          def remote-control? $ get-env "\"remote-control" nil
       :ns $ quote
         ns app.config $ :require ("\"ismobilejs" :default ismobile)
     |app.main $ {}
@@ -534,6 +536,7 @@
             resetCanvasSize canvas
             add-watch *store :change $ fn (next store) (render-app!)
             setupMouseEvents canvas
+            if remote-control? $ setupRemoteControl
         |reload! $ quote
           defn reload! () $ if (nil? build-errors)
             do (reset-memof1-caches!) (render-app!) (remove-watch *store :change)
@@ -551,13 +554,14 @@
           "\"@triadica/lagopus" :refer $ setupMouseEvents onControlEvent paintLagopusTree renderLagopusTree initializeContext resetCanvasSize initializeCanvasTextures registerShaderResult enableBloom
           "\"@triadica/touch-control" :refer $ renderControl startControlLoop
           lagopus.config :refer $ bg-color
-          app.config :refer $ dev? mobile-info bloom?
+          app.config :refer $ dev? mobile-info bloom? remote-control?
           "\"bottom-tip" :default hud!
           "\"./calcit.build-errors" :default build-errors
           memof.once :refer $ reset-memof1-caches!
           lagopus.util :refer $ handle-compilation reset-clear-color!
           lagopus.cursor :refer $ update-states
           app.updater :refer $ updater
+          "\"@triadica/lagopus/lib/remote-control.mjs" :refer $ setupRemoteControl
     |app.updater $ {}
       :defs $ {}
         |updater $ quote
