@@ -250,11 +250,11 @@
         |comp-flower-ball $ quote
           defn comp-flower-ball () $ let
               origin $ [] 0 0 0
-              parts 4
-              elevation $ * &PI 0.78
-              decay 0.5
-              iteration 11
-              unit 8000
+              parts 8
+              elevation $ * &PI 0.25
+              decay 0.42
+              iteration 7
+              unit 800
               width 1
               ps $ ->
                 []
