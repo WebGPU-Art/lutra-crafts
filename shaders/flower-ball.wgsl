@@ -2,6 +2,7 @@ struct UBO {
   cone_back_scale: f32,
   viewport_ratio: f32,
   look_distance: f32,
+  scale: f32,
   forward: vec3f,
   // direction up overhead, better unit vector
   upward: vec3f,
@@ -44,7 +45,7 @@ fn vertex_main(
     next = -next;
   }
   let brush_direction = normalize(next);
-  if (brush == 1) {
+  if (brush == 1u) {
     p1 += brush_direction * width * 0.5;
   } else {
     p1 -= brush_direction * width * 0.5;
@@ -65,7 +66,7 @@ const limit: f32 = 48.0;
 
 @fragment
 fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
-  return vec4f(0.3, 0.3, 0.3, 0.6);
+  return vec4(0.6, 0.1, 0.1, 0.4);
   // let l = length(vec3f(vtx_out.original.xz, vtx_out.original.y + 100));
   // return vec4(0.7, 0.6, 0.5, pow(l, 1.8) * 0.00003);
 }
