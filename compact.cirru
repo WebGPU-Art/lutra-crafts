@@ -61,7 +61,7 @@
                   :mums $ comp-mums
                   :flower-ball $ with-cpu-time (comp-flower-ball)
                   :blow $ comp-blow
-                  :triangles $ comp-trangles
+                  :triangles $ comp-triangles
         |comp-fur $ quote
           defn comp-fur (states)
             comp-curves $ {} (:shader wgsl-fur)
@@ -162,7 +162,7 @@
           app.comp.patels :refer $ comp-petal-wireframe
           app.comp.flower-ball :refer $ comp-flower-ball
           app.comp.blow :refer $ comp-blow
-          app.comp.triangles :refer $ comp-trangles
+          app.comp.triangles :refer $ comp-triangles
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -499,18 +499,32 @@
           lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.triangles $ {}
       :defs $ {}
-        |comp-trangles $ quote
-          defn comp-trangles () $ let ()
-            comp-curves $ {} (; :shader wgsl-flower-ball)
-              :curves $ []
-                []
-                  : vertex ([] 0 0 0) 2
-                  : vertex ([] 100 0 0) 2
+        |build-sierpinski-triangles $ quote
+          defn build-sierpinski-triangles (p1 p2 p3 p4 level w)
+            [] (: vertex p1 w) (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) (: break) (: vertex p4 w) (: vertex p1 w) (: vertex p3 w) (: break)
+              if (<= level 0) ([])
+                let
+                    p1-2 $ v-scale (&v+ p1 p2) 0.5
+                    p1-3 $ v-scale (&v+ p1 p3) 0.5
+                    p1-4 $ v-scale (&v+ p1 p4) 0.5
+                    p2-3 $ v-scale (&v+ p2 p3) 0.5
+                    p2-4 $ v-scale (&v+ p2 p4) 0.5
+                    p3-4 $ v-scale (&v+ p3 p4) 0.5
+                  []
+                    build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w
+                    build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w
+                    build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w
+                    build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w
+                    ; build-sierpinski-triangles p1-2 p1-3 p1-4 p3-4 (dec level) w
+        |comp-triangles $ quote
+          defn comp-triangles () $ let
+              points $ build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 8 1.1
+            comp-polylines $ {} (; :shader wgsl-flower-ball) (:data points)
       :ns $ quote
         ns app.comp.triangles $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
-          lagopus.comp.curves :refer $ comp-curves
+          lagopus.comp.curves :refer $ comp-curves comp-polylines
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
           app.config :refer $ hide-tabs?
