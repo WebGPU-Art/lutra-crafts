@@ -48,7 +48,9 @@
             let
                 states $ :states store
               group nil
-                if (not hide-tabs?) (memof1-call comp-tabs)
+                if
+                  and (not hide-tabs?) (:show-tabs? store)
+                  memof1-call comp-tabs
                 case-default (:tab store) (group nil)
                   :cube $ comp-cubes
                   :helicoid $ comp-helicoid
@@ -57,8 +59,9 @@
                   :fur $ comp-fur (>> states :fur)
                   :petal-wireframe $ comp-petal-wireframe
                   :mums $ comp-mums
-                  :flower-ball $ comp-flower-ball
+                  :flower-ball $ with-cpu-time (comp-flower-ball)
                   :blow $ comp-blow
+                  :triangles $ comp-trangles
         |comp-fur $ quote
           defn comp-fur (states)
             comp-curves $ {} (:shader wgsl-fur)
@@ -133,6 +136,12 @@
                 :color $ [] 0.4 0.9 0.6 1
                 :size 20
               fn (e d!) (d! :tab :blow)
+            comp-button
+              {}
+                :position $ [] 360 200 0
+                :color $ [] 0.8 0.3 0.6 1
+                :size 20
+              fn (e d!) (d! :tab :triangles)
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -153,6 +162,7 @@
           app.comp.patels :refer $ comp-petal-wireframe
           app.comp.flower-ball :refer $ comp-flower-ball
           app.comp.blow :refer $ comp-blow
+          app.comp.triangles :refer $ comp-trangles
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -223,29 +233,33 @@
           "\"@calcit/std" :refer $ rand rand-shift
     |app.comp.flower-ball $ {}
       :defs $ {}
+        |break-mark $ quote
+          def break-mark $ : break
         |build-umbrella $ quote
           defn build-umbrella (p0 v0 relative parts elevation decay step)
             if (&<= step 0) ([])
               let
-                  forward $ v-normalize v0
-                  rightward $ v-normalize (v-cross v0 relative)
-                  upward $ v-normalize (v-cross rightward v0)
                   l0 $ v-length v0
+                  forward $ v-scale v0 (&/ 1 l0)
+                  rightward $ v-normalize (v-cross v0 relative)
+                  upward $ v-cross rightward forward
                   line0 $ v-scale
                     &v+
-                      v-scale forward (cos elevation) 
-                      v-scale upward (sin elevation) 
+                      v-scale forward $ cos elevation
+                      v-scale upward $ sin elevation
                     &* l0 decay
                   p-next $ &v+ p0 v0
                   theta0 $ &/ (&* 2 &PI) parts
                   lines $ -> (range parts)
                     map $ fn (idx)
-                      rotate-3d ([] 0 0 0) forward (&* theta0 idx) line0 
+                      rotate-3d v-zero forward (&* theta0 idx) line0 
                   branches $ -> lines
                     map $ fn (line)
                       build-umbrella p-next line v0 parts elevation decay $ dec step
                 []
-                  {} (:from p0) (:line v0)
+                  [] (: vertex p0 1)
+                    : vertex (&v+ p0 v0) 1
+                    , break-mark
                   , branches
         |comp-flower-ball $ quote
           defn comp-flower-ball () $ let
@@ -274,20 +288,14 @@
                 map $ fn (pair)
                   build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration
             ; js/console.log $ .flatten ps
-            comp-curves $ {} (:shader wgsl-flower-ball)
-              :curves $ -> ps (.flatten)
-                map $ fn (info)
-                  let
-                      from $ :from info
-                      to $ v+ from (:line info)
-                    []
-                      {} (:position from) (:width width)
-                      {} (:position to) (:width width)
+            comp-polylines $ {} (:shader wgsl-flower-ball) (:data ps)
+        |v-zero $ quote
+          def v-zero $ [] 0 0 0
       :ns $ quote
         ns app.comp.flower-ball $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/flower-ball.wgsl" :default wgsl-flower-ball
-          lagopus.comp.curves :refer $ comp-curves
+          lagopus.comp.curves :refer $ comp-curves comp-polylines
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
           app.config :refer $ hide-tabs?
@@ -489,6 +497,25 @@
           app.config :refer $ hide-tabs?
           lagopus.cursor :refer $ >>
           lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.triangles $ {}
+      :defs $ {}
+        |comp-trangles $ quote
+          defn comp-trangles () $ let ()
+            comp-curves $ {} (; :shader wgsl-flower-ball)
+              :curves $ []
+                []
+                  : vertex ([] 0 0 0) 2
+                  : vertex ([] 100 0 0) 2
+      :ns $ quote
+        ns app.comp.triangles $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          lagopus.comp.curves :refer $ comp-curves
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.config $ {}
       :defs $ {}
         |bloom? $ quote
@@ -511,7 +538,8 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :flower-ball
+            :tab :cube
+            :show-tabs? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
@@ -540,6 +568,10 @@
             add-watch *store :change $ fn (next store) (render-app!)
             setupMouseEvents canvas
             if remote-control? $ setupRemoteControl
+              fn (action)
+                case-default (.-button action) (js/console.warn "\"Unknown Action" action)
+                  "\"toggle" $ dispatch! :toggle nil
+                  "\"switch" $ dispatch! :switch nil
         |reload! $ quote
           defn reload! () $ if (nil? build-errors)
             do (reset-memof1-caches!) (render-app!) (remove-watch *store :change)
@@ -573,6 +605,7 @@
               do (js/console.warn ":unknown op" op data) store
               :tab $ assoc store :tab data
               :tau $ assoc store :tau data
+              :toggle $ update store :show-tabs? not
       :ns $ quote (ns app.updater)
     |app.util $ {}
       :defs $ {}
