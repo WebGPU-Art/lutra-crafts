@@ -499,9 +499,14 @@
           lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.triangles $ {}
       :defs $ {}
+        |break-mark $ quote
+          def break-mark $ : break
         |build-sierpinski-triangles $ quote
-          defn build-sierpinski-triangles (p1 p2 p3 p4 level w)
-            [] (: vertex p1 w) (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) (: break) (: vertex p4 w) (: vertex p1 w) (: vertex p3 w) (: break)
+          defn build-sierpinski-triangles (p1 p2 p3 p4 level w dup?)
+            []
+              if dup?
+                [] (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark
+                [] (: vertex p1 w) (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark (: vertex p4 w) (: vertex p1 w) (: vertex p3 w) break-mark
               if (<= level 0) ([])
                 let
                     p1-2 $ v-scale (&v+ p1 p2) 0.5
@@ -510,20 +515,29 @@
                     p2-3 $ v-scale (&v+ p2 p3) 0.5
                     p2-4 $ v-scale (&v+ p2 p4) 0.5
                     p3-4 $ v-scale (&v+ p3 p4) 0.5
+                    p-all $ &v+
+                      &v+ p1 $ &v+ p2 p3
+                      , p4
+                    p-04 $ v-scale (&v- p-all p4) third
+                    p-03 $ v-scale (&v- p-all p3) third
+                    p-02 $ v-scale (&v- p-all p2) third
+                    p-01 $ v-scale (&v- p-all p1) third
                   []
-                    build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w
-                    build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w
-                    build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w
-                    build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w
-                    ; build-sierpinski-triangles p1-2 p1-3 p1-4 p3-4 (dec level) w
+                    build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w true
+                    build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w true
+                    build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w true
+                    build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w true
+                    ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false
         |comp-triangles $ quote
           defn comp-triangles () $ let
-              points $ build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 8 1.1
-            comp-polylines $ {} (; :shader wgsl-flower-ball) (:data points)
+              points $ build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 9 0.4 false
+            comp-polylines $ {} (:shader wgsl-triangles) (:data points)
+        |third $ quote
+          def third $ &/ 1 3
       :ns $ quote
         ns app.comp.triangles $ :require
           lagopus.alias :refer $ group object
-          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          "\"../shaders/triangles.wgsl" :default wgsl-triangles
           lagopus.comp.curves :refer $ comp-curves comp-polylines
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
@@ -552,8 +566,8 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :cube
-            :show-tabs? true
+            :tab :triangles
+            :show-tabs? false
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
