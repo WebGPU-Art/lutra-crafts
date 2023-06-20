@@ -54,17 +54,17 @@
                 case-default (:tab store) (group nil)
                   :cube $ comp-cubes
                   :helicoid $ comp-helicoid
-                  :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh )
+                  :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh)
                   :globe $ comp-globe
-                  :fur $ comp-fur (>> states :fur)
+                  :fur $ comp-fur
                   :petal-wireframe $ comp-petal-wireframe
                   :mums $ comp-mums
                   :flower-ball $ with-cpu-time (comp-flower-ball)
                   :blow $ comp-blow
                   :triangles $ comp-triangles
         |comp-fur $ quote
-          defn comp-fur (states)
-            comp-curves $ {} (:shader wgsl-fur)
+          defn comp-fur () $ comp-curves
+            {} (:shader wgsl-fur)
               :curves $ -> (range 200)
                 map $ fn (idx)
                   let
@@ -87,61 +87,71 @@
                 :position $ [] 0 200 0
                 :color $ [] 0.3 0.9 0.2 1
                 :size 20
-              fn (e d!) (d! :tab :cube)
+              fn (e d!)
+                d! $ : tab :cube
             comp-button
               {}
                 :position $ [] 40 200 0
                 :color $ [] 0.8 0.3 1 1
                 :size 20
-              fn (e d!) (d! :tab :helicoid)
+              fn (e d!)
+                d! $ : tab :helicoid
             comp-button
               {}
                 :position $ [] 80 200 0
                 :color $ [] 0.6 0.3 1 1
                 :size 20
-              fn (e d!) (d! :tab :hyperbolic-helicoid)
+              fn (e d!)
+                d! $ : tab :hyperbolic-helicoid
             comp-button
               {}
                 :position $ [] 120 200 0
                 :color $ [] 0.3 0.9 0.5 1
                 :size 20
-              fn (e d!) (d! :tab :globe)
+              fn (e d!)
+                d! $ : tab :globe
             comp-button
               {}
                 :position $ [] 160 200 0
                 :color $ [] 0.9 0.5 0.6 1
                 :size 20
-              fn (e d!) (d! :tab :fur)
+              fn (e d!)
+                d! $ : tab :fur
             comp-button
               {}
                 :position $ [] 200 200 0
                 :color $ [] 0.0 0.5 0.6 1
                 :size 20
-              fn (e d!) (d! :tab :petal-wireframe)
+              fn (e d!)
+                d! $ : tab :petal-wireframe
             comp-button
               {}
                 :position $ [] 240 200 0
                 :color $ [] 0.9 0.5 0.6 1
                 :size 20
-              fn (e d!) (d! :tab :mums)
+              fn (e d!)
+                d! $ : tab :mums
             comp-button
               {}
                 :position $ [] 280 200 0
                 :color $ [] 0.3 0.9 0.3 1
                 :size 20
-              fn (e d!) (d! :tab :flower-ball)
+              fn (e d!)
+                d! $ : tab :flower-ball
             comp-button
               {}
                 :position $ [] 320 200 0
                 :color $ [] 0.4 0.9 0.6 1
                 :size 20
-              fn (e d!) (d! :tab :blow)
+              fn (e d!)
+                d! $ : tab :blow
             comp-button
               {}
                 :position $ [] 360 200 0
                 :color $ [] 0.8 0.3 0.6 1
                 :size 20
-              fn (e d!) (d! :tab :triangles)
+              fn (e d!)
+                d! $ : tab :triangles
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -370,8 +380,9 @@
                     :size 12
                     :color $ [] 0.7 0.6 0.5 1.0
                   fn (delta d!)
-                    d! cursor $ assoc state :tau
-                      + tau $ * 0.01 (nth delta 0)
+                    d! $ : state cursor
+                      assoc state :tau $ + tau
+                        * 0.01 $ nth delta 0
       :ns $ quote
         ns app.comp.helicoid $ :require
           lagopus.alias :refer $ group object
@@ -530,7 +541,7 @@
                     ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false
         |comp-triangles $ quote
           defn comp-triangles () $ let
-              points $ build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 9 0.4 false
+              points $ build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 7 0.4 false
             comp-polylines $ {} (:shader wgsl-triangles) (:data points)
         |third $ quote
           def third $ &/ 1 3
@@ -567,15 +578,15 @@
           defatom *store $ {}
             :states $ {}
             :tab :triangles
-            :show-tabs? false
+            :show-tabs? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
-          defn dispatch! (op data)
-            if dev? $ js/console.log op data
+          defn dispatch! (op)
+            if dev? $ js/console.log op
             let
                 store @*store
-                next-store $ if (list? op) (update-states store op data) (updater store op data)
+                next-store $ updater store op
               if (not= next-store store) (reset! *store next-store)
         |main! $ quote
           defn main! () (hint-fn async)
@@ -598,8 +609,8 @@
             if remote-control? $ setupRemoteControl
               fn (action)
                 case-default (.-button action) (js/console.warn "\"Unknown Action" action)
-                  "\"toggle" $ dispatch! :toggle nil
-                  "\"switch" $ dispatch! :switch nil
+                  "\"toggle" $ dispatch! (: toggle)
+                  "\"switch" $ dispatch! (: switch)
         |reload! $ quote
           defn reload! () $ if (nil? build-errors)
             do (reset-memof1-caches!) (render-app!) (remove-watch *store :change)
@@ -622,19 +633,22 @@
           "\"./calcit.build-errors" :default build-errors
           memof.once :refer $ reset-memof1-caches!
           lagopus.util :refer $ handle-compilation reset-clear-color!
-          lagopus.cursor :refer $ update-states
           app.updater :refer $ updater
           "\"@triadica/lagopus/lib/remote-control.mjs" :refer $ setupRemoteControl
     |app.updater $ {}
       :defs $ {}
         |updater $ quote
-          defn updater (store op data)
-            case-default op
-              do (js/console.warn ":unknown op" op data) store
-              :tab $ assoc store :tab data
-              :tau $ assoc store :tau data
-              :toggle $ update store :show-tabs? not
-      :ns $ quote (ns app.updater)
+          defn updater (store op)
+            tag-match op
+                :state c s
+                update-states store c s
+              (:tab t) (assoc store :tab t)
+              (:tau t) (assoc store :tau t)
+              (:toggle) (update store :show-tabs? not)
+              _ $ do (js/console.warn "\"Unknown op:" op) store
+      :ns $ quote
+        ns app.updater $ :require
+          lagopus.cursor :refer $ update-states
     |app.util $ {}
       :defs $ {}
         |interoplate-line $ quote
