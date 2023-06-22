@@ -534,14 +534,26 @@
                     p-02 $ v-scale (&v- p-all p2) third
                     p-01 $ v-scale (&v- p-all p1) third
                   []
-                    build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w true
-                    build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w true
-                    build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w true
-                    build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w true
+                    if
+                      > (js/Math.random) 0.1
+                      build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w true
+                      []
+                    if
+                      > (js/Math.random) 0.1
+                      build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w true
+                      []
+                    if
+                      > (js/Math.random) 0.1
+                      build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w true
+                      []
+                    if
+                      > (js/Math.random) 0.1
+                      build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w true
+                      []
                     ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false
         |comp-triangles $ quote
           defn comp-triangles () $ let
-              points $ build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 7 0.4 false
+              points $ build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 10 0.1 false
             comp-polylines $ {} (:shader wgsl-triangles) (:data points)
         |third $ quote
           def third $ &/ 1 3
@@ -577,7 +589,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :triangles
+            :tab :cube
             :show-tabs? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
