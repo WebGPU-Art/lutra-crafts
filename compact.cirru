@@ -266,20 +266,20 @@
                   branches $ -> lines
                     map $ fn (line)
                       build-umbrella p-next line v0 parts elevation decay $ dec step
+                  width 0.2
                 []
-                  [] (: vertex p0 1)
-                    : vertex (&v+ p0 v0) 1
+                  [] (: vertex p0 width)
+                    : vertex (&v+ p0 v0) width
                     , break-mark
                   , branches
         |comp-flower-ball $ quote
           defn comp-flower-ball () $ let
               origin $ [] 0 0 0
               parts 8
-              elevation $ * &PI 0.25
-              decay 0.42
-              iteration 7
+              elevation $ * &PI 0.5
+              decay 0.36
+              iteration 8
               unit 800
-              width 1
               ps $ ->
                 []
                   [] ([] 0 unit 0) ([] 0 0 1)
@@ -589,7 +589,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :cube
+            :tab :flower-ball
             :show-tabs? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
