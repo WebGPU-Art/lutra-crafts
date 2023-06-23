@@ -62,6 +62,7 @@
                   :flower-ball $ with-cpu-time (comp-flower-ball)
                   :blow $ comp-blow
                   :triangles $ comp-triangles
+                  :segments $ comp-segments-fractal
         |comp-fur $ quote
           defn comp-fur () $ comp-curves
             {} (:shader wgsl-fur)
@@ -152,6 +153,13 @@
                 :size 20
               fn (e d!)
                 d! $ : tab :triangles
+            comp-button
+              {}
+                :position $ [] 400 200 0
+                :color $ [] 0.2 0.6 0.6 1
+                :size 20
+              fn (e d!)
+                d! $ : tab :segments
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -173,6 +181,7 @@
           app.comp.flower-ball :refer $ comp-flower-ball
           app.comp.blow :refer $ comp-blow
           app.comp.triangles :refer $ comp-triangles
+          app.comp.segments-fractal :refer $ comp-segments-fractal
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -243,11 +252,9 @@
           "\"@calcit/std" :refer $ rand rand-shift
     |app.comp.flower-ball $ {}
       :defs $ {}
-        |break-mark $ quote
-          def break-mark $ : break
         |build-umbrella $ quote
-          defn build-umbrella (p0 v0 relative parts elevation decay step)
-            if (&<= step 0) ([])
+          defn build-umbrella (p0 v0 relative parts elevation decay step write!)
+            if (&> step 0)
               let
                   l0 $ v-length v0
                   forward $ v-scale v0 (&/ 1 l0)
@@ -263,15 +270,13 @@
                   lines $ -> (range parts)
                     map $ fn (idx)
                       rotate-3d v-zero forward (&* theta0 idx) line0 
-                  branches $ -> lines
-                    map $ fn (line)
-                      build-umbrella p-next line v0 parts elevation decay $ dec step
                   width 0.2
-                []
-                  [] (: vertex p0 width)
-                    : vertex (&v+ p0 v0) width
-                    , break-mark
-                  , branches
+                write! $ [] (: vertex p0 width)
+                  : vertex (&v+ p0 v0) width
+                  , break-mark
+                -> lines $ map
+                  fn (line)
+                    build-umbrella p-next line v0 parts elevation decay (dec step) write!
         |comp-flower-ball $ quote
           defn comp-flower-ball () $ let
               origin $ [] 0 0 0
@@ -280,32 +285,33 @@
               decay 0.36
               iteration 8
               unit 800
-              ps $ ->
-                []
-                  [] ([] 0 unit 0) ([] 0 0 1)
-                  []
-                    [] 0 (negate unit) 0
-                    [] 0 0 1
-                  [] ([] unit 0 0) ([] 0 1 0)
-                  []
-                    [] (negate unit) 0 0
-                    [] 0 1 0
-                  [] ([] 0 0 unit) ([] 0 1 0)
-                  []
-                    [] 0 0 $ negate unit
-                    [] 0 1 0
-                take 1
-                map $ fn (pair)
-                  build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration
             ; js/console.log $ .flatten ps
-            comp-polylines $ {} (:shader wgsl-flower-ball) (:data ps)
+            comp-polylines $ {} (:shader wgsl-flower-ball)
+              :writer $ fn (write!)
+                ->
+                  []
+                    [] ([] 0 unit 0) ([] 0 0 1)
+                    []
+                      [] 0 (negate unit) 0
+                      [] 0 0 1
+                    [] ([] unit 0 0) ([] 0 1 0)
+                    []
+                      [] (negate unit) 0 0
+                      [] 0 1 0
+                    [] ([] 0 0 unit) ([] 0 1 0)
+                    []
+                      [] 0 0 $ negate unit
+                      [] 0 1 0
+                  take 1
+                  map $ fn (pair)
+                    build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration write!
         |v-zero $ quote
           def v-zero $ [] 0 0 0
       :ns $ quote
         ns app.comp.flower-ball $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/flower-ball.wgsl" :default wgsl-flower-ball
-          lagopus.comp.curves :refer $ comp-curves comp-polylines
+          lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
           app.config :refer $ hide-tabs?
@@ -508,60 +514,73 @@
           app.config :refer $ hide-tabs?
           lagopus.cursor :refer $ >>
           lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.segments-fractal $ {}
+      :defs $ {}
+        |comp-segments-fractal $ quote
+          defn comp-segments-fractal () $ let ()
+            comp-polylines $ {} (; :shader wgsl-flower-ball)
+              :writer $ fn (write!)
+                write! $ []
+                  : vertex ([] 0 0 0) 1
+                  : vertex ([] 100 0 0) 1
+                  : break
+      :ns $ quote
+        ns app.comp.segments-fractal $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          lagopus.comp.curves :refer $ comp-polylines
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.triangles $ {}
       :defs $ {}
-        |break-mark $ quote
-          def break-mark $ : break
         |build-sierpinski-triangles $ quote
-          defn build-sierpinski-triangles (p1 p2 p3 p4 level w dup?)
-            []
-              if dup?
-                [] (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark
-                [] (: vertex p1 w) (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark (: vertex p4 w) (: vertex p1 w) (: vertex p3 w) break-mark
-              if (<= level 0) ([])
-                let
-                    p1-2 $ v-scale (&v+ p1 p2) 0.5
-                    p1-3 $ v-scale (&v+ p1 p3) 0.5
-                    p1-4 $ v-scale (&v+ p1 p4) 0.5
-                    p2-3 $ v-scale (&v+ p2 p3) 0.5
-                    p2-4 $ v-scale (&v+ p2 p4) 0.5
-                    p3-4 $ v-scale (&v+ p3 p4) 0.5
-                    p-all $ &v+
-                      &v+ p1 $ &v+ p2 p3
-                      , p4
-                    p-04 $ v-scale (&v- p-all p4) third
-                    p-03 $ v-scale (&v- p-all p3) third
-                    p-02 $ v-scale (&v- p-all p2) third
-                    p-01 $ v-scale (&v- p-all p1) third
-                  []
-                    if
-                      > (js/Math.random) 0.1
-                      build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w true
-                      []
-                    if
-                      > (js/Math.random) 0.1
-                      build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w true
-                      []
-                    if
-                      > (js/Math.random) 0.1
-                      build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w true
-                      []
-                    if
-                      > (js/Math.random) 0.1
-                      build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w true
-                      []
-                    ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false
+          defn build-sierpinski-triangles (p1 p2 p3 p4 level w dup? write!)
+            write! $ if dup?
+              [] (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark
+              [] (: vertex p1 w) (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark (: vertex p4 w) (: vertex p1 w) (: vertex p3 w) break-mark
+            if (&> level 0)
+              let
+                  p1-2 $ v-scale (&v+ p1 p2) 0.5
+                  p1-3 $ v-scale (&v+ p1 p3) 0.5
+                  p1-4 $ v-scale (&v+ p1 p4) 0.5
+                  p2-3 $ v-scale (&v+ p2 p3) 0.5
+                  p2-4 $ v-scale (&v+ p2 p4) 0.5
+                  p3-4 $ v-scale (&v+ p3 p4) 0.5
+                  p-all $ &v+
+                    &v+ p1 $ &v+ p2 p3
+                    , p4
+                  p-04 $ v-scale (&v- p-all p4) third
+                  p-03 $ v-scale (&v- p-all p3) third
+                  p-02 $ v-scale (&v- p-all p2) third
+                  p-01 $ v-scale (&v- p-all p1) third
+                if
+                  > (js/Math.random) 0.1
+                  build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w true write!
+                if
+                  > (js/Math.random) 0.1
+                  build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w true write!
+                if
+                  > (js/Math.random) 0.1
+                  build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w true write!
+                if
+                  > (js/Math.random) 0.1
+                  build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w true write!
+                ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false write!
         |comp-triangles $ quote
-          defn comp-triangles () $ let
-              points $ build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 10 0.1 false
-            comp-polylines $ {} (:shader wgsl-triangles) (:data points)
+          defn comp-triangles () $ let ()
+            comp-polylines $ {} (:shader wgsl-triangles)
+              :writer $ fn (write!)
+                build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 10 0.1 false write!
         |third $ quote
           def third $ &/ 1 3
       :ns $ quote
         ns app.comp.triangles $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/triangles.wgsl" :default wgsl-triangles
-          lagopus.comp.curves :refer $ comp-curves comp-polylines
+          lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
           app.config :refer $ hide-tabs?
@@ -589,7 +608,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :flower-ball
+            :tab :segments
             :show-tabs? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
