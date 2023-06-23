@@ -517,18 +517,124 @@
     |app.comp.segments-fractal $ {}
       :defs $ {}
         |comp-segments-fractal $ quote
-          defn comp-segments-fractal () $ let ()
+          defn comp-segments-fractal () $ let
+              p1 $ [] 0.46 0.01 0
+              p2 $ [] 0.48 0.4 0.1
+              p3 $ [] 0.5 0.0 0
+              p4 $ [] 0.52 0.4 0.1
+              p5 $ [] 0.54 0.01 0
+              level 7
+              target $ [] 1000 0 0
             comp-polylines $ {} (; :shader wgsl-flower-ball)
               :writer $ fn (write!)
                 write! $ []
-                  : vertex ([] 0 0 0) 1
-                  : vertex ([] 100 0 0) 1
-                  : break
+                  : vertex ([] 0 0 0) 4
+                  : vertex target 4
+                  , break-mark
+                fold-fractal ([] 0 0 0) target ([] 0 0 1) p1 p2 p3 p4 p5 level write!
+        |fold-fractal $ quote
+          defn fold-fractal (base target right p1 p2 p3 p4 p5 level write!)
+            let
+                w $ / 0.5 (pow level 1.6)
+                next $ &v- target base
+                forward $ v-normalize next
+                upward $ v-cross right forward
+                l $ v-length next
+                point1 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p1 0
+                      v-scale upward $ nth p1 1
+                      v-scale right $ nth p1 2
+                    , l
+                point2 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p2 0
+                      v-scale upward $ nth p2 1
+                      v-scale right $ nth p2 2
+                    , l
+                point3 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p3 0
+                      v-scale upward $ nth p3 1
+                      v-scale right $ nth p3 2
+                    , l
+                point4 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p4 0
+                      v-scale upward $ nth p4 1
+                      v-scale right $ nth p4 2
+                    , l
+                point5 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p5 0
+                      v-scale upward $ nth p5 1
+                      v-scale right $ nth p5 2
+                    , l
+                m $ middle base target
+              if (&> level 1)
+                do nil
+                  ; write! $ [] (: vertex base w) (: vertex point1 w) (: vertex point2 w) (: vertex point3 w) (: vertex point4 w) (: vertex target w) break-mark
+                  let
+                      right1 $ v-normalize
+                        safe-right
+                          v-cross (&v- point1 base)
+                            &v- (middle base point1) m
+                          , right
+                    fold-fractal base point1 right1 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right2 $ v-normalize
+                        safe-right
+                          v-cross (&v- point2 point1)
+                            &v- (middle point1 point2) m
+                          , right
+                    fold-fractal point1 point2 right2 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right3 $ v-normalize
+                        safe-right
+                          v-cross (&v- point3 point2)
+                            &v- (middle point2 point3) m
+                          , right
+                    fold-fractal point2 point3 right3 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right4 $ v-normalize
+                        safe-right
+                          v-cross (&v- point4 point3)
+                            &v- (middle point3 point4) m
+                          , right
+                    fold-fractal point3 point4 right4 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right5 $ v-normalize
+                        safe-right
+                          v-cross (&v- point4 point4)
+                            &v- (middle point4 point5) m
+                          , right
+                    fold-fractal point4 target right5 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right6 $ v-normalize
+                        safe-right
+                          v-cross (&v- target point5)
+                            &v- (middle point5 target) m
+                          , right
+                    fold-fractal point4 target right6 p1 p2 p3 p4 p5 (dec level) write!
+                write! $ [] (: vertex base w) (: vertex point1 w) (: vertex point2 w) (: vertex point3 w) (: vertex point4 w) (: vertex point5 w) (: vertex target w) break-mark
+        |middle $ quote
+          defn middle (base target)
+            v-scale (&v+ base target) 0.5
+        |safe-right $ quote
+          defn safe-right (v right)
+            if
+              &= 0 $ v-length v
+              , right v
       :ns $ quote
         ns app.comp.segments-fractal $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
-          lagopus.comp.curves :refer $ comp-polylines
+          lagopus.comp.curves :refer $ comp-polylines break-mark
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
           app.config :refer $ hide-tabs?
@@ -559,15 +665,9 @@
                 if
                   > (js/Math.random) 0.1
                   build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w true write!
-                if
-                  > (js/Math.random) 0.1
-                  build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w true write!
-                if
-                  > (js/Math.random) 0.1
-                  build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w true write!
-                if
-                  > (js/Math.random) 0.1
-                  build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w true write!
+                build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w true write!
+                build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w true write!
+                build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w true write!
                 ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false write!
         |comp-triangles $ quote
           defn comp-triangles () $ let ()
