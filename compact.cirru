@@ -1,6 +1,6 @@
 
 {} (:package |app)
-  :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!) (:version |0.0.1)
+  :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!) (:version |0.0.5)
     :modules $ [] |memof/ |quaternion/ |lagopus/
   :entries $ {}
   :files $ {}
@@ -48,10 +48,13 @@
             let
                 states $ :states store
               group nil
-                if
+                ; if
                   and (not hide-tabs?) (:show-tabs? store)
                   memof1-call comp-tabs
-                case-default (:tab store) (group nil)
+                case-default (:tab store)
+                  do
+                    js/console.log "\"Unknown tab" $ :tab store
+                    group nil
                   :cube $ comp-cubes
                   :helicoid $ comp-helicoid
                   :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh)
@@ -63,6 +66,7 @@
                   :blow $ comp-blow
                   :triangles $ comp-triangles
                   :segments $ comp-segments-fractal
+                  :quaternion-fold $ comp-quaternion-fold
         |comp-fur $ quote
           defn comp-fur () $ comp-curves
             {} (:shader wgsl-fur)
@@ -160,6 +164,13 @@
                 :size 20
               fn (e d!)
                 d! $ : tab :segments
+            comp-button
+              {}
+                :position $ [] 440 200 0
+                :color $ [] 0.8 0.6 0.6 1
+                :size 20
+              fn (e d!)
+                d! $ : tab :quaternion-fold
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -182,6 +193,7 @@
           app.comp.blow :refer $ comp-blow
           app.comp.triangles :refer $ comp-triangles
           app.comp.segments-fractal :refer $ comp-segments-fractal
+          app.comp.quaterion-fold :refer $ comp-quaternion-fold
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -514,6 +526,62 @@
           app.config :refer $ hide-tabs?
           lagopus.cursor :refer $ >>
           lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.quaterion-fold $ {}
+      :defs $ {}
+        |comp-quaternion-fold $ quote
+          defn comp-quaternion-fold () $ let ()
+            with-cpu-time $ object-writer
+              {} (:topology :line-strip) (:shader wgsl-quaternion-fold)
+                :attrs-list $ [] (: float32x3 :position)
+                :writer $ fn (write!)
+                  ; fold-line4 19 ([] 0 0 0 0) ([] 0 100 0 0) ([] 0 20 0 22) ([] 16 20 0 23) ([] 16 20 0 27) ([] 0 20 0 28)
+                    q-inverse $ [] 0 0 0 50
+                    , 0.0027 write!
+                  fold-line4 12 ([] 0 0 0 0) ([] 200 0 0 0) ([] 0 20 0 25) ([] 5 20 10 25) ([] 5 20 10 15) ([] 0 20 0 15)
+                    q-inverse $ [] 0 0 0 50
+                    , 0.1 write!
+        |fold-line4 $ quote
+          defn fold-line4 (level base v a b c d full' minimal-seg write!)
+            let
+                v' $ &q* v full'
+                branch-a $ &q* v' a
+                branch-b $ &q* v' b
+                branch-c $ &q* v' c
+                branch-d $ &q* v' d
+                s 10
+                dec-level $ &- level 1
+              if
+                or (&<= level 0)
+                  &< (q-length2 v) minimal-seg
+                write! $ []
+                  : vertex $ take3 (&q+ base branch-b) 20
+                  : vertex $ take3 (&q+ base branch-b) 20
+                  : vertex $ take3 (&q+ base branch-c) 20
+                  : vertex $ take3 (&q+ base branch-d) 20
+                  : vertex $ take3 (&q+ base v) 20
+                do (fold-line4 dec-level base branch-a a b c d full' minimal-seg write!)
+                  fold-line4 dec-level (&q+ base branch-a) (&q- branch-b branch-a) a b c d full' minimal-seg write!
+                  fold-line4 dec-level (&q+ base branch-b) (&q- branch-c branch-b) a b c d full' minimal-seg write!
+                  fold-line4 dec-level (&q+ base branch-c) (&q- branch-d branch-c) a b c d full' minimal-seg write!
+                  fold-line4 dec-level (&q+ base branch-d) (&q- v branch-d) a b c d full' minimal-seg write!
+        |take3 $ quote
+          defn take3 (v s)
+            []
+              &* s $ &list:nth v 0
+              &* s $ &list:nth v 1
+              &* s $ &list:nth v 2
+      :ns $ quote
+        ns app.comp.quaterion-fold $ :require
+          lagopus.alias :refer $ group object object-writer
+          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          lagopus.comp.curves :refer $ comp-polylines break-mark
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
+          quaternion.core :refer $ &q* &q+ &q- q-length2 q-inverse
+          "\"../shaders/quaternion-fold.wgsl" :default wgsl-quaternion-fold
     |app.comp.segments-fractal $ {}
       :defs $ {}
         |comp-segments-fractal $ quote
@@ -708,7 +776,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :segments
+            :tab :quaternion-fold
             :show-tabs? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
@@ -728,7 +796,7 @@
             js-await $ initializeContext
             initializeCanvasTextures
             reset-clear-color! $ either bg-color
-              {} (:r 0) (:g 0) (:b 0) (:a 0.1)
+              {} (:r 0.1) (:g 0) (:b 0.2) (:a 0.98)
             render-app!
             renderControl
             startControlLoop 10 onControlEvent

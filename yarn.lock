@@ -150,10 +150,10 @@
     estree-walker "^2.0.2"
     picomatch "^2.3.1"
 
-"@triadica/lagopus@^0.0.16-a1":
-  version "0.0.16-a1"
-  resolved "https://registry.yarnpkg.com/@triadica/lagopus/-/lagopus-0.0.16-a1.tgz#860d2782c6d4c3a77231fd2fc9f372a4ba55aa05"
-  integrity sha512-0Gqstm4EE+X+8gaJeBX2uWa55kEuas0dNnNQ2USPHJn8fCW7GhuhZrzwwI9rfu72N5kA4Q05OV41deWNPXIKpA==
+"@triadica/lagopus@^0.0.16":
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/@triadica/lagopus/-/lagopus-0.0.16.tgz#54bb8ea3713368300385883077bd12aa9b8dbac0"
+  integrity sha512-9gth0+NABDMnYcHUvLBh1vM2WJX9gMNTZdxvIk9VExK6k3PUCH7sAuIuGDCfOvotZjrfuT1EwaRONbJsYjepPA==
   dependencies:
     "@triadica/touch-control" "^0.0.3"
     ismobilejs "^1.1.1"
