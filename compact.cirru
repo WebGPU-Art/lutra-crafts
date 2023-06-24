@@ -47,9 +47,10 @@
           defn comp-container (store)
             let
                 states $ :states store
+                show? $ :show-tabs? store
               group nil
                 ; if
-                  and (not hide-tabs?) (:show-tabs? store)
+                  and (not hide-tabs?) show?
                   memof1-call comp-tabs
                 case-default (:tab store)
                   do
@@ -67,7 +68,7 @@
                   :triangles $ comp-triangles
                   :segments $ comp-segments-fractal
                   :quaternion-fold $ comp-quaternion-fold
-                  :hopf $ comp-hopf-fiber
+                  :hopf $ comp-hopf-fiber (>> states :hopf) show?
         |comp-fur $ quote
           defn comp-fur () $ comp-curves
             {} (:shader wgsl-fur)
@@ -437,46 +438,66 @@
                 + (* x0 x1) (* z0 z1)
                   negate $ v-length2 p0
         |comp-hopf-fiber $ quote
-          defn comp-hopf-fiber () $ let
-              circle-size 1000
-            group nil (comp-axis)
-              comp-polylines $ {}
-                :writer $ fn (write!)
-                  -> (range circle-size)
-                    map $ fn (idx)
-                      let
-                          start $ [] 10 10 20
-                          rh $ v-normalize
-                            v-cross start $ [] 0 1 0
-                          rv $ v-normalize (v-cross rh start)
-                          theta $ * 2 20 idx (/ &PI circle-size)
-                          r $ + 5 (* 1 idx)
-                          p $ v+ start
-                            v-scale rh $ * r (cos theta)
-                            v-scale rv $ * r (sin theta)
-                        ; write! $ : vertex p 1
-                        , p
-                    map $ fn (control)
-                      let
-                          circle $ decide-circle control
-                          n 200
-                        ->
-                          range $ inc n
-                          map $ fn (idx)
-                            let
-                                ratio $ * 2 idx (/ &PI n)
-                              tag-match circle
-                                  :circle center rh rv
-                                  do nil $ write!
-                                    : vertex
-                                      v-scale
-                                        v+ center
-                                          v-scale rh $ cos ratio
-                                          v-scale rv $ sin ratio
-                                        , 200
-                                      * 0.6 $ v-length rh
-                                _ $ eprintln "\"unknown data:" circle
-                        write! break-mark
+          defn comp-hopf-fiber (states show?)
+            let
+                cursor $ :cursor states
+                state $ either (:data states)
+                  {} $ :base ([] 90 8 4)
+                base $ :base state
+                rh $ v-normalize
+                  v-cross base $ [] 0 1 0
+                rv $ v-normalize (v-cross rh base)
+              group nil
+                if show? $ comp-axis
+                if show? $ comp-drag-point
+                  {}
+                    :position $ :base state
+                    :color $ [] 0.6 0.6 1.0 1.0
+                  fn (move d!)
+                    d! $ : :state cursor (assoc state :base move)
+                comp-polylines-marked $ {} (:shader wgsl-hopf)
+                  :writer $ fn (write!)
+                    -> (range 16)
+                      map $ fn (ring-idx)
+                        let
+                            circle-size 60
+                          ->
+                            range $ inc circle-size
+                            map $ fn (idx)
+                              let
+                                  alpha $ * 0.2 (+ 0.2 ring-idx)
+                                  start $ v-scale base (cos alpha)
+                                  l $ * (v-length base) (sin alpha)
+                                  rh1 $ v-scale rh l
+                                  rv1 $ v-scale rv l
+                                  theta $ * 2 0.333 idx (/ &PI circle-size)
+                                  p $ v+ start
+                                    v-scale rh1 $ cos theta
+                                    v-scale rv1 $ sin theta
+                                if show? $ write! (: vertex p 1 1)
+                                , p
+                            map-indexed $ fn (i control)
+                              let
+                                  circle $ decide-circle control
+                                  n 80
+                                ->
+                                  range $ inc n
+                                  map $ fn (idx)
+                                    let
+                                        ratio $ * 2 idx (/ &PI n)
+                                      tag-match circle
+                                          :circle center rh rv
+                                          do nil $ write!
+                                            : vertex
+                                              v-scale
+                                                v+ center
+                                                  v-scale rh $ cos ratio
+                                                  v-scale rv $ sin ratio
+                                                , 200
+                                              * 0.8 $ pow ring-idx 0.4
+                                              , ring-idx
+                                        _ $ eprintln "\"unknown data:" circle
+                                write! break-mark
         |decide-circle $ quote
           defn decide-circle (v0)
             let
@@ -505,13 +526,14 @@
       :ns $ quote
         ns app.comp.hopf-fiber $ :require
           lagopus.alias :refer $ group object
-          "\"../shaders/flower-ball.wgsl" :default wgsl-flower-ball
-          lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark comp-axis
+          "\"../shaders/hopf.wgsl" :default wgsl-hopf
+          lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize
           app.config :refer $ hide-tabs?
           lagopus.cursor :refer $ >>
           lagopus.math :refer $ fibo-grid-range rotate-3d
+          lagopus.comp.button :refer $ comp-drag-point
     |app.comp.mums $ {}
       :defs $ {}
         |comp-mums $ quote
@@ -877,6 +899,7 @@
             :states $ {}
             :tab :hopf
             :show-tabs? true
+            :show-controls? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
@@ -895,7 +918,7 @@
             js-await $ initializeContext
             initializeCanvasTextures
             reset-clear-color! $ either bg-color
-              {} (:r 0.1) (:g 0) (:b 0.2) (:a 0.98)
+              {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
             render-app!
             renderControl
             startControlLoop 10 onControlEvent
