@@ -67,6 +67,7 @@
                   :triangles $ comp-triangles
                   :segments $ comp-segments-fractal
                   :quaternion-fold $ comp-quaternion-fold
+                  :hopf $ comp-hopf-fiber
         |comp-fur $ quote
           defn comp-fur () $ comp-curves
             {} (:shader wgsl-fur)
@@ -171,6 +172,13 @@
                 :size 20
               fn (e d!)
                 d! $ : tab :quaternion-fold
+            comp-button
+              {}
+                :position $ [] 480 200 0
+                :color $ [] 0.2 0.6 0.9 1
+                :size 20
+              fn (e d!)
+                d! $ : tab :hopf
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -194,6 +202,7 @@
           app.comp.triangles :refer $ comp-triangles
           app.comp.segments-fractal :refer $ comp-segments-fractal
           app.comp.quaterion-fold :refer $ comp-quaternion-fold
+          app.comp.hopf-fiber :refer $ comp-hopf-fiber
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -413,6 +422,96 @@
           "\"@calcit/std" :refer $ rand rand-shift
           lagopus.comp.plate :refer $ comp-plate
           app.config :refer $ inline-shader
+    |app.comp.hopf-fiber $ {}
+      :defs $ {}
+        |calc-k $ quote
+          defn calc-k (p0 p1)
+            let
+                x0 $ nth p0 0
+                z0 $ nth p0 2
+                x1 $ nth p1 0
+                y1 $ nth p1 1
+                z1 $ nth p1 2
+              * 0.5 $ &/
+                - (v-length2 p1) (v-length2 p0)
+                + (* x0 x1) (* z0 z1)
+                  negate $ v-length2 p0
+        |comp-hopf-fiber $ quote
+          defn comp-hopf-fiber () $ let
+              circle-size 1000
+            group nil (comp-axis)
+              comp-polylines $ {}
+                :writer $ fn (write!)
+                  -> (range circle-size)
+                    map $ fn (idx)
+                      let
+                          start $ [] 10 10 20
+                          rh $ v-normalize
+                            v-cross start $ [] 0 1 0
+                          rv $ v-normalize (v-cross rh start)
+                          theta $ * 2 20 idx (/ &PI circle-size)
+                          r $ + 5 (* 1 idx)
+                          p $ v+ start
+                            v-scale rh $ * r (cos theta)
+                            v-scale rv $ * r (sin theta)
+                        ; write! $ : vertex p 1
+                        , p
+                    map $ fn (control)
+                      let
+                          circle $ decide-circle control
+                          n 200
+                        ->
+                          range $ inc n
+                          map $ fn (idx)
+                            let
+                                ratio $ * 2 idx (/ &PI n)
+                              tag-match circle
+                                  :circle center rh rv
+                                  do nil $ write!
+                                    : vertex
+                                      v-scale
+                                        v+ center
+                                          v-scale rh $ cos ratio
+                                          v-scale rv $ sin ratio
+                                        , 200
+                                      * 0.6 $ v-length rh
+                                _ $ eprintln "\"unknown data:" circle
+                        write! break-mark
+        |decide-circle $ quote
+          defn decide-circle (v0)
+            let
+                p1 $ v-normalize v0
+                c1 $ [] (nth p1 0) (nth p1 2)
+                theta $ js/Math.atan2 (nth p1 2) (nth p1 0)
+                theta0 $ &- theta (* 0.5 &PI)
+                p0 $ [] (nth p1 2) 0
+                  negate $ nth p1 0
+                k $ calc-k p0 p1
+                center $ v-scale p0 k
+                rh $ v- p0 center
+                v1 $ v-cross rh (v- p1 center)
+                rv $ v-scale
+                  v-normalize $ v-cross v1 rh
+                  v-length rh
+              : circle center rh rv
+        |v-length2 $ quote
+          defn v-length2 (a)
+            let-sugar
+                  [] x y z
+                  , a
+              -> (&* x x)
+                &+ $ &* y y
+                &+ $ &* z z
+      :ns $ quote
+        ns app.comp.hopf-fiber $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/flower-ball.wgsl" :default wgsl-flower-ball
+          lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark comp-axis
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.mums $ {}
       :defs $ {}
         |comp-mums $ quote
@@ -776,7 +875,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :quaternion-fold
+            :tab :hopf
             :show-tabs? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
