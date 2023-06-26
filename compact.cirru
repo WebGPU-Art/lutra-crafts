@@ -1,6 +1,6 @@
 
 {} (:package |app)
-  :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!) (:version |0.0.1)
+  :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!) (:version |0.0.5)
     :modules $ [] |memof/ |quaternion/ |lagopus/
   :entries $ {}
   :files $ {}
@@ -47,21 +47,31 @@
           defn comp-container (store)
             let
                 states $ :states store
+                show? $ :show-tabs? store
               group nil
-                if (not hide-tabs?) (memof1-call comp-tabs)
-                case-default (:tab store) (group nil)
+                ; if
+                  and (not hide-tabs?) show?
+                  memof1-call comp-tabs
+                case-default (:tab store)
+                  do
+                    js/console.log "\"Unknown tab" $ :tab store
+                    group nil
                   :cube $ comp-cubes
                   :helicoid $ comp-helicoid
-                  :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh )
+                  :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh)
                   :globe $ comp-globe
-                  :fur $ comp-fur (>> states :fur)
+                  :fur $ comp-fur
                   :petal-wireframe $ comp-petal-wireframe
                   :mums $ comp-mums
-                  :flower-ball $ comp-flower-ball
+                  :flower-ball $ with-cpu-time (comp-flower-ball)
                   :blow $ comp-blow
+                  :triangles $ comp-triangles
+                  :segments $ comp-segments-fractal
+                  :quaternion-fold $ comp-quaternion-fold
+                  :hopf $ comp-hopf-fiber (>> states :hopf) show?
         |comp-fur $ quote
-          defn comp-fur (states)
-            comp-curves $ {} (:shader wgsl-fur)
+          defn comp-fur () $ comp-curves
+            {} (:shader wgsl-fur)
               :curves $ -> (range 200)
                 map $ fn (idx)
                   let
@@ -84,55 +94,92 @@
                 :position $ [] 0 200 0
                 :color $ [] 0.3 0.9 0.2 1
                 :size 20
-              fn (e d!) (d! :tab :cube)
+              fn (e d!)
+                d! $ : tab :cube
             comp-button
               {}
                 :position $ [] 40 200 0
                 :color $ [] 0.8 0.3 1 1
                 :size 20
-              fn (e d!) (d! :tab :helicoid)
+              fn (e d!)
+                d! $ : tab :helicoid
             comp-button
               {}
                 :position $ [] 80 200 0
                 :color $ [] 0.6 0.3 1 1
                 :size 20
-              fn (e d!) (d! :tab :hyperbolic-helicoid)
+              fn (e d!)
+                d! $ : tab :hyperbolic-helicoid
             comp-button
               {}
                 :position $ [] 120 200 0
                 :color $ [] 0.3 0.9 0.5 1
                 :size 20
-              fn (e d!) (d! :tab :globe)
+              fn (e d!)
+                d! $ : tab :globe
             comp-button
               {}
                 :position $ [] 160 200 0
                 :color $ [] 0.9 0.5 0.6 1
                 :size 20
-              fn (e d!) (d! :tab :fur)
+              fn (e d!)
+                d! $ : tab :fur
             comp-button
               {}
                 :position $ [] 200 200 0
                 :color $ [] 0.0 0.5 0.6 1
                 :size 20
-              fn (e d!) (d! :tab :petal-wireframe)
+              fn (e d!)
+                d! $ : tab :petal-wireframe
             comp-button
               {}
                 :position $ [] 240 200 0
                 :color $ [] 0.9 0.5 0.6 1
                 :size 20
-              fn (e d!) (d! :tab :mums)
+              fn (e d!)
+                d! $ : tab :mums
             comp-button
               {}
                 :position $ [] 280 200 0
                 :color $ [] 0.3 0.9 0.3 1
                 :size 20
-              fn (e d!) (d! :tab :flower-ball)
+              fn (e d!)
+                d! $ : tab :flower-ball
             comp-button
               {}
                 :position $ [] 320 200 0
                 :color $ [] 0.4 0.9 0.6 1
                 :size 20
-              fn (e d!) (d! :tab :blow)
+              fn (e d!)
+                d! $ : tab :blow
+            comp-button
+              {}
+                :position $ [] 360 200 0
+                :color $ [] 0.8 0.3 0.6 1
+                :size 20
+              fn (e d!)
+                d! $ : tab :triangles
+            comp-button
+              {}
+                :position $ [] 400 200 0
+                :color $ [] 0.2 0.6 0.6 1
+                :size 20
+              fn (e d!)
+                d! $ : tab :segments
+            comp-button
+              {}
+                :position $ [] 440 200 0
+                :color $ [] 0.8 0.6 0.6 1
+                :size 20
+              fn (e d!)
+                d! $ : tab :quaternion-fold
+            comp-button
+              {}
+                :position $ [] 480 200 0
+                :color $ [] 0.2 0.6 0.9 1
+                :size 20
+              fn (e d!)
+                d! $ : tab :hopf
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -153,6 +200,10 @@
           app.comp.patels :refer $ comp-petal-wireframe
           app.comp.flower-ball :refer $ comp-flower-ball
           app.comp.blow :refer $ comp-blow
+          app.comp.triangles :refer $ comp-triangles
+          app.comp.segments-fractal :refer $ comp-segments-fractal
+          app.comp.quaterion-fold :refer $ comp-quaternion-fold
+          app.comp.hopf-fiber :refer $ comp-hopf-fiber
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -224,70 +275,65 @@
     |app.comp.flower-ball $ {}
       :defs $ {}
         |build-umbrella $ quote
-          defn build-umbrella (p0 v0 relative parts elevation decay step)
-            if (&<= step 0) ([])
+          defn build-umbrella (p0 v0 relative parts elevation decay step write!)
+            if (&> step 0)
               let
-                  forward $ v-normalize v0
-                  rightward $ v-normalize (v-cross v0 relative)
-                  upward $ v-normalize (v-cross rightward v0)
                   l0 $ v-length v0
+                  forward $ v-scale v0 (&/ 1 l0)
+                  rightward $ v-normalize (v-cross v0 relative)
+                  upward $ v-cross rightward forward
                   line0 $ v-scale
                     &v+
-                      v-scale forward (cos elevation) 
-                      v-scale upward (sin elevation) 
+                      v-scale forward $ cos elevation
+                      v-scale upward $ sin elevation
                     &* l0 decay
                   p-next $ &v+ p0 v0
                   theta0 $ &/ (&* 2 &PI) parts
                   lines $ -> (range parts)
                     map $ fn (idx)
-                      rotate-3d ([] 0 0 0) forward (&* theta0 idx) line0 
-                  branches $ -> lines
-                    map $ fn (line)
-                      build-umbrella p-next line v0 parts elevation decay $ dec step
-                []
-                  {} (:from p0) (:line v0)
-                  , branches
+                      rotate-3d v-zero forward (&* theta0 idx) line0 
+                  width 0.2
+                write! $ [] (: vertex p0 width)
+                  : vertex (&v+ p0 v0) width
+                  , break-mark
+                -> lines $ map
+                  fn (line)
+                    build-umbrella p-next line v0 parts elevation decay (dec step) write!
         |comp-flower-ball $ quote
           defn comp-flower-ball () $ let
               origin $ [] 0 0 0
               parts 8
-              elevation $ * &PI 0.25
-              decay 0.42
-              iteration 7
+              elevation $ * &PI 0.5
+              decay 0.36
+              iteration 8
               unit 800
-              width 1
-              ps $ ->
-                []
-                  [] ([] 0 unit 0) ([] 0 0 1)
-                  []
-                    [] 0 (negate unit) 0
-                    [] 0 0 1
-                  [] ([] unit 0 0) ([] 0 1 0)
-                  []
-                    [] (negate unit) 0 0
-                    [] 0 1 0
-                  [] ([] 0 0 unit) ([] 0 1 0)
-                  []
-                    [] 0 0 $ negate unit
-                    [] 0 1 0
-                take 1
-                map $ fn (pair)
-                  build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration
             ; js/console.log $ .flatten ps
-            comp-curves $ {} (:shader wgsl-flower-ball)
-              :curves $ -> ps (.flatten)
-                map $ fn (info)
-                  let
-                      from $ :from info
-                      to $ v+ from (:line info)
+            comp-polylines $ {} (:shader wgsl-flower-ball)
+              :writer $ fn (write!)
+                ->
+                  []
+                    [] ([] 0 unit 0) ([] 0 0 1)
                     []
-                      {} (:position from) (:width width)
-                      {} (:position to) (:width width)
+                      [] 0 (negate unit) 0
+                      [] 0 0 1
+                    [] ([] unit 0 0) ([] 0 1 0)
+                    []
+                      [] (negate unit) 0 0
+                      [] 0 1 0
+                    [] ([] 0 0 unit) ([] 0 1 0)
+                    []
+                      [] 0 0 $ negate unit
+                      [] 0 1 0
+                  take 1
+                  map $ fn (pair)
+                    build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration write!
+        |v-zero $ quote
+          def v-zero $ [] 0 0 0
       :ns $ quote
         ns app.comp.flower-ball $ :require
           lagopus.alias :refer $ group object
           "\"../shaders/flower-ball.wgsl" :default wgsl-flower-ball
-          lagopus.comp.curves :refer $ comp-curves
+          lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
           app.config :refer $ hide-tabs?
@@ -362,8 +408,9 @@
                     :size 12
                     :color $ [] 0.7 0.6 0.5 1.0
                   fn (delta d!)
-                    d! cursor $ assoc state :tau
-                      + tau $ * 0.01 (nth delta 0)
+                    d! $ : state cursor
+                      assoc state :tau $ + tau
+                        * 0.01 $ nth delta 0
       :ns $ quote
         ns app.comp.helicoid $ :require
           lagopus.alias :refer $ group object
@@ -376,6 +423,117 @@
           "\"@calcit/std" :refer $ rand rand-shift
           lagopus.comp.plate :refer $ comp-plate
           app.config :refer $ inline-shader
+    |app.comp.hopf-fiber $ {}
+      :defs $ {}
+        |calc-k $ quote
+          defn calc-k (p0 p1)
+            let
+                x0 $ nth p0 0
+                z0 $ nth p0 2
+                x1 $ nth p1 0
+                y1 $ nth p1 1
+                z1 $ nth p1 2
+              * 0.5 $ &/
+                - (v-length2 p1) (v-length2 p0)
+                + (* x0 x1) (* z0 z1)
+                  negate $ v-length2 p0
+        |comp-hopf-fiber $ quote
+          defn comp-hopf-fiber (states show?)
+            let
+                cursor $ :cursor states
+                state $ either (:data states)
+                  {} $ :base ([] 90 8 4)
+                base $ :base state
+                rh $ v-normalize
+                  v-cross base $ [] 0 1 0
+                rv $ v-normalize (v-cross rh base)
+              group nil
+                if show? $ comp-axis
+                if show? $ comp-drag-point
+                  {}
+                    :position $ :base state
+                    :color $ [] 0.6 0.6 1.0 1.0
+                  fn (move d!)
+                    d! $ : :state cursor (assoc state :base move)
+                comp-polylines-marked $ {} (:shader wgsl-hopf)
+                  :writer $ fn (write!)
+                    -> (range 16)
+                      map $ fn (ring-idx)
+                        let
+                            circle-size 60
+                          ->
+                            range $ inc circle-size
+                            map $ fn (idx)
+                              let
+                                  alpha $ * 0.2 (+ 0.2 ring-idx)
+                                  start $ v-scale base (cos alpha)
+                                  l $ * (v-length base) (sin alpha)
+                                  rh1 $ v-scale rh l
+                                  rv1 $ v-scale rv l
+                                  theta $ * 2 0.333 idx (/ &PI circle-size)
+                                  p $ v+ start
+                                    v-scale rh1 $ cos theta
+                                    v-scale rv1 $ sin theta
+                                if show? $ write! (: vertex p 1 1)
+                                , p
+                            map-indexed $ fn (i control)
+                              let
+                                  circle $ decide-circle control
+                                  n 80
+                                ->
+                                  range $ inc n
+                                  map $ fn (idx)
+                                    let
+                                        ratio $ * 2 idx (/ &PI n)
+                                      tag-match circle
+                                          :circle center rh rv
+                                          do nil $ write!
+                                            : vertex
+                                              v-scale
+                                                v+ center
+                                                  v-scale rh $ cos ratio
+                                                  v-scale rv $ sin ratio
+                                                , 200
+                                              * 0.8 $ pow ring-idx 0.4
+                                              , ring-idx
+                                        _ $ eprintln "\"unknown data:" circle
+                                write! break-mark
+        |decide-circle $ quote
+          defn decide-circle (v0)
+            let
+                p1 $ v-normalize v0
+                c1 $ [] (nth p1 0) (nth p1 2)
+                theta $ js/Math.atan2 (nth p1 2) (nth p1 0)
+                theta0 $ &- theta (* 0.5 &PI)
+                p0 $ [] (nth p1 2) 0
+                  negate $ nth p1 0
+                k $ calc-k p0 p1
+                center $ v-scale p0 k
+                rh $ v- p0 center
+                v1 $ v-cross rh (v- p1 center)
+                rv $ v-scale
+                  v-normalize $ v-cross v1 rh
+                  v-length rh
+              : circle center rh rv
+        |v-length2 $ quote
+          defn v-length2 (a)
+            let-sugar
+                  [] x y z
+                  , a
+              -> (&* x x)
+                &+ $ &* y y
+                &+ $ &* z z
+      :ns $ quote
+        ns app.comp.hopf-fiber $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/hopf.wgsl" :default wgsl-hopf
+          lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
+          lagopus.comp.button :refer $ comp-drag-point
     |app.comp.mums $ {}
       :defs $ {}
         |comp-mums $ quote
@@ -489,6 +647,234 @@
           app.config :refer $ hide-tabs?
           lagopus.cursor :refer $ >>
           lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.quaterion-fold $ {}
+      :defs $ {}
+        |comp-quaternion-fold $ quote
+          defn comp-quaternion-fold () $ let ()
+            with-cpu-time $ object-writer
+              {} (:topology :line-strip) (:shader wgsl-quaternion-fold)
+                :attrs-list $ [] (: float32x3 :position)
+                :writer $ fn (write!)
+                  ; fold-line4 19 ([] 0 0 0 0) ([] 0 100 0 0) ([] 0 20 0 22) ([] 16 20 0 23) ([] 16 20 0 27) ([] 0 20 0 28)
+                    q-inverse $ [] 0 0 0 50
+                    , 0.0027 write!
+                  fold-line4 12 ([] 0 0 0 0) ([] 200 0 0 0) ([] 0 20 0 25) ([] 5 20 10 25) ([] 5 20 10 15) ([] 0 20 0 15)
+                    q-inverse $ [] 0 0 0 50
+                    , 0.1 write!
+        |fold-line4 $ quote
+          defn fold-line4 (level base v a b c d full' minimal-seg write!)
+            let
+                v' $ &q* v full'
+                branch-a $ &q* v' a
+                branch-b $ &q* v' b
+                branch-c $ &q* v' c
+                branch-d $ &q* v' d
+                s 10
+                dec-level $ &- level 1
+              if
+                or (&<= level 0)
+                  &< (q-length2 v) minimal-seg
+                write! $ []
+                  : vertex $ take3 (&q+ base branch-b) 20
+                  : vertex $ take3 (&q+ base branch-b) 20
+                  : vertex $ take3 (&q+ base branch-c) 20
+                  : vertex $ take3 (&q+ base branch-d) 20
+                  : vertex $ take3 (&q+ base v) 20
+                do (fold-line4 dec-level base branch-a a b c d full' minimal-seg write!)
+                  fold-line4 dec-level (&q+ base branch-a) (&q- branch-b branch-a) a b c d full' minimal-seg write!
+                  fold-line4 dec-level (&q+ base branch-b) (&q- branch-c branch-b) a b c d full' minimal-seg write!
+                  fold-line4 dec-level (&q+ base branch-c) (&q- branch-d branch-c) a b c d full' minimal-seg write!
+                  fold-line4 dec-level (&q+ base branch-d) (&q- v branch-d) a b c d full' minimal-seg write!
+        |take3 $ quote
+          defn take3 (v s)
+            []
+              &* s $ &list:nth v 0
+              &* s $ &list:nth v 1
+              &* s $ &list:nth v 2
+      :ns $ quote
+        ns app.comp.quaterion-fold $ :require
+          lagopus.alias :refer $ group object object-writer
+          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          lagopus.comp.curves :refer $ comp-polylines break-mark
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
+          quaternion.core :refer $ &q* &q+ &q- q-length2 q-inverse
+          "\"../shaders/quaternion-fold.wgsl" :default wgsl-quaternion-fold
+    |app.comp.segments-fractal $ {}
+      :defs $ {}
+        |comp-segments-fractal $ quote
+          defn comp-segments-fractal () $ let
+              p1 $ [] 0.46 0.01 0
+              p2 $ [] 0.48 0.4 0.1
+              p3 $ [] 0.5 0.0 0
+              p4 $ [] 0.52 0.4 0.1
+              p5 $ [] 0.54 0.01 0
+              level 7
+              target $ [] 1000 0 0
+            comp-polylines $ {} (; :shader wgsl-flower-ball)
+              :writer $ fn (write!)
+                write! $ []
+                  : vertex ([] 0 0 0) 4
+                  : vertex target 4
+                  , break-mark
+                fold-fractal ([] 0 0 0) target ([] 0 0 1) p1 p2 p3 p4 p5 level write!
+        |fold-fractal $ quote
+          defn fold-fractal (base target right p1 p2 p3 p4 p5 level write!)
+            let
+                w $ / 0.5 (pow level 1.6)
+                next $ &v- target base
+                forward $ v-normalize next
+                upward $ v-cross right forward
+                l $ v-length next
+                point1 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p1 0
+                      v-scale upward $ nth p1 1
+                      v-scale right $ nth p1 2
+                    , l
+                point2 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p2 0
+                      v-scale upward $ nth p2 1
+                      v-scale right $ nth p2 2
+                    , l
+                point3 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p3 0
+                      v-scale upward $ nth p3 1
+                      v-scale right $ nth p3 2
+                    , l
+                point4 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p4 0
+                      v-scale upward $ nth p4 1
+                      v-scale right $ nth p4 2
+                    , l
+                point5 $ &v+ base
+                  v-scale
+                    v+
+                      v-scale forward $ nth p5 0
+                      v-scale upward $ nth p5 1
+                      v-scale right $ nth p5 2
+                    , l
+                m $ middle base target
+              if (&> level 1)
+                do nil
+                  ; write! $ [] (: vertex base w) (: vertex point1 w) (: vertex point2 w) (: vertex point3 w) (: vertex point4 w) (: vertex target w) break-mark
+                  let
+                      right1 $ v-normalize
+                        safe-right
+                          v-cross (&v- point1 base)
+                            &v- (middle base point1) m
+                          , right
+                    fold-fractal base point1 right1 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right2 $ v-normalize
+                        safe-right
+                          v-cross (&v- point2 point1)
+                            &v- (middle point1 point2) m
+                          , right
+                    fold-fractal point1 point2 right2 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right3 $ v-normalize
+                        safe-right
+                          v-cross (&v- point3 point2)
+                            &v- (middle point2 point3) m
+                          , right
+                    fold-fractal point2 point3 right3 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right4 $ v-normalize
+                        safe-right
+                          v-cross (&v- point4 point3)
+                            &v- (middle point3 point4) m
+                          , right
+                    fold-fractal point3 point4 right4 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right5 $ v-normalize
+                        safe-right
+                          v-cross (&v- point4 point4)
+                            &v- (middle point4 point5) m
+                          , right
+                    fold-fractal point4 target right5 p1 p2 p3 p4 p5 (dec level) write!
+                  let
+                      right6 $ v-normalize
+                        safe-right
+                          v-cross (&v- target point5)
+                            &v- (middle point5 target) m
+                          , right
+                    fold-fractal point4 target right6 p1 p2 p3 p4 p5 (dec level) write!
+                write! $ [] (: vertex base w) (: vertex point1 w) (: vertex point2 w) (: vertex point3 w) (: vertex point4 w) (: vertex point5 w) (: vertex target w) break-mark
+        |middle $ quote
+          defn middle (base target)
+            v-scale (&v+ base target) 0.5
+        |safe-right $ quote
+          defn safe-right (v right)
+            if
+              &= 0 $ v-length v
+              , right v
+      :ns $ quote
+        ns app.comp.segments-fractal $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
+          lagopus.comp.curves :refer $ comp-polylines break-mark
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.triangles $ {}
+      :defs $ {}
+        |build-sierpinski-triangles $ quote
+          defn build-sierpinski-triangles (p1 p2 p3 p4 level w dup? write!)
+            write! $ if dup?
+              [] (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark
+              [] (: vertex p1 w) (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark (: vertex p4 w) (: vertex p1 w) (: vertex p3 w) break-mark
+            if (&> level 0)
+              let
+                  p1-2 $ v-scale (&v+ p1 p2) 0.5
+                  p1-3 $ v-scale (&v+ p1 p3) 0.5
+                  p1-4 $ v-scale (&v+ p1 p4) 0.5
+                  p2-3 $ v-scale (&v+ p2 p3) 0.5
+                  p2-4 $ v-scale (&v+ p2 p4) 0.5
+                  p3-4 $ v-scale (&v+ p3 p4) 0.5
+                  p-all $ &v+
+                    &v+ p1 $ &v+ p2 p3
+                    , p4
+                  p-04 $ v-scale (&v- p-all p4) third
+                  p-03 $ v-scale (&v- p-all p3) third
+                  p-02 $ v-scale (&v- p-all p2) third
+                  p-01 $ v-scale (&v- p-all p1) third
+                if
+                  > (js/Math.random) 0.1
+                  build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w true write!
+                build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w true write!
+                build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w true write!
+                build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w true write!
+                ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false write!
+        |comp-triangles $ quote
+          defn comp-triangles () $ let ()
+            comp-polylines $ {} (:shader wgsl-triangles)
+              :writer $ fn (write!)
+                build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 10 0.1 false write!
+        |third $ quote
+          def third $ &/ 1 3
+      :ns $ quote
+        ns app.comp.triangles $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/triangles.wgsl" :default wgsl-triangles
+          lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.config $ {}
       :defs $ {}
         |bloom? $ quote
@@ -511,15 +897,17 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :flower-ball
+            :tab :hopf
+            :show-tabs? true
+            :show-controls? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
         |dispatch! $ quote
-          defn dispatch! (op data)
-            if dev? $ js/console.log op data
+          defn dispatch! (op)
+            if dev? $ js/console.log op
             let
                 store @*store
-                next-store $ if (list? op) (update-states store op data) (updater store op data)
+                next-store $ updater store op
               if (not= next-store store) (reset! *store next-store)
         |main! $ quote
           defn main! () (hint-fn async)
@@ -530,7 +918,7 @@
             js-await $ initializeContext
             initializeCanvasTextures
             reset-clear-color! $ either bg-color
-              {} (:r 0) (:g 0) (:b 0) (:a 0.1)
+              {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
             render-app!
             renderControl
             startControlLoop 10 onControlEvent
@@ -540,6 +928,10 @@
             add-watch *store :change $ fn (next store) (render-app!)
             setupMouseEvents canvas
             if remote-control? $ setupRemoteControl
+              fn (action)
+                case-default (.-button action) (js/console.warn "\"Unknown Action" action)
+                  "\"toggle" $ dispatch! (: toggle)
+                  "\"switch" $ dispatch! (: switch)
         |reload! $ quote
           defn reload! () $ if (nil? build-errors)
             do (reset-memof1-caches!) (render-app!) (remove-watch *store :change)
@@ -562,18 +954,22 @@
           "\"./calcit.build-errors" :default build-errors
           memof.once :refer $ reset-memof1-caches!
           lagopus.util :refer $ handle-compilation reset-clear-color!
-          lagopus.cursor :refer $ update-states
           app.updater :refer $ updater
           "\"@triadica/lagopus/lib/remote-control.mjs" :refer $ setupRemoteControl
     |app.updater $ {}
       :defs $ {}
         |updater $ quote
-          defn updater (store op data)
-            case-default op
-              do (js/console.warn ":unknown op" op data) store
-              :tab $ assoc store :tab data
-              :tau $ assoc store :tau data
-      :ns $ quote (ns app.updater)
+          defn updater (store op)
+            tag-match op
+                :state c s
+                update-states store c s
+              (:tab t) (assoc store :tab t)
+              (:tau t) (assoc store :tau t)
+              (:toggle) (update store :show-tabs? not)
+              _ $ do (js/console.warn "\"Unknown op:" op) store
+      :ns $ quote
+        ns app.updater $ :require
+          lagopus.cursor :refer $ update-states
     |app.util $ {}
       :defs $ {}
         |interoplate-line $ quote

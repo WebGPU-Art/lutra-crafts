@@ -2,5 +2,5 @@
 {}
   :dependencies $ {}
     |calcit-lang/memof |main
-    |calcit-lang/quaternion |main
-    |Triadica/lagopus |0.0.13
+    |calcit-lang/quaternion |0.0.6
+    |Triadica/lagopus |0.1.3
