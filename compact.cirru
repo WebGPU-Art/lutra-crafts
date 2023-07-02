@@ -49,7 +49,7 @@
                 states $ :states store
                 show? $ :show-tabs? store
               group nil
-                ; if
+                if
                   and (not hide-tabs?) show?
                   memof1-call comp-tabs
                 case-default (:tab store)
@@ -69,6 +69,7 @@
                   :segments $ comp-segments-fractal
                   :quaternion-fold $ comp-quaternion-fold
                   :hopf $ comp-hopf-fiber (>> states :hopf) show?
+                  :fireworks $ comp-fireworks
         |comp-fur $ quote
           defn comp-fur () $ comp-curves
             {} (:shader wgsl-fur)
@@ -180,6 +181,13 @@
                 :size 20
               fn (e d!)
                 d! $ : tab :hopf
+            comp-button
+              {}
+                :position $ [] 480 160 0
+                :color $ [] 0.5 0.8 0.4 1
+                :size 20
+              fn (e d!)
+                d! $ : tab :fireworks
       :ns $ quote
         ns app.comp.container $ :require
           lagopus.alias :refer $ group object
@@ -204,6 +212,7 @@
           app.comp.segments-fractal :refer $ comp-segments-fractal
           app.comp.quaterion-fold :refer $ comp-quaternion-fold
           app.comp.hopf-fiber :refer $ comp-hopf-fiber
+          app.comp.fireworks :refer $ comp-fireworks
     |app.comp.cube-combo $ {}
       :defs $ {}
         |comp-cubes $ quote
@@ -272,6 +281,47 @@
           memof.once :refer $ memof1-call
           quaternion.core :refer $ c+ v+
           "\"@calcit/std" :refer $ rand rand-shift
+    |app.comp.fireworks $ {}
+      :defs $ {}
+        |comp-fireworks $ quote
+          defn comp-fireworks () $ group nil
+            comp-polylines-marked $ {} (:shader wgsl-fireworks)
+              :writer $ fn (write!)
+                -> (range 2000)
+                  each $ fn (_)
+                    let
+                        base $ [] (rand-shift 0 20000) (rand-shift 0 2080) (rand-shift 0 20000)
+                        color $ rand 10
+                        w $ + 2 (rand 6)
+                      ->
+                        fibo-grid-range $ rand-int 40 400
+                        each $ fn (v)
+                          let
+                              a1 $ rand 4
+                              a2 $ rand 4
+                            ->
+                              range $ rand-int 12
+                              map $ fn (n)
+                                * 1 $ + n 3 a2
+                              each $ fn (n)
+                                let
+                                    t $ * 2.2 n
+                                    p $ v+ base
+                                      v-scale v $ * 6 t a1
+                                      v-scale ([] 0 -0.4 0) (* t t 0.5)
+                                  write! $ : vertex (v-scale p 1) w color
+                          write! break-mark
+      :ns $ quote
+        ns app.comp.fireworks $ :require
+          lagopus.alias :refer $ group object
+          "\"../shaders/fireworks.wgsl" :default wgsl-fireworks
+          lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
+          memof.once :refer $ memof1-call
+          quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+          app.config :refer $ hide-tabs?
+          lagopus.cursor :refer $ >>
+          lagopus.math :refer $ fibo-grid-range rotate-3d
+          "\"@calcit/std" :refer $ rand rand-int rand-shift rand-between
     |app.comp.flower-ball $ {}
       :defs $ {}
         |build-umbrella $ quote
@@ -897,8 +947,8 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :hopf
-            :show-tabs? true
+            :tab :fireworks
+            :show-tabs? false
             :show-controls? true
         |canvas $ quote
           def canvas $ js/document.querySelector "\"canvas"
