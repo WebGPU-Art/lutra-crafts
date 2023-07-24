@@ -708,9 +708,32 @@
                   ; fold-line4 19 ([] 0 0 0 0) ([] 0 100 0 0) ([] 0 20 0 22) ([] 16 20 0 23) ([] 16 20 0 27) ([] 0 20 0 28)
                     q-inverse $ [] 0 0 0 50
                     , 0.0027 write!
-                  fold-line4 12 ([] 0 0 0 0) ([] 200 0 0 0) ([] 0 20 0 25) ([] 5 20 10 25) ([] 5 20 10 15) ([] 0 20 0 15)
+                  ; fold-line4 12 ([] 0 0 0 0) ([] 200 0 0 0) ([] 0 20 0 25) ([] 5 20 10 25) ([] 5 20 10 15) ([] 0 20 0 15)
                     q-inverse $ [] 0 0 0 50
                     , 0.1 write!
+                  fold-line3 12 ([] 0 0 0 0) ([] 100 0 0 0) ([] 22.5 0 0 25) ([] 22.5 12.5 12.5 25) ([] 22.5 0 0 25)
+                    q-inverse $ [] 0 0 0 50
+                    , 0.008 write!
+        |fold-line3 $ quote
+          defn fold-line3 (level base v a b c full' minimal-seg write!)
+            let
+                v' $ &q* v full'
+                branch-a $ &q* v' a
+                branch-b $ &q* v' b
+                branch-c $ &q* v' c
+              if
+                or (<= level 0)
+                  &< (q-length2 v) minimal-seg
+                write! $ []
+                  : vertex $ take3 (&q+ base branch-a) 20
+                  : vertex $ take3 (&q+ base branch-b) 20
+                  : vertex $ take3 (&q+ base branch-c) 20
+                  : vertex $ take3 (&q+ base v) 20
+                do
+                  fold-line3 (dec level) base branch-a a b c full' minimal-seg write!
+                  fold-line3 (dec level) (&q+ base branch-a) (&q- branch-b branch-a) a b c full' minimal-seg write!
+                  fold-line3 (dec level) (&q+ base branch-b) (&q- branch-c branch-b) a b c full' minimal-seg write!
+                  fold-line3 (dec level) (&q+ base branch-c) (&q- v branch-c) a b c full' minimal-seg write!
         |fold-line4 $ quote
           defn fold-line4 (level base v a b c d full' minimal-seg write!)
             let
@@ -947,7 +970,7 @@
         |*store $ quote
           defatom *store $ {}
             :states $ {}
-            :tab :fireworks
+            :tab :quaternion-fold
             :show-tabs? false
             :show-controls? true
         |canvas $ quote
