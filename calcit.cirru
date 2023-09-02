@@ -1,10 +1,10 @@
 
 {} (:package |app)
-  :configs $ {} (:init-fn |app.main/main!) (:output |src) (:port 6001) (:reload-fn |app.main/reload!) (:storage-key |calcit.cirru) (:version |0.0.5)
+  :configs $ {} (:init-fn |app.main/main!) (:port 6001) (:reload-fn |app.main/reload!) (:storage-key |calcit.cirru) (:version |0.0.5)
     :modules $ [] |memof/ |quaternion/ |lagopus/
   :entries $ {}
   :files $ {}
-    |app.comp.blow $ {}
+    |app.comp.blow $ %{} :FileEntry
       :defs $ {}
         |comp-blow $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1683738317319) (:by |rJG4IHzWf)
@@ -265,8 +265,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1683738627605) (:by |rJG4IHzWf) (:text |rand)
                         |b $ %{} :Leaf (:at 1683738659889) (:by |rJG4IHzWf) (:text |rand-shift)
-    |app.comp.container $ {}
-      :configs $ {}
+    |app.comp.container $ %{} :FileEntry
       :defs $ {}
         |comp-container $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1677433056435) (:by |rJG4IHzWf)
@@ -1361,8 +1360,7 @@
                     |h $ %{} :Expr (:at 1687540195747) (:by |rJG4IHzWf)
                       :data $ {}
                         |T $ %{} :Leaf (:at 1688057338542) (:by |rJG4IHzWf) (:text |comp-fireworks)
-    |app.comp.cube-combo $ {}
-      :configs $ {}
+    |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1678986191601) (:by |rJG4IHzWf)
@@ -1991,8 +1989,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1680347139040) (:by |rJG4IHzWf) (:text |rand)
                         |b $ %{} :Leaf (:at 1680347732349) (:by |rJG4IHzWf) (:text |rand-shift)
-    |app.comp.fireworks $ {}
-      :configs $ {}
+    |app.comp.fireworks $ %{} :FileEntry
       :defs $ {}
         |comp-fireworks $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1688057365572) (:by |rJG4IHzWf)
@@ -2308,8 +2305,7 @@
                         |b $ %{} :Leaf (:at 1688058470863) (:by |rJG4IHzWf) (:text |rand-int)
                         |h $ %{} :Leaf (:at 1688058474232) (:by |rJG4IHzWf) (:text |rand-shift)
                         |l $ %{} :Leaf (:at 1688058477203) (:by |rJG4IHzWf) (:text |rand-between)
-    |app.comp.flower-ball $ {}
-      :configs $ {}
+    |app.comp.flower-ball $ %{} :FileEntry
       :defs $ {}
         |build-umbrella $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1683452526147) (:by |rJG4IHzWf)
@@ -2805,8 +2801,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1683451309844) (:by |rJG4IHzWf) (:text |fibo-grid-range)
                         |b $ %{} :Leaf (:at 1683451309844) (:by |rJG4IHzWf) (:text |rotate-3d)
-    |app.comp.globe $ {}
-      :configs $ {}
+    |app.comp.globe $ %{} :FileEntry
       :defs $ {}
         |comp-globe $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1681920245936) (:by |rJG4IHzWf)
@@ -2935,8 +2930,7 @@
                     |h $ %{} :Expr (:at 1681921606301) (:by |rJG4IHzWf)
                       :data $ {}
                         |T $ %{} :Leaf (:at 1681921610220) (:by |rJG4IHzWf) (:text |inline-shader)
-    |app.comp.helicoid $ {}
-      :configs $ {}
+    |app.comp.helicoid $ %{} :FileEntry
       :defs $ {}
         |build-01-grid $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1681493013423) (:by |rJG4IHzWf)
@@ -3413,8 +3407,7 @@
                     |h $ %{} :Expr (:at 1681405951086) (:by |rJG4IHzWf)
                       :data $ {}
                         |T $ %{} :Leaf (:at 1681405952653) (:by |rJG4IHzWf) (:text |inline-shader)
-    |app.comp.hopf-fiber $ {}
-      :configs $ {}
+    |app.comp.hopf-fiber $ %{} :FileEntry
       :defs $ {}
         |calc-k $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1687595137516) (:by |rJG4IHzWf)
@@ -4224,8 +4217,7 @@
                     |h $ %{} :Expr (:at 1687600433331) (:by |rJG4IHzWf)
                       :data $ {}
                         |h $ %{} :Leaf (:at 1687600433331) (:by |rJG4IHzWf) (:text |comp-drag-point)
-    |app.comp.mums $ {}
-      :configs $ {}
+    |app.comp.mums $ %{} :FileEntry
       :defs $ {}
         |comp-mums $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1682361688674) (:by |rJG4IHzWf)
@@ -4598,8 +4590,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1683448757818) (:by |rJG4IHzWf) (:text |fibo-grid-range)
                         |b $ %{} :Leaf (:at 1683448757818) (:by |rJG4IHzWf) (:text |rotate-3d)
-    |app.comp.patels $ {}
-      :configs $ {}
+    |app.comp.patels $ %{} :FileEntry
       :defs $ {}
         |build-quadratic-curve $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1682178478975) (:by |rJG4IHzWf)
@@ -5021,8 +5012,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1683450755350) (:by |rJG4IHzWf) (:text |fibo-grid-range)
                         |b $ %{} :Leaf (:at 1683450755350) (:by |rJG4IHzWf) (:text |rotate-3d)
-    |app.comp.quaterion-fold $ {}
-      :configs $ {}
+    |app.comp.quaterion-fold $ %{} :FileEntry
       :defs $ {}
         |comp-quaternion-fold $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1687540127520) (:by |rJG4IHzWf)
@@ -5910,8 +5900,7 @@
                     |T $ %{} :Leaf (:at 1687542098450) (:by |rJG4IHzWf) (:text "|\"../shaders/quaternion-fold.wgsl")
                     |b $ %{} :Leaf (:at 1687542088071) (:by |rJG4IHzWf) (:text |:default)
                     |h $ %{} :Leaf (:at 1687542094855) (:by |rJG4IHzWf) (:text |wgsl-quaternion-fold)
-    |app.comp.segments-fractal $ {}
-      :configs $ {}
+    |app.comp.segments-fractal $ %{} :FileEntry
       :defs $ {}
         |comp-segments-fractal $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1687500604510) (:by |rJG4IHzWf)
@@ -6832,8 +6821,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1687500614851) (:by |rJG4IHzWf) (:text |fibo-grid-range)
                         |b $ %{} :Leaf (:at 1687500614851) (:by |rJG4IHzWf) (:text |rotate-3d)
-    |app.comp.triangles $ {}
-      :configs $ {}
+    |app.comp.triangles $ %{} :FileEntry
       :defs $ {}
         |build-sierpinski-triangles $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1687106488015) (:by |rJG4IHzWf)
@@ -7313,8 +7301,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1687086138800) (:by |rJG4IHzWf) (:text |fibo-grid-range)
                         |b $ %{} :Leaf (:at 1687086138800) (:by |rJG4IHzWf) (:text |rotate-3d)
-    |app.config $ {}
-      :configs $ {}
+    |app.config $ %{} :FileEntry
       :defs $ {}
         |bloom? $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1681145746050) (:by |rJG4IHzWf)
@@ -7407,8 +7394,7 @@
                     |T $ %{} :Leaf (:at 1681145755183) (:by |rJG4IHzWf) (:text "|\"ismobilejs")
                     |b $ %{} :Leaf (:at 1681145755183) (:by |rJG4IHzWf) (:text |:default)
                     |h $ %{} :Leaf (:at 1681145755183) (:by |rJG4IHzWf) (:text |ismobile)
-    |app.main $ {}
-      :configs $ {}
+    |app.main $ %{} :FileEntry
       :defs $ {}
         |*store $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1677948378750) (:by |rJG4IHzWf)
@@ -7431,7 +7417,7 @@
                   |h $ %{} :Expr (:at 1687085848002) (:by |rJG4IHzWf)
                     :data $ {}
                       |T $ %{} :Leaf (:at 1687085850246) (:by |rJG4IHzWf) (:text |:show-tabs?)
-                      |b $ %{} :Leaf (:at 1688058312430) (:by |rJG4IHzWf) (:text |false)
+                      |b $ %{} :Leaf (:at 1693647294768) (:by |rJG4IHzWf) (:text |true)
                   |l $ %{} :Expr (:at 1687611842019) (:by |rJG4IHzWf)
                     :data $ {}
                       |T $ %{} :Leaf (:at 1687611846165) (:by |rJG4IHzWf) (:text |:show-controls?)
@@ -7537,6 +7523,33 @@
                   |T $ %{} :Leaf (:at 1681145795219) (:by |rJG4IHzWf) (:text |initializeCanvasTextures)
               |u $ %{} :Expr (:at 1680375075869) (:by |rJG4IHzWf)
                 :data $ {}
+                  |T $ %{} :Leaf (:at 1680375116827) (:by |rJG4IHzWf) (:text |reset-clear-color!)
+                  |b $ %{} :Expr (:at 1682271618697) (:by |rJG4IHzWf)
+                    :data $ {}
+                      |D $ %{} :Leaf (:at 1682271619786) (:by |rJG4IHzWf) (:text |either)
+                      |L $ %{} :Leaf (:at 1682271620334) (:by |rJG4IHzWf) (:text |bg-color)
+                      |T $ %{} :Expr (:at 1680375080677) (:by |rJG4IHzWf)
+                        :data $ {}
+                          |T $ %{} :Leaf (:at 1680375081032) (:by |rJG4IHzWf) (:text |{})
+                          |b $ %{} :Expr (:at 1680375081462) (:by |rJG4IHzWf)
+                            :data $ {}
+                              |T $ %{} :Leaf (:at 1680375081908) (:by |rJG4IHzWf) (:text |:r)
+                              |b $ %{} :Leaf (:at 1693647338347) (:by |rJG4IHzWf) (:text |0.9)
+                          |h $ %{} :Expr (:at 1680375084241) (:by |rJG4IHzWf)
+                            :data $ {}
+                              |T $ %{} :Leaf (:at 1680375084694) (:by |rJG4IHzWf) (:text |:g)
+                              |b $ %{} :Leaf (:at 1693647336145) (:by |rJG4IHzWf) (:text |0.9)
+                          |l $ %{} :Expr (:at 1680375085811) (:by |rJG4IHzWf)
+                            :data $ {}
+                              |T $ %{} :Leaf (:at 1680375086440) (:by |rJG4IHzWf) (:text |:b)
+                              |b $ %{} :Leaf (:at 1693647339697) (:by |rJG4IHzWf) (:text |0.9)
+                          |o $ %{} :Expr (:at 1680375087219) (:by |rJG4IHzWf)
+                            :data $ {}
+                              |T $ %{} :Leaf (:at 1680375088081) (:by |rJG4IHzWf) (:text |:a)
+                              |b $ %{} :Leaf (:at 1687542122748) (:by |rJG4IHzWf) (:text |0.98)
+              |uT $ %{} :Expr (:at 1680375075869) (:by |rJG4IHzWf)
+                :data $ {}
+                  |D $ %{} :Leaf (:at 1693647317823) (:by |rJG4IHzWf) (:text |;)
                   |T $ %{} :Leaf (:at 1680375116827) (:by |rJG4IHzWf) (:text |reset-clear-color!)
                   |b $ %{} :Expr (:at 1682271618697) (:by |rJG4IHzWf)
                     :data $ {}
@@ -7839,8 +7852,7 @@
                     |h $ %{} :Expr (:at 1684604987334) (:by |rJG4IHzWf)
                       :data $ {}
                         |T $ %{} :Leaf (:at 1684604987609) (:by |rJG4IHzWf) (:text |setupRemoteControl)
-    |app.updater $ {}
-      :configs $ {}
+    |app.updater $ %{} :FileEntry
       :defs $ {}
         |updater $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1682011620621) (:by |rJG4IHzWf)
@@ -7930,8 +7942,7 @@
                     |h $ %{} :Expr (:at 1687280593490) (:by |rJG4IHzWf)
                       :data $ {}
                         |T $ %{} :Leaf (:at 1687280593490) (:by |rJG4IHzWf) (:text |update-states)
-    |app.util $ {}
-      :configs $ {}
+    |app.util $ %{} :FileEntry
       :defs $ {}
         |interoplate-line $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1682137134521) (:by |rJG4IHzWf)

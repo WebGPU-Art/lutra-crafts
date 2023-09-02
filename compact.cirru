@@ -4,7 +4,7 @@
     :modules $ [] |memof/ |quaternion/ |lagopus/
   :entries $ {}
   :files $ {}
-    |app.comp.blow $ {}
+    |app.comp.blow $ %{} :FileEntry
       :defs $ {}
         |comp-blow $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -43,7 +43,7 @@
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             "\"@calcit/std" :refer $ rand rand-shift
-    |app.comp.container $ {}
+    |app.comp.container $ %{} :FileEntry
       :defs $ {}
         |comp-container $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -219,7 +219,7 @@
             app.comp.quaterion-fold :refer $ comp-quaternion-fold
             app.comp.hopf-fiber :refer $ comp-hopf-fiber
             app.comp.fireworks :refer $ comp-fireworks
-    |app.comp.cube-combo $ {}
+    |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -289,7 +289,7 @@
             memof.once :refer $ memof1-call
             quaternion.core :refer $ c+ v+
             "\"@calcit/std" :refer $ rand rand-shift
-    |app.comp.fireworks $ {}
+    |app.comp.fireworks $ %{} :FileEntry
       :defs $ {}
         |comp-fireworks $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -332,7 +332,7 @@
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             "\"@calcit/std" :refer $ rand rand-int rand-shift rand-between
-    |app.comp.flower-ball $ {}
+    |app.comp.flower-ball $ %{} :FileEntry
       :defs $ {}
         |build-umbrella $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -403,7 +403,7 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-    |app.comp.globe $ {}
+    |app.comp.globe $ %{} :FileEntry
       :defs $ {}
         |comp-globe $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -426,7 +426,7 @@
             "\"@calcit/std" :refer $ rand rand-shift
             lagopus.comp.sphere :refer $ comp-sphere
             app.config :refer $ inline-shader
-    |app.comp.helicoid $ {}
+    |app.comp.helicoid $ %{} :FileEntry
       :defs $ {}
         |build-01-grid $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -494,7 +494,7 @@
             "\"@calcit/std" :refer $ rand rand-shift
             lagopus.comp.plate :refer $ comp-plate
             app.config :refer $ inline-shader
-    |app.comp.hopf-fiber $ {}
+    |app.comp.hopf-fiber $ %{} :FileEntry
       :defs $ {}
         |calc-k $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -610,7 +610,7 @@
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             lagopus.comp.button :refer $ comp-drag-point
-    |app.comp.mums $ {}
+    |app.comp.mums $ %{} :FileEntry
       :defs $ {}
         |comp-mums $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -667,7 +667,7 @@
             quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-    |app.comp.patels $ {}
+    |app.comp.patels $ %{} :FileEntry
       :defs $ {}
         |build-quadratic-curve $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -729,7 +729,7 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-    |app.comp.quaterion-fold $ {}
+    |app.comp.quaterion-fold $ %{} :FileEntry
       :defs $ {}
         |comp-quaternion-fold $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -816,7 +816,7 @@
             lagopus.math :refer $ fibo-grid-range rotate-3d
             quaternion.core :refer $ &q* &q+ &q- q-length2 q-inverse
             "\"../shaders/quaternion-fold.wgsl" :default wgsl-quaternion-fold
-    |app.comp.segments-fractal $ {}
+    |app.comp.segments-fractal $ %{} :FileEntry
       :defs $ {}
         |comp-segments-fractal $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -947,7 +947,7 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-    |app.comp.triangles $ {}
+    |app.comp.triangles $ %{} :FileEntry
       :defs $ {}
         |build-sierpinski-triangles $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -997,7 +997,7 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-    |app.config $ {}
+    |app.config $ %{} :FileEntry
       :defs $ {}
         |bloom? $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -1021,14 +1021,14 @@
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.config $ :require ("\"ismobilejs" :default ismobile)
-    |app.main $ {}
+    |app.main $ %{} :FileEntry
       :defs $ {}
         |*store $ %{} :CodeEntry (:doc |)
           :code $ quote
             defatom *store $ {}
               :states $ {}
               :tab :quaternion-fold
-              :show-tabs? false
+              :show-tabs? true
               :show-controls? true
         |canvas $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -1051,6 +1051,8 @@
               js-await $ initializeContext
               initializeCanvasTextures
               reset-clear-color! $ either bg-color
+                {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
+              ; reset-clear-color! $ either bg-color
                 {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
               render-app!
               renderControl
@@ -1092,7 +1094,7 @@
             lagopus.util :refer $ handle-compilation reset-clear-color!
             app.updater :refer $ updater
             "\"@triadica/lagopus/lib/remote-control.mjs" :refer $ setupRemoteControl
-    |app.updater $ {}
+    |app.updater $ %{} :FileEntry
       :defs $ {}
         |updater $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -1108,7 +1110,7 @@
         :code $ quote
           ns app.updater $ :require
             lagopus.cursor :refer $ update-states
-    |app.util $ {}
+    |app.util $ %{} :FileEntry
       :defs $ {}
         |interoplate-line $ %{} :CodeEntry (:doc |)
           :code $ quote
