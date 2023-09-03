@@ -1,7 +1,7 @@
 
 {} (:package |app)
   :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!) (:version |0.0.5)
-    :modules $ [] |memof/ |quaternion/ |lagopus/
+    :modules $ [] |memof/ |quaternion/ |lagopus/ |respo.calcit/ |respo-ui.calcit/ |lilac/
   :entries $ {}
   :files $ {}
     |app.comp.blow $ %{} :FileEntry
@@ -51,28 +51,24 @@
               let
                   states $ :states store
                   show? $ :show-tabs? store
-                group nil
-                  if
-                    and (not hide-tabs?) show?
-                    memof1-call comp-tabs
-                  case-default (:tab store)
-                    do
-                      js/console.log "\"Unknown tab" $ :tab store
-                      group nil
-                    :cube $ comp-cubes
-                    :helicoid $ comp-helicoid
-                    :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh)
-                    :globe $ comp-globe
-                    :fur $ comp-fur
-                    :petal-wireframe $ comp-petal-wireframe
-                    :mums $ comp-mums
-                    :flower-ball $ with-cpu-time (comp-flower-ball)
-                    :blow $ comp-blow
-                    :triangles $ comp-triangles
-                    :segments $ comp-segments-fractal
-                    :quaternion-fold $ comp-quaternion-fold
-                    :hopf $ comp-hopf-fiber (>> states :hopf) show?
-                    :fireworks $ comp-fireworks
+                group nil $ case-default (:tab store)
+                  do
+                    eprintln "\"Unknown tab" $ :tab store
+                    group nil
+                  :cube $ comp-cubes
+                  :helicoid $ comp-helicoid
+                  :hyperbolic-helicoid $ comp-hyperbolic-helicoid (>> states :hh)
+                  :globe $ comp-globe
+                  :fur $ comp-fur
+                  :petal-wireframe $ comp-petal-wireframe
+                  :mums $ comp-mums
+                  :flower-ball $ with-cpu-time (comp-flower-ball)
+                  :blow $ comp-blow
+                  :triangles $ comp-triangles
+                  :segments $ comp-segments-fractal
+                  :quaternion-fold $ comp-quaternion-fold
+                  :hopf $ comp-hopf-fiber (>> states :hopf) show?
+                  :fireworks $ comp-fireworks
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -92,107 +88,6 @@
                             :position $ v+ base
                               [] 0 (* 2 hi) 0
                             :width 0.6
-        |comp-tabs $ %{} :CodeEntry (:doc |)
-          :code $ quote
-            defn comp-tabs () $ group nil
-              comp-button
-                {}
-                  :position $ [] 0 200 0
-                  :color $ [] 0.3 0.9 0.2 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :cube
-              comp-button
-                {}
-                  :position $ [] 40 200 0
-                  :color $ [] 0.8 0.3 1 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :helicoid
-              comp-button
-                {}
-                  :position $ [] 80 200 0
-                  :color $ [] 0.6 0.3 1 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :hyperbolic-helicoid
-              comp-button
-                {}
-                  :position $ [] 120 200 0
-                  :color $ [] 0.3 0.9 0.5 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :globe
-              comp-button
-                {}
-                  :position $ [] 160 200 0
-                  :color $ [] 0.9 0.5 0.6 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :fur
-              comp-button
-                {}
-                  :position $ [] 200 200 0
-                  :color $ [] 0.0 0.5 0.6 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :petal-wireframe
-              comp-button
-                {}
-                  :position $ [] 240 200 0
-                  :color $ [] 0.9 0.5 0.6 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :mums
-              comp-button
-                {}
-                  :position $ [] 280 200 0
-                  :color $ [] 0.3 0.9 0.3 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :flower-ball
-              comp-button
-                {}
-                  :position $ [] 320 200 0
-                  :color $ [] 0.4 0.9 0.6 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :blow
-              comp-button
-                {}
-                  :position $ [] 360 200 0
-                  :color $ [] 0.8 0.3 0.6 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :triangles
-              comp-button
-                {}
-                  :position $ [] 400 200 0
-                  :color $ [] 0.2 0.6 0.6 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :segments
-              comp-button
-                {}
-                  :position $ [] 440 200 0
-                  :color $ [] 0.8 0.6 0.6 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :quaternion-fold
-              comp-button
-                {}
-                  :position $ [] 480 200 0
-                  :color $ [] 0.2 0.6 0.9 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :hopf
-              comp-button
-                {}
-                  :position $ [] 480 160 0
-                  :color $ [] 0.5 0.8 0.4 1
-                  :size 20
-                fn (e d!)
-                  d! $ : tab :fireworks
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.container $ :require
@@ -667,6 +562,57 @@
             quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.nav $ %{} :FileEntry
+      :defs $ {}
+        |comp-nav $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-nav (store)
+              let
+                  tab $ :tab store
+                  show-tabs? $ and (not hide-tabs?) (:show-tabs? store)
+                div
+                  {} $ :class-name style-nav
+                  if show-tabs? $ list-> ({})
+                    -> tabs $ map
+                      fn (pair)
+                        let
+                            t $ nth pair 0
+                            name $ nth pair 1
+                          [] t $ div
+                            {}
+                              :class-name $ str-spaced style-tab css/font-fancy!
+                              :on-click $ fn (e d!)
+                                d! $ :: :tab t
+                              :style $ if (= tab t)
+                                {} $ :color :white
+                            <> name
+        |style-nav $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-nav $ {}
+              "\"&" $ {} (:position :absolute) (:top 12)
+        |style-tab $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-tab $ {}
+              "\"&" $ {} (:line-height "\"1.4") (:padding "\"0 8px")
+                :color $ hsl 0 0 100 0.5
+                :cursor :pointer
+                :transition-duration "\"200ms"
+                :border-radius "\"4px"
+              "\"&:hover" $ {}
+                :background-color $ hsl 0 0 0 0.5
+                :color :white
+        |tabs $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def tabs $ [] (:: :cube |Cube) (:: :helicoid |Helicoid) (:: :hyperbolic-helicoid |Hyperbolic-helicoid) (:: :globe |Globe) (:: :fur |Fur) (:: :petal-wireframe |Petal-wireframe) (:: :mums |Mums) (:: :flower-ball |Ball) (:: :blow |Blow) (:: :triangles |Triangles) (:: :segments |Segments) (:: :quaternion-fold |Quaternion-fold) (:: :hopf |Hopf) (:: :fireworks |Fireworks)
+      :ns $ %{} :CodeEntry (:doc |)
+        :code $ quote
+          ns app.comp.nav $ :require
+            respo.core :refer $ defcomp defeffect <> >> div button textarea span input list->
+            respo.comp.space :refer $ =<
+            respo.css :refer $ defstyle
+            respo-ui.css :as css
+            respo.util.format :refer $ hsl
+            app.config :refer $ hide-tabs?
     |app.comp.patels $ %{} :FileEntry
       :defs $ {}
         |build-quadratic-curve $ %{} :CodeEntry (:doc |)
@@ -1050,9 +996,9 @@
               if dev? $ load-console-formatter!
               js-await $ initializeContext
               initializeCanvasTextures
-              reset-clear-color! $ either bg-color
-                {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
               ; reset-clear-color! $ either bg-color
+                {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
+              reset-clear-color! $ either bg-color
                 {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
               render-app!
               renderControl
@@ -1067,10 +1013,13 @@
                   case-default (.-button action) (js/console.warn "\"Unknown Action" action)
                     "\"toggle" $ dispatch! (: toggle)
                     "\"switch" $ dispatch! (: switch)
+        |mount-target $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def mount-target $ js/document.querySelector |.app
         |reload! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn reload! () $ if (nil? build-errors)
-              do (reset-memof1-caches!) (render-app!) (remove-watch *store :change)
+              do (reset-memof1-caches!) (render-app!) (clear-cache!) (remove-watch *store :change)
                 add-watch *store :change $ fn (next store) (render-app!)
                 println "\"Reloaded."
                 hud! "\"ok~" "\"OK"
@@ -1078,8 +1027,10 @@
         |render-app! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn render-app! () $ let
-                tree $ comp-container @*store
+                tree $ memof1-call comp-container @*store
+                nav $ comp-nav @*store
               renderLagopusTree tree dispatch!
+              render! mount-target nav dispatch!
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.main $ :require
@@ -1090,10 +1041,12 @@
             app.config :refer $ dev? mobile-info bloom? remote-control?
             "\"bottom-tip" :default hud!
             "\"./calcit.build-errors" :default build-errors
-            memof.once :refer $ reset-memof1-caches!
+            memof.once :refer $ memof1-call reset-memof1-caches!
             lagopus.util :refer $ handle-compilation reset-clear-color!
             app.updater :refer $ updater
             "\"@triadica/lagopus/lib/remote-control.mjs" :refer $ setupRemoteControl
+            app.comp.nav :refer $ comp-nav
+            respo.core :refer $ render! clear-cache!
     |app.updater $ %{} :FileEntry
       :defs $ {}
         |updater $ %{} :CodeEntry (:doc |)
