@@ -4,6 +4,36 @@
     :modules $ [] |memof/ |quaternion/ |lagopus/ |respo.calcit/ |respo-ui.calcit/ |lilac/
   :entries $ {}
   :files $ {}
+    |app.comp.blinks $ %{} :FileEntry
+      :defs $ {}
+        |comp-blinks $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-blinks () $ object
+              {} (:shader wgsl-blinks) (:topology :triangle-list)
+                :attrs-list $ [] (:: :float32x3 :position) (:: :float32x3 :direction)
+                :data $ -> (range 20000)
+                  map $ fn (idx)
+                    let
+                        r0 400
+                        r1 4
+                        p0 $ [] (rand-shift 0 r0) (rand-shift 0 r0) (rand-shift 0 r0)
+                        v1 $ [] (rand-shift 0 r1) (rand-shift 0 r1) (rand-shift 0 r1)
+                        v2 $ [] (rand-shift 0 r1) (rand-shift 0 r1) (rand-shift 0 r1)
+                        p1 $ &v+ p0 v1
+                        p2 $ &v+ p0 v2
+                        direction $ v-cross v1 v2
+                      [] (:: :vertex p0 direction) (:: :vertex p1 direction) (:: :vertex p2 direction)
+      :ns $ %{} :CodeEntry (:doc |)
+        :code $ quote
+          ns app.comp.blinks $ :require
+            lagopus.alias :refer $ group object
+            "\"../shaders/blinks.wgsl" :default wgsl-blinks
+            lagopus.comp.curves :refer $ comp-curves
+            memof.once :refer $ memof1-call
+            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            lagopus.cursor :refer $ >>
+            lagopus.math :refer $ fibo-grid-range rotate-3d
+            "\"@calcit/std" :refer $ rand rand-shift
     |app.comp.blow $ %{} :FileEntry
       :defs $ {}
         |comp-blow $ %{} :CodeEntry (:doc |)
@@ -69,6 +99,7 @@
                   :quaternion-fold $ comp-quaternion-fold
                   :hopf $ comp-hopf-fiber (>> states :hopf) show?
                   :fireworks $ comp-fireworks
+                  :blinks $ comp-blinks
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -114,6 +145,7 @@
             app.comp.quaterion-fold :refer $ comp-quaternion-fold
             app.comp.hopf-fiber :refer $ comp-hopf-fiber
             app.comp.fireworks :refer $ comp-fireworks
+            app.comp.blinks :refer $ comp-blinks
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -604,7 +636,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -926,8 +958,8 @@
                   ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false write!
         |comp-triangles $ %{} :CodeEntry (:doc |)
           :code $ quote
-            defn comp-triangles () $ let ()
-              comp-polylines $ {} (:shader wgsl-triangles)
+            defn comp-triangles () $ comp-polylines
+              {} (:shader wgsl-triangles)
                 :writer $ fn (write!)
                   build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 10 0.1 false write!
         |third $ %{} :CodeEntry (:doc |)
