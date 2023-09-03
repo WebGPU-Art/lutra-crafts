@@ -582,7 +582,7 @@
                             {}
                               :class-name $ str-spaced style-tab css/font-fancy!
                               :on-click $ fn (e d!)
-                                d! $ :: :tab t
+                                d! $ :: :tab t (nth pair 2)
                               :style $ if (= tab t)
                                 {} $ :color :white
                             <> name
@@ -593,17 +593,18 @@
         |style-tab $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle style-tab $ {}
-              "\"&" $ {} (:line-height "\"1.4") (:padding "\"0 8px")
+              "\"&" $ {} (:line-height "\"1.4") (:margin-top 2) (:padding "\"0 8px") (:width :fit-content)
                 :color $ hsl 0 0 100 0.5
                 :cursor :pointer
                 :transition-duration "\"200ms"
                 :border-radius "\"4px"
+                :background-color $ hsl 0 0 0 0.2
               "\"&:hover" $ {}
                 :background-color $ hsl 0 0 0 0.5
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube) (:: :helicoid |Helicoid) (:: :hyperbolic-helicoid |Hyperbolic-helicoid) (:: :globe |Globe) (:: :fur |Fur) (:: :petal-wireframe |Petal-wireframe) (:: :mums |Mums) (:: :flower-ball |Ball) (:: :blow |Blow) (:: :triangles |Triangles) (:: :segments |Segments) (:: :quaternion-fold |Quaternion-fold) (:: :hopf |Hopf) (:: :fireworks |Fireworks)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -974,6 +975,7 @@
             defatom *store $ {}
               :states $ {}
               :tab :quaternion-fold
+              :theme :dark
               :show-tabs? true
               :show-controls? true
         |canvas $ %{} :CodeEntry (:doc |)
@@ -996,8 +998,6 @@
               if dev? $ load-console-formatter!
               js-await $ initializeContext
               initializeCanvasTextures
-              ; reset-clear-color! $ either bg-color
-                {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
               reset-clear-color! $ either bg-color
                 {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
               render-app!
@@ -1027,8 +1027,14 @@
         |render-app! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn render-app! () $ let
-                tree $ memof1-call comp-container @*store
-                nav $ comp-nav @*store
+                store @*store
+                tree $ memof1-call comp-container store
+                nav $ memof1-call comp-nav store
+              reset-clear-color! $ either bg-color
+                if
+                  = :dark $ :theme store
+                  {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
+                  {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
               renderLagopusTree tree dispatch!
               render! mount-target nav dispatch!
       :ns $ %{} :CodeEntry (:doc |)
@@ -1047,6 +1053,7 @@
             "\"@triadica/lagopus/lib/remote-control.mjs" :refer $ setupRemoteControl
             app.comp.nav :refer $ comp-nav
             respo.core :refer $ render! clear-cache!
+            lagopus.config :refer $ bg-color
     |app.updater $ %{} :FileEntry
       :defs $ {}
         |updater $ %{} :CodeEntry (:doc |)
@@ -1055,7 +1062,8 @@
               tag-match op
                   :state c s
                   update-states store c s
-                (:tab t) (assoc store :tab t)
+                (:tab t theme)
+                  -> store (assoc :tab t) (assoc :theme theme)
                 (:tau t) (assoc store :tau t)
                 (:toggle) (update store :show-tabs? not)
                 _ $ do (js/console.warn "\"Unknown op:" op) store
