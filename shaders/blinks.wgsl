@@ -8,9 +8,6 @@ struct UBO {
   upward: vec3f,
   rightward: vec3f,
   camera_position: vec3f,
-  _pad: f32,
-
-  tau: f32,
 };
 
 @group(0) @binding(0)
@@ -18,41 +15,45 @@ var<uniform> uniforms: UBO;
 
 {{perspective}}
 
-{{simplex}}
+{{colors}}
 
 // main
 
 struct VertexOut {
-  @builtin(position) position : vec4f,
+  @builtin(position) position: vec4f,
   @location(0) original: vec3f,
+  @location(1) color: vec3f,
+  @location(2) brightness: f32,
 };
 
 @vertex
 fn vertex_main(
-  @location(0) position: vec2f,
+  @location(0) position: vec3f,
+  @location(1) direction: vec3f,
 ) -> VertexOut {
   var output: VertexOut;
-  let u = position.x;
-  let v = position.y;
 
-  // hyperbolic helicoid math, thanks to https://www.geogebra.org/m/ydufgFps
-  let tau = uniforms.tau;
-  let d = 1.0 / (1.0 + cosh(u) * cosh(v));
-  let x = sinh(v) * cos(tau * u) * d;
-  let y = sinh(v) * sin(tau * u) * d;
-  let z = cosh(v) * sinh(u) * d;
+  var p1 = position;
 
-  let p1 = vec3(x, y, z) * 200.0;
+  let brightness = dot(normalize(direction), uniforms.forward);
+  let hue = dot(direction, uniforms.upward);
+
   let p: vec3<f32> = transform_perspective(p1.xyz).point_position;
   let scale: f32 = 0.002;
   output.position = vec4(p[0]*scale, p[1]*scale, p[2]*scale, 1.0);
+  output.original = position;
+  output.color = hsl(fract(hue), 1.0, 0.8);
+  output.brightness = abs(pow(brightness, 200));
+
   return output;
 }
 
-const limit: f32 = 0.9;
+const middle: f32 = 50.0;
+const limit: f32 = 48.0;
 
 @fragment
 fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
-  let l = 0.3;
-  return vec4(l, l, l, 0.8);
+  let b = max(0.04, vtx_out.brightness);
+  return vec4(vtx_out.color, b);
+  // return vec4(1.0, 1.0, 1.0, b);
 }

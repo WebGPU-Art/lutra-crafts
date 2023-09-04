@@ -47,7 +47,7 @@ fn vertex_main(
     next = -next;
   }
   let brush_direction = normalize(next);
-  if (brush == 1) {
+  if (brush == 1u) {
     p1 += brush_direction * width * 0.5;
   } else {
     p1 -= brush_direction * width * 0.5;
@@ -72,7 +72,7 @@ const limit: f32 = 48.0;
 
 @fragment
 fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
-  return vec4f(vtx_out.color, 1.0);
+  return vec4<f32>(vtx_out.color, 1.0);
   // return vec4(0.7, 0.7, 0.7, 1);
   // return vec4f(1,1,1,1);
 }
