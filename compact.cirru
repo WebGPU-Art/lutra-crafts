@@ -81,6 +81,7 @@
               let
                   states $ :states store
                   show? $ :show-tabs? store
+                js/console.log $ :tab store
                 group nil $ case-default (:tab store)
                   do
                     eprintln "\"Unknown tab" $ :tab store
@@ -100,6 +101,7 @@
                   :hopf $ comp-hopf-fiber (>> states :hopf) show?
                   :fireworks $ comp-fireworks
                   :blinks $ comp-blinks
+                  :split-triangles $ comp-split-triangles
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -146,6 +148,7 @@
             app.comp.hopf-fiber :refer $ comp-hopf-fiber
             app.comp.fireworks :refer $ comp-fireworks
             app.comp.blinks :refer $ comp-blinks
+            app.comp.split-triangles :refer $ comp-split-triangles
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -636,7 +639,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -926,6 +929,46 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.split-triangles $ %{} :FileEntry
+      :defs $ {}
+        |comp-split-triangles $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-split-triangles () $ comp-polylines-marked
+              {} (:shader wgsl-split-triangles)
+                :writer $ fn (write!)
+                  let
+                      s 1
+                    split-triangles
+                      v-scale ([] 1000 0 0) s
+                      v-scale ([] -500 0 -800) s
+                      v-scale ([] -500 0 800) s
+                      v-scale ([] 0 1200 0) s
+                      , 0 true write!
+        |split-triangles $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn split-triangles (p1 p2 p3 p4 level root? write!)
+              let
+                  w 4
+                  p5 $ v-scale (v+ p1 p2 p3 p4) 0.25
+                  max-level 7
+                if (>= level max-level)
+                  write! $ [] (:: :vertex p1 w level) (:: :vertex p5 w level) (:: :vertex p2 w level) break-mark (:: :vertex p3 w level) (:: :vertex p5 w level) (:: :vertex p4 w level) break-mark
+                when (< level max-level)
+                  split-triangles p1 p2 p3 p5 (inc level) false write!
+                  split-triangles p1 p2 p4 p5 (inc level) false write!
+                  split-triangles p1 p3 p4 p5 (inc level) false write!
+                  split-triangles p2 p3 p4 p5 (inc level) false write!
+      :ns $ %{} :CodeEntry (:doc |)
+        :code $ quote
+          ns app.comp.split-triangles $ :require
+            lagopus.alias :refer $ group object
+            "\"../shaders/split-triangles.wgsl" :default wgsl-split-triangles
+            lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
+            memof.once :refer $ memof1-call
+            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            app.config :refer $ hide-tabs?
+            lagopus.cursor :refer $ >>
+            lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.triangles $ %{} :FileEntry
       :defs $ {}
         |build-sierpinski-triangles $ %{} :CodeEntry (:doc |)
@@ -1006,8 +1049,8 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :quaternion-fold
-              :theme :dark
+              :tab :split-triangles
+              :theme :light
               :show-tabs? true
               :show-controls? true
         |canvas $ %{} :CodeEntry (:doc |)
