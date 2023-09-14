@@ -11,10 +11,10 @@
     "@cirru/parser.ts" "^0.0.6"
     "@cirru/writer.ts" "^0.1.4"
 
-"@calcit/std@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@calcit/std/-/std-0.0.2.tgz#8692ca6bd847b68b7365a75c5df124af82ab9192"
-  integrity sha512-s976zyxZ2zk4BVKu9DXur0L5FC60AWSsrnu6Aw1YuaxjEpEakk02g/WOWwwRsYYKfgKeRcWvEFKkTWoSjrFH+w==
+"@calcit/std@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@calcit/std/-/std-0.0.3.tgz#b3c0636b05bdba68dafb7fea06c86f64a52b1730"
+  integrity sha512-9p9CuyKvz3PDd+gddnaGFQwOpVrmjBQ8F5Ej7KFwifeTLXIkOh2niECMPHS/5mffo1JgTK7zcugpX9rurxeGJQ==
 
 "@calcit/ternary-tree@0.0.23":
   version "0.0.23"
@@ -335,9 +335,9 @@ query-string@^8.1.0:
     split-on-first "^3.0.0"
 
 rollup@^3.27.1:
-  version "3.28.1"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-3.28.1.tgz#fb44aa6d5e65c7e13fd5bcfff266d0c4ea9ba433"
-  integrity sha512-R9OMQmIHJm9znrU3m3cpE8uhN0fGdXiawME7aZIpQqvpS/85+Vt1Hq1/yVIcYfOmaQiHjvXkQAoJukvLpau6Yw==
+  version "3.29.1"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-3.29.1.tgz#ba53a179d46ac3cd79e162dca6ab70d93cd26f78"
+  integrity sha512-c+ebvQz0VIH4KhhCpDsI+Bik0eT8ZFEVZEYw0cGMVqIP8zc+gnwl7iXCamTw7vzv2MeuZFZfdx5JJIq+ehzDlg==
   optionalDependencies:
     fsevents "~2.3.2"
 
