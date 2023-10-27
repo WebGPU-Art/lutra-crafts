@@ -81,7 +81,7 @@
               let
                   states $ :states store
                   show? $ :show-tabs? store
-                js/console.log $ :tab store
+                ; js/console.log $ :tab store
                 group nil $ case-default (:tab store)
                   do
                     eprintln "\"Unknown tab" $ :tab store
@@ -102,6 +102,7 @@
                   :fireworks $ comp-fireworks
                   :blinks $ comp-blinks
                   :split-triangles $ comp-split-triangles
+                  :cubes-tree $ comp-cubes-tree
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -149,6 +150,7 @@
             app.comp.fireworks :refer $ comp-fireworks
             app.comp.blinks :refer $ comp-blinks
             app.comp.split-triangles :refer $ comp-split-triangles
+            app.comp.cubes-tree :refer $ comp-cubes-tree
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -219,6 +221,120 @@
             memof.once :refer $ memof1-call
             quaternion.core :refer $ c+ v+
             "\"@calcit/std" :refer $ rand rand-shift
+    |app.comp.cubes-tree $ %{} :FileEntry
+      :defs $ {}
+        |branch-next $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn branch-next (cube write! level)
+              when (>= level 0) (render-cube cube write!)
+                let
+                    cube2 $ rotate-d1 cube 0.2 0.8
+                    cube3 $ rotate-d2 cube 0.1 0.9
+                  branch-next cube2 write! $ dec level
+                  branch-next cube3 write! $ dec level
+        |comp-cubes-tree $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-cubes-tree () $ comp-polylines-marked
+              {} (; :shader wgsl-split-triangles)
+                :writer $ fn (write!)
+                  let
+                      cube $ :: :cube ([] 0 0 0) ([] 100 0 0) ([] 100 0 -100) ([] 0 0 -100) ([] 0 100 0) ([] 100 100 0) ([] 100 100 -100) ([] 0 100 -100)
+                    branch-next cube write! 10
+        |reflect $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn reflect (a base)
+              let
+                  base0 $ v-normalize base
+                  a-l $ v-dot a base0
+                  a-perp $ v-scale base0 a-l
+                  a-drop $ &v- a a-perp
+                &v- a-perp a-drop
+        |render-cube $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn render-cube (cube write!)
+              let
+                  w 1
+                  l 2
+                tag-match cube $ 
+                  :cube p0 p1 p2 p3 p4 p5 p6 p7
+                  write! $ [] (:: :vertex p0 w l) (:: :vertex p1 w l) (:: :vertex p2 w l) (:: :vertex p3 w l) (:: :vertex p0 w l) (:: :vertex p4 w l) (:: :vertex p5 w l) (:: :vertex p6 w l) (:: :vertex p7 w l) (:: :vertex p4 w l) break-mark (:: :vertex p1 w l) (:: :vertex p5 w l) break-mark (:: :vertex p2 w l) (:: :vertex p6 w l) break-mark (:: :vertex p3 w l) (:: :vertex p7 w l) break-mark
+        |rotate-d1 $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn rotate-d1 (cube ratio scale)
+              tag-match cube $ 
+                :cube p0 p1 p2 p3 p4 p5 p6 p7
+                let
+                    p00 $ &v- p0 p0
+                    p10 $ &v- p1 p0
+                    p20 $ &v- p2 p0
+                    p30 $ &v- p3 p0
+                    p40 $ &v- p4 p0
+                    p50 $ &v- p5 p0
+                    p60 $ &v- p6 p0
+                    p70 $ &v- p7 p0
+                    v1 p10
+                    v2 $ &v+ p10 (v-scale p40 ratio)
+                    p00' $ reflect (reflect p00 v1) v2
+                    p10' $ reflect (reflect p10 v1) v2
+                    p20' $ reflect (reflect p20 v1) v2
+                    p30' $ reflect (reflect p30 v1) v2
+                    p40' $ reflect (reflect p40 v1) v2
+                    p50' $ reflect (reflect p50 v1) v2
+                    p60' $ reflect (reflect p60 v1) v2
+                    p70' $ reflect (reflect p70 v1) v2
+                  :: :cube
+                    v+ p0 p40 $ v-scale p00' scale
+                    v+ p0 p40 $ v-scale p10' scale
+                    v+ p0 p40 $ v-scale p20' scale
+                    v+ p0 p40 $ v-scale p30' scale
+                    v+ p0 p40 $ v-scale p40' scale
+                    v+ p0 p40 $ v-scale p50' scale
+                    v+ p0 p40 $ v-scale p60' scale
+                    v+ p0 p40 $ v-scale p70' scale
+        |rotate-d2 $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn rotate-d2 (cube ratio scale)
+              tag-match cube $ 
+                :cube p0 p1 p2 p3 p4 p5 p6 p7
+                let
+                    p01 $ &v- p0 p1
+                    p11 $ &v- p1 p1
+                    p21 $ &v- p2 p1
+                    p31 $ &v- p3 p1
+                    p41 $ &v- p4 p1
+                    p51 $ &v- p5 p1
+                    p61 $ &v- p6 p1
+                    p71 $ &v- p7 p1
+                    v1 p21
+                    v2 $ &v+ p21 (v-scale p51 ratio)
+                    p01' $ reflect (reflect p01 v1) v2
+                    p11' $ reflect (reflect p11 v1) v2
+                    p21' $ reflect (reflect p21 v1) v2
+                    p31' $ reflect (reflect p31 v1) v2
+                    p41' $ reflect (reflect p41 v1) v2
+                    p51' $ reflect (reflect p51 v1) v2
+                    p61' $ reflect (reflect p61 v1) v2
+                    p71' $ reflect (reflect p71 v1) v2
+                  :: :cube
+                    v+ p1 p51 $ v-scale p01' scale
+                    v+ p1 p51 $ v-scale p11' scale
+                    v+ p1 p51 $ v-scale p21' scale
+                    v+ p1 p51 $ v-scale p31' scale
+                    v+ p1 p51 $ v-scale p41' scale
+                    v+ p1 p51 $ v-scale p51' scale
+                    v+ p1 p51 $ v-scale p61' scale
+                    v+ p1 p51 $ v-scale p71' scale
+      :ns $ %{} :CodeEntry (:doc |)
+        :code $ quote
+          ns app.comp.cubes-tree $ :require
+            lagopus.alias :refer $ group object
+            "\"../shaders/split-triangles.wgsl" :default wgsl-split-triangles
+            lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
+            memof.once :refer $ memof1-call
+            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross v-dot
+            app.config :refer $ hide-tabs?
+            lagopus.cursor :refer $ >>
+            lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.fireworks $ %{} :FileEntry
       :defs $ {}
         |comp-fireworks $ %{} :CodeEntry (:doc |)
@@ -639,7 +755,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -1049,7 +1165,7 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :split-triangles
+              :tab :cubes-tree
               :theme :light
               :show-tabs? true
               :show-controls? true
