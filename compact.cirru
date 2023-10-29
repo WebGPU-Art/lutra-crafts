@@ -103,6 +103,7 @@
                   :blinks $ comp-blinks
                   :split-triangles $ comp-split-triangles
                   :cubes-tree $ comp-cubes-tree
+                  :prime-walk $ comp-prime-walk
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -151,6 +152,7 @@
             app.comp.blinks :refer $ comp-blinks
             app.comp.split-triangles :refer $ comp-split-triangles
             app.comp.cubes-tree :refer $ comp-cubes-tree
+            app.comp.prime-walk :refer $ comp-prime-walk
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -761,7 +763,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -828,6 +830,56 @@
             lagopus.alias :refer $ group object
             "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
             lagopus.comp.curves :refer $ comp-curves
+            memof.once :refer $ memof1-call
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
+            app.config :refer $ hide-tabs?
+            lagopus.cursor :refer $ >>
+            lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.prime-walk $ %{} :FileEntry
+      :defs $ {}
+        |comp-prime-walk $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-prime-walk () $ comp-polylines-marked
+              {} (:shader wgsl-prime-walk)
+                :writer $ fn (write!)
+                  prime-walk (v3 0 0 0) primes write! 8 0 0
+                :add-uniform $ fn ()
+                  js-array
+                    wo-log $ * 0.4
+                      - (js/Date.now) start-time 8000
+                    , 0 0 0
+        |load-primes $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defmacro load-primes () $ &data-to-code
+              parse-cirru-edn $ read-file "\"./primes.cirru"
+        |moves $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def moves $ [] (v3 1 0 0) (v3 0 0 -1) (v3 0 1 0) (v3 -1 0 0) (v3 0 0 1) (v3 0 -1 0)
+        |prime-walk $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn prime-walk (base primes write! width step prev)
+              tag-match (destruct-list primes)
+                  :some p0 ps
+                  let
+                      move-direction $ nth moves (&number:rem step 6)
+                      len $ - p0 prev
+                      move $ v-scale move-direction (* len 10)
+                      next $ &v+ base move
+                    write! $ :: :vertex base width prev
+                    recur next ps write! width (inc step) p0
+                (:none) :ok
+        |primes $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def primes $ load-primes
+        |start-time $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def start-time $ js/Date.now
+      :ns $ %{} :CodeEntry (:doc |)
+        :code $ quote
+          ns app.comp.prime-walk $ :require
+            lagopus.alias :refer $ group object
+            "\"../shaders/prime-walk.wgsl" :default wgsl-prime-walk
+            lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark comp-polylines-marked
             memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
@@ -1170,8 +1222,8 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :cubes-tree
-              :theme :light
+              :tab :prime-walk
+              :theme :dark
               :show-tabs? true
               :show-controls? true
         |canvas $ %{} :CodeEntry (:doc |)
