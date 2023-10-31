@@ -16,9 +16,9 @@
                     let
                         r0 400
                         r1 4
-                        p0 $ [] (rand-shift 0 r0) (rand-shift 0 r0) (rand-shift 0 r0)
-                        v1 $ [] (rand-shift 0 r1) (rand-shift 0 r1) (rand-shift 0 r1)
-                        v2 $ [] (rand-shift 0 r1) (rand-shift 0 r1) (rand-shift 0 r1)
+                        p0 $ v3 (rand-shift 0 r0) (rand-shift 0 r0) (rand-shift 0 r0)
+                        v1 $ v3 (rand-shift 0 r1) (rand-shift 0 r1) (rand-shift 0 r1)
+                        v2 $ v3 (rand-shift 0 r1) (rand-shift 0 r1) (rand-shift 0 r1)
                         p1 $ &v+ p0 v1
                         p2 $ &v+ p0 v2
                         direction $ v-cross v1 v2
@@ -30,7 +30,7 @@
             "\"../shaders/blinks.wgsl" :default wgsl-blinks
             lagopus.comp.curves :refer $ comp-curves
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             "\"@calcit/std" :refer $ rand rand-shift
@@ -69,7 +69,7 @@
             "\"../shaders/blow.wgsl" :default wgsl-blow
             lagopus.comp.curves :refer $ comp-curves
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             "\"@calcit/std" :refer $ rand rand-shift
@@ -103,6 +103,7 @@
                   :blinks $ comp-blinks
                   :split-triangles $ comp-split-triangles
                   :cubes-tree $ comp-cubes-tree
+                  :prime-walk $ comp-prime-walk
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -112,7 +113,7 @@
                     let
                         radian $ * 0.2 idx
                         r $ * 0.8 (sqrt idx)
-                        base $ []
+                        base $ v3
                           * r $ cos radian 
                           , 0
                             * r $ sin radian 
@@ -120,7 +121,7 @@
                         map $ fn (hi)
                           {}
                             :position $ v+ base
-                              [] 0 (* 2 hi) 0
+                              v3 0 (* 2 hi) 0
                             :width 0.6
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
@@ -132,7 +133,7 @@
             lagopus.comp.curves :refer $ comp-curves
             lagopus.comp.spots :refer $ comp-spots
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.comp.cube-combo :refer $ comp-cubes
             app.config :refer $ hide-tabs?
             app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
@@ -151,6 +152,7 @@
             app.comp.blinks :refer $ comp-blinks
             app.comp.split-triangles :refer $ comp-split-triangles
             app.comp.cubes-tree :refer $ comp-cubes-tree
+            app.comp.prime-walk :refer $ comp-prime-walk
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -164,7 +166,7 @@
                   map $ fn (idx)
                     let
                         area 460
-                        base $ [] (rand-shift 0 area) (rand-shift 0 area) (rand-shift 0 area)
+                        base $ v3 (rand-shift 0 area) (rand-shift 0 area) (rand-shift 0 area)
                         size-bound 80
                         offsets $ []
                           + 10 $ rand size-bound
@@ -173,35 +175,42 @@
                       []
                         {} (:idx idx) (:offsets offsets)
                           :metrics $ [] -1 -1 1
-                          :position $ v+ base
-                            -> offsets (update 0 negate) (update 1 negate)
-                        {} (:idx idx) (:offsets offsets)
+                          :position $ &v+ base
+                            v3 & $ -> offsets (update 0 negate) (update 1 negate)
+                        {} (:idx idx)
+                          :offsets $ v3 & offsets
                           :metrics $ [] 1 -1 1
-                          :position $ v+ base
-                            -> offsets $ update 1 negate
-                        {} (:idx idx) (:offsets offsets)
+                          :position $ &v+ base
+                            v3 & $ -> offsets (update 1 negate)
+                        {} (:idx idx)
+                          :offsets $ v3 & offsets
                           :metrics $ [] 1 -1 -1
-                          :position $ v+ base
-                            -> offsets (update 1 negate) (update 2 negate)
-                        {} (:idx idx) (:offsets offsets)
+                          :position $ &v+ base
+                            v3 & $ -> offsets (update 1 negate) (update 2 negate)
+                        {} (:idx idx)
+                          :offsets $ v3 & offsets
                           :metrics $ [] -1 -1 -1
-                          :position $ v+ base
-                            -> offsets (update 0 negate) (update 1 negate) (update 2 negate)
-                        {} (:idx idx) (:offsets offsets)
+                          :position $ &v+ base
+                            v3 & $ -> offsets (update 0 negate) (update 1 negate) (update 2 negate)
+                        {} (:idx idx)
+                          :offsets $ v3 & offsets
                           :metrics $ [] -1 1 1
-                          :position $ v+ base
-                            -> offsets $ update 0 negate
-                        {} (:idx idx) (:offsets offsets)
+                          :position $ &v+ base
+                            v3 & $ -> offsets (update 0 negate)
+                        {} (:idx idx)
+                          :offsets $ v3 & offsets
                           :metrics $ [] 1 1 1
-                          :position $ v+ base offsets
-                        {} (:idx idx) (:offsets offsets)
+                          :position $ &v+ base (v3 & offsets)
+                        {} (:idx idx)
+                          :offsets $ v3 & offsets
                           :metrics $ [] 1 1 -1
-                          :position $ v+ base
-                            -> offsets $ update 2 negate
-                        {} (:idx idx) (:offsets offsets)
+                          :position $ &v+ base
+                            v3 & $ -> offsets (update 2 negate)
+                        {} (:idx idx)
+                          :offsets $ v3 & offsets
                           :metrics $ [] -1 1 -1
-                          :position $ v+ base
-                            -> offsets (update 0 negate) (update 2 negate)
+                          :position $ &v+ base
+                            v3 & $ -> offsets (update 0 negate) (update 2 negate)
                 :indices $ let
                     indices $ concat &
                       [] ([] 0 1 2 0 2 3 ) ([] 0 1 5 0 4 5) ([] 1 2 6 1 6 5) ([] 2 3 6 3 6 7) ([] 0 3 4 3 4 7) ([] 4 5 6 4 6 7)
@@ -219,7 +228,7 @@
             lagopus.comp.curves :refer $ comp-curves
             lagopus.comp.spots :refer $ comp-spots
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+
+            quaternion.vector :refer $ v+ v3 &v+
             "\"@calcit/std" :refer $ rand rand-shift
     |app.comp.cubes-tree $ %{} :FileEntry
       :defs $ {}
@@ -238,7 +247,7 @@
               {} (; :shader wgsl-split-triangles)
                 :writer $ fn (write!)
                   let
-                      cube $ :: :cube ([] 0 0 0) ([] 100 0 0) ([] 100 0 -100) ([] 0 0 -100) ([] 0 100 0) ([] 100 100 0) ([] 100 100 -100) ([] 0 100 -100)
+                      cube $ :: :cube (v3 0 0 0) (v3 100 0 0) (v3 100 0 -100) (v3 0 0 -100) (v3 0 100 0) (v3 100 100 0) (v3 100 100 -100) (v3 0 100 -100)
                     branch-next cube write! 10
         |reflect $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -331,7 +340,7 @@
             "\"../shaders/split-triangles.wgsl" :default wgsl-split-triangles
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross v-dot
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v-dot v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -345,7 +354,7 @@
                   -> (range 2000)
                     each $ fn (_)
                       let
-                          base $ [] (rand-shift 0 20000) (rand-shift 0 2080) (rand-shift 0 20000)
+                          base $ v3 (rand-shift 0 20000) (rand-shift 0 2080) (rand-shift 0 20000)
                           color $ rand 10
                           w $ + 2 (rand 6)
                         ->
@@ -363,7 +372,7 @@
                                       t $ * 2.2 n
                                       p $ v+ base
                                         v-scale v $ * 6 t a1
-                                        v-scale ([] 0 -0.4 0) (* t t 0.5)
+                                        v-scale (v3 0 -0.4 0) (* t t 0.5)
                                     write! $ : vertex (v-scale p 1) w color
                             write! break-mark
       :ns $ %{} :CodeEntry (:doc |)
@@ -373,7 +382,7 @@
             "\"../shaders/fireworks.wgsl" :default wgsl-fireworks
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -409,7 +418,7 @@
         |comp-flower-ball $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-flower-ball () $ let
-                origin $ [] 0 0 0
+                origin $ v3 0 0 0
                 parts 8
                 elevation $ * &PI 0.5
                 decay 0.36
@@ -420,24 +429,24 @@
                 :writer $ fn (write!)
                   ->
                     []
-                      [] ([] 0 unit 0) ([] 0 0 1)
+                      [] (v3 0 unit 0) (v3 0 0 1)
                       []
-                        [] 0 (negate unit) 0
-                        [] 0 0 1
-                      [] ([] unit 0 0) ([] 0 1 0)
+                        v3 0 (negate unit) 0
+                        v3 0 0 1
+                      [] (v3 unit 0 0) (v3 0 1 0)
                       []
-                        [] (negate unit) 0 0
-                        [] 0 1 0
-                      [] ([] 0 0 unit) ([] 0 1 0)
+                        v3 (negate unit) 0 0
+                        v3 0 1 0
+                      [] (v3 0 0 unit) (v3 0 1 0)
                       []
-                        [] 0 0 $ negate unit
-                        [] 0 1 0
+                        v3 0 0 $ negate unit
+                        v3 0 1 0
                     take 1
                     map $ fn (pair)
                       build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration write!
         |v-zero $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def v-zero $ [] 0 0 0
+            def v-zero $ v3 0 0 0
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.flower-ball $ :require
@@ -445,7 +454,7 @@
             "\"../shaders/flower-ball.wgsl" :default wgsl-flower-ball
             lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -561,10 +570,10 @@
               let
                   cursor $ :cursor states
                   state $ either (:data states)
-                    {} $ :base ([] 90 8 4)
+                    {} $ :base (v3 90 8 4)
                   base $ :base state
                   rh $ v-normalize
-                    v-cross base $ [] 0 1 0
+                    v-cross base $ v3 0 1 0
                   rv $ v-normalize (v-cross rh base)
                 group nil
                   if show? $ comp-axis
@@ -604,28 +613,27 @@
                                     map $ fn (idx)
                                       let
                                           ratio $ * 2 idx (/ &PI n)
-                                        tag-match circle
-                                            :circle center rh rv
-                                            do nil $ write!
-                                              : vertex
-                                                v-scale
-                                                  v+ center
-                                                    v-scale rh $ cos ratio
-                                                    v-scale rv $ sin ratio
-                                                  , 200
-                                                * 0.8 $ pow ring-idx 0.4
-                                                , ring-idx
-                                          _ $ eprintln "\"unknown data:" circle
+                                        tag-match circle $ 
+                                          :circle center rh rv
+                                          do nil $ write!
+                                            : vertex
+                                              v-scale
+                                                v+ center
+                                                  v-scale rh $ cos ratio
+                                                  v-scale rv $ sin ratio
+                                                , 200
+                                              * 0.8 $ pow ring-idx 0.4
+                                              , ring-idx
                                   write! break-mark
         |decide-circle $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn decide-circle (v0)
               let
                   p1 $ v-normalize v0
-                  c1 $ [] (nth p1 0) (nth p1 2)
+                  c1 $ complex (nth p1 0) (nth p1 2)
                   theta $ js/Math.atan2 (nth p1 2) (nth p1 0)
                   theta0 $ &- theta (* 0.5 &PI)
-                  p0 $ [] (nth p1 2) 0
+                  p0 $ v3 (nth p1 2) 0
                     negate $ nth p1 0
                   k $ calc-k p0 p1
                   center $ v-scale p0 k
@@ -638,9 +646,8 @@
         |v-length2 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn v-length2 (a)
-              let-sugar
-                    [] x y z
-                    , a
+              tag-match a $ 
+                :v3 x y z
                 -> (&* x x)
                   &+ $ &* y y
                   &+ $ &* z z
@@ -651,7 +658,8 @@
             "\"../shaders/hopf.wgsl" :default wgsl-hopf
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize
+            quaternion.vector :refer $ c+ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize v3
+            quaternion.complex :refer $ complex
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -673,7 +681,7 @@
                               , 3
                             + 0.3 $ js/Math.random
                         path $ roll-curve v
-                          v-normalize $ v-cross ([] 0 1 0) v
+                          v-normalize $ v-cross (v3 0 1 0) v
                           / 0.03 $ pow (v-length v) 2
                       ; js/console.log path
                       -> path $ map
@@ -685,20 +693,20 @@
               let
                   steps 80
                   dt 2
-                  p0 $ [] 0 0 0
-                  ad $ [] (js/Math.random) (js/Math.random) (js/Math.random)
+                  p0 $ v3 0 0 0
+                  ad $ v3 (js/Math.random) (js/Math.random) (js/Math.random)
                 apply-args
                     []
                     , p0 v0 axis0 0
                   fn (acc position v axis s)
                     if (&>= s steps) (conj acc position)
                       let
-                          v-next $ rotate-3d ([] 0 0 0) axis
+                          v-next $ rotate-3d (v3 0 0 0) axis
                             -
                               pow (&* s delta) 7
                               , 0.008
                             , v
-                          axis-next $ rotate-3d ([] 0 0 0) ad
+                          axis-next $ rotate-3d (v3 0 0 0) ad
                             pow (&* s 0.011) 8
                             , axis
                           next $ &v+ position (v-scale v dt)
@@ -710,7 +718,7 @@
             "\"../shaders/mums.wgsl" :default wgsl-mums
             lagopus.comp.curves :refer $ comp-curves
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.nav $ %{} :FileEntry
@@ -755,7 +763,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -813,7 +821,7 @@
                             update to 1 $ fn (y)
                               - (* 0.4 y) 0.5
                             , 180
-                          , 16 ([] 0 -0.0016 0)
+                          , 16 (v3 0 -0.0016 0)
                       map points $ fn (p)
                         {} (:position p) (:width 1.)
       :ns $ %{} :CodeEntry (:doc |)
@@ -823,7 +831,57 @@
             "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
             lagopus.comp.curves :refer $ comp-curves
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
+            app.config :refer $ hide-tabs?
+            lagopus.cursor :refer $ >>
+            lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.prime-walk $ %{} :FileEntry
+      :defs $ {}
+        |comp-prime-walk $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-prime-walk () $ comp-polylines-marked
+              {} (:shader wgsl-prime-walk)
+                :writer $ fn (write!)
+                  prime-walk (v3 0 0 0) primes write! 8 0 0
+                :add-uniform $ fn ()
+                  js-array
+                    wo-log $ * 0.4
+                      - (js/Date.now) start-time 8000
+                    , 0 0 0
+        |load-primes $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defmacro load-primes () $ &data-to-code
+              parse-cirru-edn $ read-file "\"./primes.cirru"
+        |moves $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def moves $ [] (v3 1 0 0) (v3 0 0 -1) (v3 0 1 0) (v3 -1 0 0) (v3 0 0 1) (v3 0 -1 0)
+        |prime-walk $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn prime-walk (base primes write! width step prev)
+              tag-match (destruct-list primes)
+                  :some p0 ps
+                  let
+                      move-direction $ nth moves (&number:rem step 6)
+                      len $ - p0 prev
+                      move $ v-scale move-direction (* len 10)
+                      next $ &v+ base move
+                    write! $ :: :vertex base width prev
+                    recur next ps write! width (inc step) p0
+                (:none) :ok
+        |primes $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def primes $ load-primes
+        |start-time $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def start-time $ js/Date.now
+      :ns $ %{} :CodeEntry (:doc |)
+        :code $ quote
+          ns app.comp.prime-walk $ :require
+            lagopus.alias :refer $ group object
+            "\"../shaders/prime-walk.wgsl" :default wgsl-prime-walk
+            lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark comp-polylines-marked
+            memof.once :refer $ memof1-call
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -836,17 +894,17 @@
                 {} (:topology :line-strip) (:shader wgsl-quaternion-fold)
                   :attrs-list $ [] (: float32x3 :position)
                   :writer $ fn (write!)
-                    ; fold-line4 19 ([] 0 0 0 0) ([] 0 100 0 0) ([] 0 20 0 22) ([] 16 20 0 23) ([] 16 20 0 27) ([] 0 20 0 28)
-                      q-inverse $ [] 0 0 0 50
+                    ; fold-line4 19 (quaternion 0 0 0 0) (quaternion 0 100 0 0) (quaternion 0 20 0 22) (quaternion 16 20 0 23) (quaternion 16 20 0 27) (quaternion 0 20 0 28)
+                      q-inverse $ quaternion 0 0 0 50
                       , 0.0027 write!
-                    ; fold-line4 12 ([] 0 0 0 0) ([] 200 0 0 0) ([] 0 20 0 25) ([] 5 20 10 25) ([] 5 20 10 15) ([] 0 20 0 15)
-                      q-inverse $ [] 0 0 0 50
+                    ; fold-line4 12 (quaternion 0 0 0 0) (quaternion 200 0 0 0) (quaternion 0 20 0 25) (quaternion 5 20 10 25) (quaternion 5 20 10 15) (quaternion 0 20 0 15)
+                      q-inverse $ quaternion 0 0 0 50
                       , 0.1 write!
-                    ; fold-line3 12 ([] 0 0 0 0) ([] 100 0 0 0) ([] 22.5 0 0 25) ([] 22.5 12.5 12.5 25) ([] 22.5 0 0 25)
-                      q-inverse $ [] 0 0 0 50
+                    ; fold-line3 12 (quaternion 0 0 0 0) (quaternion 100 0 0 0) (quaternion 22.5 0 0 25) (quaternion 22.5 12.5 12.5 25) (quaternion 22.5 0 0 25)
+                      q-inverse $ quaternion 0 0 0 50
                       , 0.008 write!
-                    fold-line4 10 ([] 0 0 0 0) ([] 200 0 0 0) ([] 0 0 0 25) ([] 10 10 10 25) ([] 10 10 -10 25) ([] 0 0 0 25)
-                      q-inverse $ [] 0 0 0 50
+                    fold-line4 10 (quaternion 0 0 0 0) (quaternion 200 0 0 0) (quaternion 0 0 0 25) (quaternion 10 10 10 25) (quaternion 10 10 -10 25) (quaternion 0 0 0 25)
+                      q-inverse $ quaternion 0 0 0 50
                       , 0.1 write!
         |fold-line3 $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -897,10 +955,9 @@
         |take3 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn take3 (v s)
-              []
-                &* s $ &list:nth v 0
-                &* s $ &list:nth v 1
-                &* s $ &list:nth v 2
+              tag-match v $ 
+                :quaternion w x y z
+                [] (&* s x) (&* s y) (&* s z)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.quaterion-fold $ :require
@@ -908,31 +965,31 @@
             "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
             lagopus.comp.curves :refer $ comp-polylines break-mark
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-            quaternion.core :refer $ &q* &q+ &q- q-length2 q-inverse
+            quaternion.core :refer $ &q* &q+ &q- q-length2 q-inverse quaternion
             "\"../shaders/quaternion-fold.wgsl" :default wgsl-quaternion-fold
     |app.comp.segments-fractal $ %{} :FileEntry
       :defs $ {}
         |comp-segments-fractal $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-segments-fractal () $ let
-                p1 $ [] 0.46 0.01 0
-                p2 $ [] 0.48 0.4 0.1
-                p3 $ [] 0.5 0.0 0
-                p4 $ [] 0.52 0.4 0.1
-                p5 $ [] 0.54 0.01 0
+                p1 $ v3 0.46 0.01 0
+                p2 $ v3 0.48 0.4 0.1
+                p3 $ v3 0.5 0.0 0
+                p4 $ v3 0.52 0.4 0.1
+                p5 $ v3 0.54 0.01 0
                 level 7
-                target $ [] 1000 0 0
+                target $ v3 1000 0 0
               comp-polylines $ {} (; :shader wgsl-flower-ball)
                 :writer $ fn (write!)
                   write! $ []
-                    : vertex ([] 0 0 0) 4
+                    : vertex (v3 0 0 0) 4
                     : vertex target 4
                     , break-mark
-                  fold-fractal ([] 0 0 0) target ([] 0 0 1) p1 p2 p3 p4 p5 level write!
+                  fold-fractal (v3 0 0 0) target (v3 0 0 1) p1 p2 p3 p4 p5 level write!
         |fold-fractal $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn fold-fractal (base target right p1 p2 p3 p4 p5 level write!)
@@ -1041,7 +1098,7 @@
             "\"../shaders/petal-wireframe.wgsl" :default wgsl-petal-wireframe
             lagopus.comp.curves :refer $ comp-polylines break-mark
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -1055,10 +1112,10 @@
                   let
                       s 1
                     split-triangles
-                      v-scale ([] 1000 0 0) s
-                      v-scale ([] -500 0 -800) s
-                      v-scale ([] -500 0 800) s
-                      v-scale ([] 0 1200 0) s
+                      v-scale (v3 1000 0 0) s
+                      v-scale (v3 -500 0 -800) s
+                      v-scale (v3 -500 0 800) s
+                      v-scale (v3 0 1200 0) s
                       , 0 true write!
         |split-triangles $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -1081,7 +1138,7 @@
             "\"../shaders/split-triangles.wgsl" :default wgsl-split-triangles
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -1120,7 +1177,7 @@
             defn comp-triangles () $ comp-polylines
               {} (:shader wgsl-triangles)
                 :writer $ fn (write!)
-                  build-sierpinski-triangles ([] 1000 0 0) ([] -500 0 -800) ([] -500 0 800) ([] 0 1200 0) 10 0.1 false write!
+                  build-sierpinski-triangles (v3 1000 0 0) (v3 -500 0 -800) (v3 -500 0 800) (v3 0 1200 0) 10 0.1 false write!
         |third $ %{} :CodeEntry (:doc |)
           :code $ quote
             def third $ &/ 1 3
@@ -1131,7 +1188,7 @@
             "\"../shaders/triangles.wgsl" :default wgsl-triangles
             lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ &v+ v-scale v-length &v- v-normalize v-cross
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -1165,8 +1222,8 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :cubes-tree
-              :theme :light
+              :tab :prime-walk
+              :theme :dark
               :show-tabs? true
               :show-controls? true
         |canvas $ %{} :CodeEntry (:doc |)
