@@ -42,24 +42,24 @@ fn vertex_main(
   var p1 = position;
 
   var next = cross(direction, uniforms.forward);
-  if (length(next) < 0.0001) {
+  if length(next) < 0.0001 {
     // if parallel, use leftward
     next = -next;
   }
   let brush_direction = normalize(next);
-  if (brush == 1u) {
+  if brush == 1u {
     p1 += brush_direction * width * 0.5;
   } else {
     p1 -= brush_direction * width * 0.5;
   }
 
   let a = noise2(p1.xz * 0.02);
-  let b = noise2((p1.xy + vec2f(1,1)) * 0.04);
+  let b = noise2((p1.xy + vec2f(1, 1)) * 0.04);
   p1 += vec3f(position.x, 0, position.z) * p1.y * 0.02 * (a + b);
 
   let p = transform_perspective(p1.xyz).point_position;
   let scale: f32 = 0.002;
-  output.position = vec4(p[0]*scale, p[1]*scale, p[2]*scale, 1.0);
+  output.position = vec4(p[0] * scale, p[1] * scale, p[2] * scale, 1.0);
   output.original = position;
   output.ratio = curve_ratio;
   output.color = hsl(0.14, 1.0, 0.1 + f32(brush) * 0.01 + 0.4 * sin(1.5 * f32(color_index) * 0.02));

@@ -23,7 +23,7 @@ var<uniform> uniforms: UBO;
 // main
 
 struct VertexOut {
-  @builtin(position) position : vec4f,
+  @builtin(position) position: vec4f,
   @location(0) original: vec3f,
 };
 
@@ -45,7 +45,7 @@ fn vertex_main(
   let p1 = vec3(x, y, z) * 200.0;
   let p: vec3<f32> = transform_perspective(p1.xyz).point_position;
   let scale: f32 = 0.002;
-  output.position = vec4(p[0]*scale, p[1]*scale, p[2]*scale, 1.0);
+  output.position = vec4(p[0] * scale, p[1] * scale, p[2] * scale, 1.0);
   return output;
 }
 

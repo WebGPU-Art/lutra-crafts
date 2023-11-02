@@ -49,13 +49,13 @@ fn vertex_main(
   let p1 = position * b;
   let p = transform_perspective(p1.xyz).point_position;
   let scale: f32 = 0.002;
-  output.position = vec4(p[0]*scale, p[1]*scale, p[2]*scale, 1.0);
+  output.position = vec4(p[0] * scale, p[1] * scale, p[2] * scale, 1.0);
   let l = length(p1);
   output.idx = f32(idx);
-  if (b <= 1.0) {
+  if b <= 1.0 {
     output.color = vec3f(0.6, 0.6, 0.9);
-  } else if (b > 1.03) {
-    output.color = vec3f(1 , 1, 1);
+  } else if b > 1.03 {
+    output.color = vec3f(1, 1, 1);
   } else {
     output.color = vec3f(0.6, 0.7, 0.6);
   }

@@ -38,7 +38,7 @@ fn vertex_main(
   let p1 = position;
   let p = transform_perspective(p1.xyz).point_position;
   let scale: f32 = 0.002;
-  output.position = vec4(p[0]*scale, p[1]*scale, p[2]*scale, 1.0);
+  output.position = vec4(p[0] * scale, p[1] * scale, p[2] * scale, 1.0);
   output.original = position;
   output.metrics = metrics;
   output.seed = f32(idx);
@@ -58,35 +58,35 @@ fn fragment_main(out: VertexOut) -> @location(0) vec4f {
   let y_far = abs((1 - abs(metrics.y)) * out.offsets.y) < border;
   let z_far = abs((1 - abs(metrics.z)) * out.offsets.z) < border;
   let far = (x_far && y_far) || (y_far && z_far) || (z_far && x_far);
-  if (far) {
+  if far {
     return vec4f(0.0, 0.0, 0.0, 1.0);
   }
 
   var face: u32 = 0;
-  if (metrics.y < -0.9) {
+  if metrics.y < -0.9 {
     // face = 0
-  } else if (metrics.z > 0.9) {
+  } else if metrics.z > 0.9 {
     face = 1;
-  } else if (metrics.x > 0.9) {
+  } else if metrics.x > 0.9 {
     face = 2;
-  } else if (metrics.z < -0.9) {
+  } else if metrics.z < -0.9 {
     face = 3;
-  } else if (metrics.x < -0.9) {
+  } else if metrics.x < -0.9 {
     face = 4;
-  } else if (metrics.y > 0.9) {
+  } else if metrics.y > 0.9 {
     face = 5;
   }
   let a = f32(face) + out.seed + 0.88872;
   let b = rand(a);
 
   var color: vec4f = vec4f(0.0, 0.0, 0.0, 1.0);
-  if (b < 0.25) {
+  if b < 0.25 {
     color = vec4f(1.0, 0.0, 0.0, 1.0);
-  } else if (b < 0.50) {
+  } else if b < 0.50 {
     color = vec4f(0.0, 0.0, 1.0, 1.0);
-  } else if (b < 0.75) {
+  } else if b < 0.75 {
     color = vec4f(1.0, 1.0, 0.0, 1.0);
-  } else if (b < 0.60) {
+  } else if b < 0.60 {
     color = vec4f(1.0, 1.0, 0.0, 1.0);
   } else {
     color = vec4f(1.0, 1.0, 1.0, 1.0);

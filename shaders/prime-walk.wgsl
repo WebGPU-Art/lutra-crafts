@@ -42,20 +42,20 @@ fn vertex_main(
   var p1 = position;
 
   var w_scale = 0.5;
-  if (mark > abs(uniforms.progress)) {
+  if mark > abs(uniforms.progress) {
     w_scale = 0.;
   }
-  if (abs(mark - abs(uniforms.progress)) < 20.) {
+  if abs(mark - abs(uniforms.progress)) < 20. {
     w_scale = 2.;
   }
 
   var next = cross(direction, uniforms.forward);
-  if (length(next) < 0.0001) {
+  if length(next) < 0.0001 {
     // if parallel, use leftward
     next = -next;
   }
   let brush_direction = normalize(next);
-  if (brush == 1) {
+  if brush == 1 {
     p1 += brush_direction * width * 0.5 * w_scale;
   } else {
     p1 -= brush_direction * width * 0.5 * w_scale;
@@ -63,7 +63,7 @@ fn vertex_main(
 
   let p = transform_perspective(p1.xyz).point_position;
   let scale: f32 = 0.002;
-  output.position = vec4(p[0]*scale, p[1]*scale, p[2]*scale, 1.0);
+  output.position = vec4(p[0] * scale, p[1] * scale, p[2] * scale, 1.0);
   output.bold = w_scale;
 
   return output;
@@ -75,7 +75,7 @@ const limit: f32 = 48.0;
 @fragment
 fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
   // return vec4f(vtx_out.color, 1.0);
-  if (vtx_out.bold > 1.) {
+  if vtx_out.bold > 1. {
     return vec4(1., 1.0, 1.0, 1.0);
   } else {
     return vec4(1., 1.0, 1.0, 0.5);
