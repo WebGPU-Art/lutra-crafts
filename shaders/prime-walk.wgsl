@@ -55,13 +55,13 @@ fn vertex_main(
     next = -next;
   }
   let brush_direction = normalize(next);
-  if brush == 1 {
+  if brush == 1u {
     p1 += brush_direction * width * 0.5 * w_scale;
   } else {
     p1 -= brush_direction * width * 0.5 * w_scale;
   }
 
-  let p = transform_perspective(p1.xyz).point_position;
+  let p: vec3<f32> = transform_perspective(p1.xyz).point_position;
   let scale: f32 = 0.002;
   output.position = vec4(p[0] * scale, p[1] * scale, p[2] * scale, 1.0);
   output.bold = w_scale;

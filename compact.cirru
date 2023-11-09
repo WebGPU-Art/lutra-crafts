@@ -104,6 +104,7 @@
                   :split-triangles $ comp-split-triangles
                   :cubes-tree $ comp-cubes-tree
                   :prime-walk $ comp-prime-walk
+                  :prime-pyramid $ comp-prime-pyramid
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -152,7 +153,7 @@
             app.comp.blinks :refer $ comp-blinks
             app.comp.split-triangles :refer $ comp-split-triangles
             app.comp.cubes-tree :refer $ comp-cubes-tree
-            app.comp.prime-walk :refer $ comp-prime-walk
+            app.comp.prime-walk :refer $ comp-prime-walk comp-prime-pyramid
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -763,7 +764,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -837,6 +838,17 @@
             lagopus.math :refer $ fibo-grid-range rotate-3d
     |app.comp.prime-walk $ %{} :FileEntry
       :defs $ {}
+        |comp-prime-pyramid $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-prime-pyramid () $ comp-polylines-marked
+              {} (:shader wgsl-prime-walk)
+                :writer $ fn (write!)
+                  prime-pyramid (v3 0 0 0) (do primes) write! 8 0 0
+                :add-uniform $ fn ()
+                  js-array
+                    wo-log $ * 0.8
+                      - (js/Date.now) start-time 8000
+                    , 0 0 0
         |comp-prime-walk $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-prime-walk () $ comp-polylines-marked
@@ -848,6 +860,9 @@
                     wo-log $ * 0.4
                       - (js/Date.now) start-time 8000
                     , 0 0 0
+        |cube-middle-moves $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def cube-middle-moves $ [] (v3 1 0 0) (v3 0 1 0) (v3 0 0 -1) (v3 1 0 0) (v3 0 -1 0) (v3 0 0 -1) (v3 -1 0 0) (v3 0 -1 0) (v3 0 0 1) (v3 -1 0 0) (v3 0 1 0) (v3 0 0 1)
         |load-primes $ %{} :CodeEntry (:doc |)
           :code $ quote
             defmacro load-primes () $ &data-to-code
@@ -855,6 +870,27 @@
         |moves $ %{} :CodeEntry (:doc |)
           :code $ quote
             def moves $ [] (v3 1 0 0) (v3 0 0 -1) (v3 0 1 0) (v3 -1 0 0) (v3 0 0 1) (v3 0 -1 0)
+        |oct-moves $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def oct-moves $ [] (v3 1 0 0) (v3 -1 0 0) (v3 -1 0 0) (v3 1 0 0) (v3 0 1 0) (v3 0 -1 0) (v3 0 -1 0) (v3 0 1 0) (v3 0 0 1) (v3 0 0 -1) (v3 0 0 -1) (v3 0 0 1)
+        |octahedron-moves $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def octahedron-moves $ [] (v3 1 0 1) (v3 0 1 -1) (v3 1 -1 0) (v3 -1 0 -1) (v3 0 -1 1) (v3 -1 1 0)
+        |prime-pyramid $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn prime-pyramid (base primes write! width step prev)
+              tag-match (destruct-list primes)
+                  :some p0 ps
+                  let
+                      m octahedron-moves
+                      move-direction $ nth m
+                        &number:rem step $ count m
+                      len $ - p0 prev
+                      move $ v-scale move-direction (* len 10)
+                      next $ &v+ base move
+                    write! $ :: :vertex base width prev
+                    recur next ps write! width (inc step) p0
+                (:none) :ok
         |prime-walk $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn prime-walk (base primes write! width step prev)
@@ -871,6 +907,18 @@
         |primes $ %{} :CodeEntry (:doc |)
           :code $ quote
             def primes $ load-primes
+        |pyramid-moves $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def pyramid-moves $ let
+                p1 $ v3 -1 0
+                  / -1 $ sqrt 2
+                p2 $ v3 1 0
+                  / -1 $ sqrt 2
+                p3 $ v3 0 -1
+                  / 1 $ sqrt 2
+                p4 $ v3 0 1
+                  / 1 $ sqrt 2
+              [] (&v- p2 p1) (&v- p3 p2) (&v- p4 p3) (&v- p1 p4)
         |start-time $ %{} :CodeEntry (:doc |)
           :code $ quote
             def start-time $ js/Date.now
@@ -1222,7 +1270,7 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :prime-walk
+              :tab :prime-pyramid
               :theme :dark
               :show-tabs? true
               :show-controls? true
