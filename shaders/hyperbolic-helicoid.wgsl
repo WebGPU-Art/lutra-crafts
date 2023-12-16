@@ -1,24 +1,13 @@
-struct UBO {
-  cone_back_scale: f32,
-  viewport_ratio: f32,
-  look_distance: f32,
-  scale: f32,
-  forward: vec3f,
-  // direction up overhead, better unit vector
-  upward: vec3f,
-  rightward: vec3f,
-  camera_position: vec3f,
-  _pad: f32,
 
+struct Params {
   tau: f32,
-};
+}
 
-@group(0) @binding(0)
-var<uniform> uniforms: UBO;
+@group(0) @binding(1) var<uniform> params: Params;
 
-{{perspective}}
+#import lagopus::perspective
 
-{{simplex}}
+#import lagopus::simplex
 
 // main
 
@@ -36,7 +25,7 @@ fn vertex_main(
   let v = position.y;
 
   // hyperbolic helicoid math, thanks to https://www.geogebra.org/m/ydufgFps
-  let tau = uniforms.tau;
+  let tau = params.tau;
   let d = 1.0 / (1.0 + cosh(u) * cosh(v));
   let x = sinh(v) * cos(tau * u) * d;
   let y = sinh(v) * sin(tau * u) * d;

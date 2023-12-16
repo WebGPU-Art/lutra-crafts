@@ -4,6 +4,6 @@
     |calcit-lang/memof |main
     |calcit-lang/lilac |main
     |calcit-lang/quaternion |main
-    |Triadica/lagopus |main
-    |Respo/respo.calcit |0.16.1
+    |Triadica/lagopus |0.5.1
+    |Respo/respo.calcit |main
     |Respo/respo-ui.calcit |main

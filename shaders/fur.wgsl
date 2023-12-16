@@ -1,23 +1,9 @@
-struct UBO {
-  cone_back_scale: f32,
-  viewport_ratio: f32,
-  look_distance: f32,
-  scale: f32,
-  forward: vec3f,
-  // direction up overhead, better unit vector
-  upward: vec3f,
-  rightward: vec3f,
-  camera_position: vec3f,
-};
 
-@group(0) @binding(0)
-var<uniform> uniforms: UBO;
+#import lagopus::perspective
 
-{{perspective}}
+#import lagopus::colors
 
-{{colors}}
-
-{{rand}}
+#import lagopus::rand
 
 // main
 
@@ -54,8 +40,8 @@ fn vertex_main(
   }
 
   let a = noise2(p1.xz * 0.02);
-  let b = noise2((p1.xy + vec2f(1, 1)) * 0.04);
-  p1 += vec3f(position.x, 0, position.z) * p1.y * 0.02 * (a + b);
+  let b = noise2((p1.xy + vec2f(1., 1.)) * 0.04);
+  p1 += vec3f(position.x, 0., position.z) * p1.y * 0.02 * (a + b);
 
   let p = transform_perspective(p1.xyz).point_position;
   let scale: f32 = 0.002;

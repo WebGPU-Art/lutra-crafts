@@ -527,7 +527,7 @@
                     :topology $ do :triangle-list :line-strip
                     :attrs-list $ [] (:: :float32x2 :position)
                     :data $ build-01-grid 80 6
-                    :add-uniform $ fn () (js-array tau 0 0 0)
+                    :get-params $ fn () (js-array tau 0 0 0)
                   comp-slider
                     {}
                       :position $ [] 0 240 0
@@ -844,7 +844,7 @@
               {} (:shader wgsl-prime-walk)
                 :writer $ fn (write!)
                   prime-pyramid (v3 0 0 0) (do primes) write! 8 0 0
-                :add-uniform $ fn ()
+                :get-params $ fn ()
                   js-array
                     wo-log $ * 0.8
                       - (js/Date.now) start-time 8000
@@ -855,7 +855,7 @@
               {} (:shader wgsl-prime-walk)
                 :writer $ fn (write!)
                   prime-walk (v3 0 0 0) primes write! 8 0 0
-                :add-uniform $ fn ()
+                :get-params $ fn ()
                   js-array
                     wo-log $ * 0.4
                       - (js/Date.now) start-time 8000
