@@ -1,26 +1,16 @@
-struct UBO {
-  cone_back_scale: f32,
-  viewport_ratio: f32,
-  look_distance: f32,
-  scale: f32,
 
-  forward: vec3f,
-  // direction up overhead, better unit vector
-  upward: vec3f,
-  rightward: vec3f,
-  camera_position: vec3f,
-  _pad: f32,
+struct Params {
   progress: f32,
   p1: f32,
   p2: f32,
   p3: f32,
 };
 
-@group(0) @binding(0) var<uniform> uniforms: UBO;
+@group(0) @binding(1) var<uniform> params: Params;
 
-{{perspective}}
+#import lagopus::perspective
 
-{{colors}}
+#import lagopus::colors
 
 // main
 
@@ -42,10 +32,10 @@ fn vertex_main(
   var p1 = position;
 
   var w_scale = 0.5;
-  if mark > abs(uniforms.progress) {
+  if mark > abs(params.progress) {
     w_scale = 0.;
   }
-  if abs(mark - abs(uniforms.progress)) < 20. {
+  if abs(mark - abs(params.progress)) < 20. {
     w_scale = 2.;
   }
 
