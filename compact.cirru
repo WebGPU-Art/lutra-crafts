@@ -73,6 +73,57 @@
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             "\"@calcit/std" :refer $ rand rand-shift
+    |app.comp.christmas-tree $ %{} :FileEntry
+      :defs $ {}
+        |&PHI $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def &PHI $ * 0.5
+              - (sqrt 5) 1
+        |comp-tree-1 $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-tree-1 () $ comp-polylines-marked
+              {} (; :topology :line-strip) (:shader wgsl-tree-1)
+                ; :attrs-list $ [] (: float32x3 :position)
+                :writer $ fn (write!)
+                  let
+                      r0 600
+                      size 8000
+                      rot $ * &PHI 0.473
+                      h0 1800
+                    -> size range $ each
+                      fn (idx)
+                        let
+                            ratio $ / idx size
+                            r $ * r0 (- 1 ratio)
+                            angle $ * idx rot
+                            h $ * ratio h0
+                          write! $ [] break-mark
+                            :: :vertex (v3 0 h 0) 2 ratio
+                            :: :vertex
+                              .+
+                                v3
+                                  * r $ cos angle
+                                  , h $ * r (sin angle)
+                                v3 (rand-shift 0 22) (rand-shift 0 22) (rand-shift 0 22)
+                              , 10 ratio
+                :get-params $ fn ()
+                  w-js-log $ let
+                      v $ * 0.000001 (js/Date.now)
+                    js-array
+                      - v $ js/Math.round v
+                      , 0 0 0
+      :ns $ %{} :CodeEntry (:doc |)
+        :code $ quote
+          ns app.comp.christmas-tree $ :require
+            lagopus.alias :refer $ group object object-writer
+            "\"../shaders/tree-1.wgsl" :default wgsl-tree-1
+            lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
+            memof.once :refer $ memof1-call
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
+            app.config :refer $ hide-tabs?
+            lagopus.cursor :refer $ >>
+            lagopus.math :refer $ fibo-grid-range rotate-3d
+            "\"@calcit/std" :refer $ rand rand-int rand-shift rand-between
     |app.comp.container $ %{} :FileEntry
       :defs $ {}
         |comp-container $ %{} :CodeEntry (:doc |)
@@ -105,6 +156,7 @@
                   :cubes-tree $ comp-cubes-tree
                   :prime-walk $ comp-prime-walk
                   :prime-pyramid $ comp-prime-pyramid
+                  :tree-1 $ comp-tree-1
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -154,6 +206,7 @@
             app.comp.split-triangles :refer $ comp-split-triangles
             app.comp.cubes-tree :refer $ comp-cubes-tree
             app.comp.prime-walk :refer $ comp-prime-walk comp-prime-pyramid
+            app.comp.christmas-tree :refer $ comp-tree-1
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -764,7 +817,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark) (:: :tree-1 "|Tree 1" :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -1270,7 +1323,7 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :prime-pyramid
+              :tab :tree-1
               :theme :dark
               :show-tabs? true
               :show-controls? true
