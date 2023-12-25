@@ -115,8 +115,8 @@
         |comp-tree-2 $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-tree-2 () $ let
-                r0 160
-                h0 480
+                r0 180
+                h0 540
               group ({})
                 comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-tree-2-strip)
                   ; :attrs-list $ [] (: float32x3 :position)
@@ -217,26 +217,30 @@
                       js-array
                         - v $ js/Math.round v
                         , 0 0 0
-                object $ {} (:shader wgsl-tree-2-dark) (:topology :triangle-list)
-                  :attrs-list $ [] (:: :float32x3 :position)
-                  :data $ let
-                      size 10
-                      angle-unit $ / (* 2 &PI) size
-                    -> size range $ map
-                      fn (idx)
-                        let
-                            angle $ * idx angle-unit
-                            angle2 $ * (inc idx) angle-unit
-                          []
-                            :: :vertex $ v3 0 (- h0 4) 0
-                            :: :vertex $ v3
-                              * (- r0 4) (cos angle)
-                              , 0
-                                * (- r0 4) (sin angle)
-                            :: :vertex $ v3
-                              * (- r0 4) (cos angle2)
-                              , 0
-                                * (- r0 4) (sin angle2)
+                comp-tree-1
+        |comp-tree-dark-area $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-tree-dark-area (r0 h0)
+              object $ {} (:shader wgsl-tree-2-dark) (:topology :triangle-list)
+                :attrs-list $ [] (:: :float32x3 :position)
+                :data $ let
+                    size 10
+                    angle-unit $ / (* 2 &PI) size
+                  -> size range $ map
+                    fn (idx)
+                      let
+                          angle $ * idx angle-unit
+                          angle2 $ * (inc idx) angle-unit
+                        []
+                          :: :vertex $ v3 0 (- h0 4) 0
+                          :: :vertex $ v3
+                            * (- r0 4) (cos angle)
+                            , 0
+                              * (- r0 4) (sin angle)
+                          :: :vertex $ v3
+                            * (- r0 4) (cos angle2)
+                            , 0
+                              * (- r0 4) (sin angle2)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.christmas-tree $ :require
