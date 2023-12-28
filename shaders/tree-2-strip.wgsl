@@ -55,14 +55,11 @@ fn vertex_main(
   return output;
 }
 
-const middle: f32 = 50.0;
-const limit: f32 = 48.0;
-
 @fragment
 fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
   // return vec4f(vtx_out.color, 1.0);
-  let l = abs(rand(vtx_out.mark + params.time * 0.03)) * 0.3 + 0.3;
+  let l = abs(rand(vtx_out.mark + params.time * 0.03)) * 0.5 + 0.5;
   let color = hsl(fract(0.3), 1.0, l * pow(vtx_out.width * 0.11, 6.));
-  return vec4f(color, 1.0);
-  // return vec4f(l, l, l, 1.);
+  // return vec4f(color, 1.0);
+  return vec4f(1.0, 0.8, 0.6, 1.);
 }

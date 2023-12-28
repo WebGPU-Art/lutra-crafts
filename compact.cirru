@@ -86,10 +86,10 @@
                 ; :attrs-list $ [] (: float32x3 :position)
                 :writer $ fn (write!)
                   let
-                      r0 600
+                      r0 160
                       size 8000
                       rot $ * &PHI 0.473
-                      h0 1800
+                      h0 480
                     -> size range $ each
                       fn (idx)
                         let
@@ -112,11 +112,142 @@
                     js-array
                       - v $ js/Math.round v
                       , 0 0 0
+        |comp-tree-2 $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-tree-2 () $ let
+                r0 180
+                h0 540
+              group ({})
+                comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-tree-2-strip)
+                  ; :attrs-list $ [] (: float32x3 :position)
+                  :writer $ fn (write!)
+                    let
+                        size 1200
+                        rot $ * &PHI 0.06
+                        top-rot $ / (* &PI) 0.5
+                      -> 1 range $ map
+                        fn (j)
+                          -> size range $ each
+                            fn (idx)
+                              let
+                                  ratio $ / idx size
+                                  r $ * r0 (- 1 ratio)
+                                  angle $ *
+                                    + (* j top-rot) (* idx rot)
+                                    - 1 $ pow ratio 20
+                                  h $ * ratio h0
+                                  position $ v3
+                                    * r $ cos angle
+                                    , h
+                                      * r $ sin angle
+                                when
+                                  = 0 $ .rem idx 16
+                                  write! $ [] (:: :vertex position 2 ratio)
+                                  let
+                                      out-direction $ v3 (cos angle) 0 (sin angle)
+                                      up-direction $ v3 0 1 0
+                                      right-direction $ v-cross out-direction up-direction
+                                      base-angle $ js/Math.random
+                                      a1 $ + base-angle
+                                      a2 $ + base-angle (/ &PI 3)
+                                      a3 $ + base-angle
+                                        * 2 $ / &PI 3.2
+                                    write! $ []
+                                      :: :vertex
+                                        v+ position
+                                          v-scale up-direction $ * 10 (cos a1)
+                                          v-scale right-direction $ * 10 (sin a1)
+                                        , 2 ratio
+                                      :: :vertex
+                                        v+ position
+                                          v-scale up-direction $ * -10 (cos a1)
+                                          v-scale right-direction $ * -10 (sin a1)
+                                        , 2 ratio
+                                      , break-mark
+                                        :: :vertex
+                                          v+ position
+                                            v-scale up-direction $ * 10 (cos a2)
+                                            v-scale right-direction $ * 10 (sin a2)
+                                          , 2 ratio
+                                        :: :vertex
+                                          v+ position
+                                            v-scale up-direction $ * -10 (cos a2)
+                                            v-scale right-direction $ * -10 (sin a2)
+                                          , 2 ratio
+                                        , break-mark
+                                          :: :vertex
+                                            v+ position
+                                              v-scale up-direction $ * 10 (cos a3)
+                                              v-scale right-direction $ * 10 (sin a3)
+                                            , 2 ratio
+                                          :: :vertex
+                                            v+ position
+                                              v-scale up-direction $ * -10 (cos a3)
+                                              v-scale right-direction $ * -10 (sin a3)
+                                            , 2 ratio
+                                          , break-mark
+                                  write! break-mark
+                                write! $ [] (:: :vertex position 2 ratio)
+                          write! break-mark
+                  :get-params $ fn ()
+                    wo-js-log $ let
+                        v $ * 0.000001 (js/Date.now)
+                      js-array
+                        - v $ js/Math.round v
+                        , 0 0 0
+                comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-tree-2-strip)
+                  ; :attrs-list $ [] (: float32x3 :position)
+                  :writer $ fn (write!)
+                    let
+                        size 40
+                        angle-unit $ / (* 2 &PI) size
+                      -> size inc range $ map
+                        fn (idx)
+                          let
+                              angle $ * idx angle-unit
+                            write! $ []
+                              :: :vertex
+                                v3
+                                  * r0 $ cos angle
+                                  , 0 $ * r0 (sin angle)
+                                , 1 1
+                  :get-params $ fn ()
+                    wo-js-log $ let
+                        v $ * 0.000001 (js/Date.now)
+                      js-array
+                        - v $ js/Math.round v
+                        , 0 0 0
+                comp-tree-1
+        |comp-tree-dark-area $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-tree-dark-area (r0 h0)
+              object $ {} (:shader wgsl-tree-2-dark) (:topology :triangle-list)
+                :attrs-list $ [] (:: :float32x3 :position)
+                :data $ let
+                    size 10
+                    angle-unit $ / (* 2 &PI) size
+                  -> size range $ map
+                    fn (idx)
+                      let
+                          angle $ * idx angle-unit
+                          angle2 $ * (inc idx) angle-unit
+                        []
+                          :: :vertex $ v3 0 (- h0 4) 0
+                          :: :vertex $ v3
+                            * (- r0 4) (cos angle)
+                            , 0
+                              * (- r0 4) (sin angle)
+                          :: :vertex $ v3
+                            * (- r0 4) (cos angle2)
+                            , 0
+                              * (- r0 4) (sin angle2)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.christmas-tree $ :require
             lagopus.alias :refer $ group object object-writer
             "\"../shaders/tree-1.wgsl" :default wgsl-tree-1
+            "\"../shaders/tree-2-strip.wgsl" :default wgsl-tree-2-strip
+            "\"../shaders/tree-2-dark.wgsl" :default wgsl-tree-2-dark
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
             memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
@@ -157,6 +288,7 @@
                   :prime-walk $ comp-prime-walk
                   :prime-pyramid $ comp-prime-pyramid
                   :tree-1 $ comp-tree-1
+                  :tree-2 $ comp-tree-2
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -206,7 +338,7 @@
             app.comp.split-triangles :refer $ comp-split-triangles
             app.comp.cubes-tree :refer $ comp-cubes-tree
             app.comp.prime-walk :refer $ comp-prime-walk comp-prime-pyramid
-            app.comp.christmas-tree :refer $ comp-tree-1
+            app.comp.christmas-tree :refer $ comp-tree-1 comp-tree-2
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -817,7 +949,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark) (:: :tree-1 "|Tree 1" :dark)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark) (:: :tree-1 "|Tree 1" :dark) (:: :tree-2 "|Tree 2" :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -1323,7 +1455,7 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :tree-1
+              :tab :tree-2
               :theme :dark
               :show-tabs? true
               :show-controls? true
