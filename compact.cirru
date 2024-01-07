@@ -10,19 +10,17 @@
           :code $ quote
             defn comp-sedimentary () $ let
                 r0 80
-                h0 540
               group ({})
                 comp-polylines-marked $ {} (; :topology :line-strip) (:shader sedimentary-shader)
                   ; :attrs-list $ [] (: float32x3 :position)
                   :writer $ fn (write!)
-                    -> 80 range $ each
+                    -> 4000 range $ each
                       fn (hi)
                         let
-                            r $ + r0
-                              + 10 $ rand 180
-                            size 200
+                            r $ + r0 (rand 1600)
+                            size 4
                             angle-unit $ / (* 2 &PI) size
-                            dh $ * 2 hi
+                            dh $ * -4 hi
                           -> size inc range $ each
                             fn (idx)
                               let
@@ -31,8 +29,9 @@
                                   :: :vertex
                                     v3
                                       * r $ cos angle
-                                      , dh $ * r (sin angle)
-                                    , 1 hi
+                                      * r $ sin angle
+                                      , dh
+                                    , 3 hi
                           write! break-mark
                   :get-params $ fn () (js-array 0 0 0 0)
       :ns $ %{} :CodeEntry (:doc |)
@@ -1532,7 +1531,7 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :tree-3
+              :tab :sedimentary
               :theme :dark
               :show-tabs? true
               :show-controls? true

@@ -20,6 +20,7 @@ struct VertexOut {
   @builtin(position) position: vec4f,
   @location(1) width: f32,
   @location(2) mark: f32,
+  @location(3) r: f32,
 };
 
 @vertex
@@ -46,11 +47,13 @@ fn vertex_main(
     p1 -= brush_direction * width * 0.5;
   }
 
-  let p = transform_perspective(p1.xyz).point_position;
+  let ret = transform_perspective(p1.xyz);
+  let p = ret.point_position;
   let scale: f32 = 0.002;
   output.position = vec4(p[0] * scale, p[1] * scale, p[2] * scale, 1.0);
   output.width = width;
   output.mark = mark;
+  output.r = ret.r;
 
   return output;
 }
@@ -60,6 +63,6 @@ fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
   // return vec4f(vtx_out.color, 1.0);
   let h = abs(rand(vtx_out.mark + params.time * 0.03)) * 0.5 + 0.5;
   let color = hsl(fract(200. * h), 1.0, 0.60);
-  return vec4f(color, 1.0);
+  return vec4f(color, 1.2 - vtx_out.r * 0.3);
   // return vec4f(1.0, 0.8, 0.6, 1.);
 }
