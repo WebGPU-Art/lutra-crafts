@@ -6,6 +6,33 @@
   :files $ {}
     |app.cmop.sedimentary $ %{} :FileEntry
       :defs $ {}
+        |comp-concentric $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-concentric () $ let
+                r0 2
+              group ({})
+                comp-polylines-marked $ {} (; :topology :line-strip) (:shader sedimentary-shader)
+                  ; :attrs-list $ [] (: float32x3 :position)
+                  :writer $ fn (write!)
+                    -> 200 range $ each
+                      fn (hi)
+                        let
+                            r $ + r0 (* 1 hi)
+                            size $ * r 1
+                            angle-unit $ / (* 2 &PI) size
+                          -> size inc range $ each
+                            fn (idx)
+                              let
+                                  angle $ * idx angle-unit
+                                  x $ * r (cos angle)
+                                  y $ * r (sin angle)
+                                  angle $ pow (* 0.4 hi) 0.5
+                                  x1 $ * (cos angle) x
+                                  x2 $ * (sin angle) x
+                                write! $ []
+                                  :: :vertex (v3 x1 y x2) 0.6 40
+                          write! break-mark
+                  :get-params $ fn () (js-array 0 0 0 0)
         |comp-sedimentary $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-sedimentary () $ let
@@ -364,6 +391,7 @@
                   :tree-2 $ comp-tree-2
                   :tree-3 $ comp-tree-3
                   :sedimentary $ comp-sedimentary
+                  :concentric $ comp-concentric
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -414,7 +442,7 @@
             app.comp.cubes-tree :refer $ comp-cubes-tree
             app.comp.prime-walk :refer $ comp-prime-walk comp-prime-pyramid
             app.comp.christmas-tree :refer $ comp-tree-1 comp-tree-2 comp-tree-3
-            app.cmop.sedimentary :refer $ comp-sedimentary
+            app.cmop.sedimentary :refer $ comp-sedimentary comp-concentric
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -1025,7 +1053,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark) (:: :tree-1 "|Tree 1" :dark) (:: :tree-2 "|Tree 2" :dark) (:: :tree-3 "|Tree 3" :dark) (:: :sedimentary "\"Sedimentary" :dark)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark) (:: :tree-1 "|Tree 1" :dark) (:: :tree-2 "|Tree 2" :dark) (:: :tree-3 "|Tree 3" :dark) (:: :sedimentary "\"Sedimentary" :dark) (:: :concentric "\"Concenytic" :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -1531,7 +1559,7 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :sedimentary
+              :tab :concentric
               :theme :dark
               :show-tabs? true
               :show-controls? true
