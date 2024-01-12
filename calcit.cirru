@@ -24,21 +24,10 @@
                           |b $ %{} :Leaf (:at 1704734635619) (:by |rJG4IHzWf) (:text |2)
                       |b $ %{} :Expr (:at 1704995572783) (:by |rJG4IHzWf)
                         :data $ {}
-                          |T $ %{} :Leaf (:at 1704995615963) (:by |rJG4IHzWf) (:text |*t)
-                          |b $ %{} :Expr (:at 1704995618172) (:by |rJG4IHzWf)
+                          |T $ %{} :Leaf (:at 1705084932886) (:by |rJG4IHzWf) (:text |t0)
+                          |b $ %{} :Expr (:at 1705084936207) (:by |rJG4IHzWf)
                             :data $ {}
-                              |T $ %{} :Leaf (:at 1704995621183) (:by |rJG4IHzWf) (:text |anchor-state)
-                              |b $ %{} :Expr (:at 1704995622198) (:by |rJG4IHzWf)
-                                :data $ {}
-                                  |T $ %{} :Leaf (:at 1704995624282) (:by |rJG4IHzWf) (:text |identity-path)
-                                  |b $ %{} :Leaf (:at 1704995625821) (:by |rJG4IHzWf) (:text |'time)
-                  |e $ %{} :Expr (:at 1704995633614) (:by |rJG4IHzWf)
-                    :data $ {}
-                      |T $ %{} :Leaf (:at 1704995635763) (:by |rJG4IHzWf) (:text |.set!)
-                      |b $ %{} :Leaf (:at 1704995638398) (:by |rJG4IHzWf) (:text |*t)
-                      |h $ %{} :Expr (:at 1704995640086) (:by |rJG4IHzWf)
-                        :data $ {}
-                          |T $ %{} :Leaf (:at 1704995643407) (:by |rJG4IHzWf) (:text |js/performance.now)
+                              |T $ %{} :Leaf (:at 1705084936207) (:by |rJG4IHzWf) (:text |js/performance.now)
                   |h $ %{} :Expr (:at 1704733715979) (:by |rJG4IHzWf)
                     :data $ {}
                       |T $ %{} :Leaf (:at 1704733715979) (:by |rJG4IHzWf) (:text |group)
@@ -264,7 +253,8 @@
                                                   |T $ %{} :Expr (:at 1704994262395) (:by |rJG4IHzWf)
                                                     :data $ {}
                                                       |T $ %{} :Leaf (:at 1704994298032) (:by |rJG4IHzWf) (:text |js/performance.now)
-                                                  |b $ %{} :Leaf (:at 1704995661850) (:by |rJG4IHzWf) (:text |@*t)
+                                                  |b $ %{} :Leaf (:at 1705084943012) (:by |rJG4IHzWf) (:text |t0)
+                                                  |h $ %{} :Leaf (:at 1705085056064) (:by |rJG4IHzWf) (:text |20000)
                                           |h $ %{} :Leaf (:at 1704733715979) (:by |rJG4IHzWf) (:text |0)
                                           |l $ %{} :Leaf (:at 1704733715979) (:by |rJG4IHzWf) (:text |0)
                                           |o $ %{} :Leaf (:at 1704733715979) (:by |rJG4IHzWf) (:text |0)
@@ -549,14 +539,6 @@
                         |b $ %{} :Leaf (:at 1704389052323) (:by |rJG4IHzWf) (:text |rand-int)
                         |h $ %{} :Leaf (:at 1704389052323) (:by |rJG4IHzWf) (:text |rand-shift)
                         |l $ %{} :Leaf (:at 1704389052323) (:by |rJG4IHzWf) (:text |rand-between)
-                |z $ %{} :Expr (:at 1704995595638) (:by |rJG4IHzWf)
-                  :data $ {}
-                    |T $ %{} :Leaf (:at 1704995602294) (:by |rJG4IHzWf) (:text |memof.anchor)
-                    |b $ %{} :Leaf (:at 1704995603195) (:by |rJG4IHzWf) (:text |:refer)
-                    |h $ %{} :Expr (:at 1704995603434) (:by |rJG4IHzWf)
-                      :data $ {}
-                        |T $ %{} :Leaf (:at 1704995671673) (:by |rJG4IHzWf) (:text |anchor-state)
-                        |b $ %{} :Leaf (:at 1704995610934) (:by |rJG4IHzWf) (:text |identity-path)
     |app.comp.blinks $ %{} :FileEntry
       :defs $ {}
         |comp-blinks $ %{} :CodeEntry (:doc |)

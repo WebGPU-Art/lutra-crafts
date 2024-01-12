@@ -10,8 +10,7 @@
           :code $ quote
             defn comp-concentric () $ let
                 r0 2
-                *t $ anchor-state (identity-path 'time)
-              .set! *t $ js/performance.now
+                t0 $ js/performance.now
               group ({})
                 comp-polylines-marked $ {} (; :topology :line-strip) (:shader concentric-shader)
                   ; :attrs-list $ [] (: float32x3 :position)
@@ -36,7 +35,7 @@
                           write! break-mark
                   :get-params $ fn ()
                     js-array
-                      * 0.01 $ - (js/performance.now) @*t
+                      * 0.01 $ - (js/performance.now) t0 20000
                       , 0 0 0
         |comp-sedimentary $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -79,7 +78,6 @@
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             "\"@calcit/std" :refer $ rand rand-int rand-shift rand-between
-            memof.anchor :refer $ anchor-state identity-path
     |app.comp.blinks $ %{} :FileEntry
       :defs $ {}
         |comp-blinks $ %{} :CodeEntry (:doc |)
