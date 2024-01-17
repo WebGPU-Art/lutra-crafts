@@ -10,15 +10,16 @@
           :code $ quote
             defn comp-concentric () $ let
                 r0 2
+                t0 $ js/performance.now
               group ({})
-                comp-polylines-marked $ {} (; :topology :line-strip) (:shader sedimentary-shader)
+                comp-polylines-marked $ {} (; :topology :line-strip) (:shader concentric-shader)
                   ; :attrs-list $ [] (: float32x3 :position)
                   :writer $ fn (write!)
-                    -> 200 range $ each
+                    -> 60 range $ each
                       fn (hi)
                         let
-                            r $ + r0 (* 1 hi)
-                            size $ * r 1
+                            r $ + 2 r0 (* 4 hi)
+                            size $ + 40 (* r 1)
                             angle-unit $ / (* 2 &PI) size
                           -> size inc range $ each
                             fn (idx)
@@ -30,9 +31,12 @@
                                   x1 $ * (cos angle) x
                                   x2 $ * (sin angle) x
                                 write! $ []
-                                  :: :vertex (v3 x1 y x2) 0.6 40
+                                  :: :vertex (v3 x y 0) 1. hi
                           write! break-mark
-                  :get-params $ fn () (js-array 0 0 0 0)
+                  :get-params $ fn ()
+                    js-array
+                      * 0.01 $ - (js/performance.now) t0 20000
+                      , 0 0 0
         |comp-sedimentary $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-sedimentary () $ let
@@ -66,6 +70,7 @@
           ns app.cmop.sedimentary $ :require
             lagopus.alias :refer $ group object object-writer
             "\"../shaders/sedimentary.wgsl" :default sedimentary-shader
+            "\"../shaders/concentric.wgsl" :default concentric-shader
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
             memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
