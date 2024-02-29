@@ -1603,6 +1603,8 @@
                   case-default (.-button action) (js/console.warn "\"Unknown Action" action)
                     "\"toggle" $ dispatch! (: toggle)
                     "\"switch" $ dispatch! (: switch)
+              loadGamepadControl
+              paintLagopusTree
         |mount-target $ %{} :CodeEntry (:doc |)
           :code $ quote
             def mount-target $ js/document.querySelector |.app
@@ -1631,7 +1633,7 @@
         :code $ quote
           ns app.main $ :require
             app.comp.container :refer $ comp-container
-            "\"@triadica/lagopus" :refer $ setupMouseEvents onControlEvent paintLagopusTree renderLagopusTree initializeContext resetCanvasSize initializeCanvasTextures registerShaderResult enableBloom
+            "\"@triadica/lagopus" :refer $ setupMouseEvents onControlEvent paintLagopusTree renderLagopusTree initializeContext resetCanvasSize initializeCanvasTextures registerShaderResult enableBloom loadGamepadControl
             "\"@triadica/touch-control" :refer $ renderControl startControlLoop
             lagopus.config :refer $ bg-color
             app.config :refer $ dev? mobile-info bloom? remote-control?
