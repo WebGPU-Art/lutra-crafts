@@ -1451,9 +1451,10 @@
         |comp-snowflakes-demo $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-snowflakes-demo () $ let
-                area 240
+                area 80
+                item-count 2000
                 d-size 2.2
-                placements $ -> (range 8000)
+                placements $ -> (range item-count)
                   map $ fn (i)
                     let
                         p $ v3 (rand-shift 0 area)
@@ -1466,15 +1467,15 @@
                         c1 $ v-normalize c
                       {} (:x a1) (:y c1) (:p p)
                         :size $ pow (rand d-size) 2
-                  conj $ {}
+                  ; conj $ {}
                     :x $ v3 1 0 0
                     :y $ v3 0 1 0
                     :p $ v3 0 0 0
                     :size 4
               comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-snowing)
                 :writer $ fn (write!)
-                  -> placements $ map
-                    fn (info)
+                  -> placements $ map-indexed
+                    fn (idx info)
                       let-sugar
                             {} x y p size
                             , info
@@ -1488,16 +1489,23 @@
                                   v+ p
                                     v-scale x $ * size (nth from 1)
                                     v-scale y $ * size (nth from 2)
-                                  , 0.12 seed
+                                  , 0.12 idx
                                 :: :vertex
                                   v+ p
                                     v-scale x $ * size (nth to 1)
                                     v-scale y $ * size (nth to 2)
-                                  , 0.12 seed
+                                  , 0.12 idx
                                 , break-mark
                 :get-params $ fn ()
                   js-array $ &* 0.08
                     - (js/performance.now) start-time
+                :compute-options $ js-object (:particleCount item-count)
+                  :initialBuffer $ new js/Float32Array
+                    -> (range item-count)
+                      mapcat $ fn (x)
+                        map (range 8)
+                          fn (c) (rand-shift 0 100)
+                      to-js-data
         |rotate-branches $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn rotate-branches (branch0)
