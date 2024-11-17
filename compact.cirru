@@ -717,7 +717,7 @@
                 parts 8
                 elevation $ * &PI 0.5
                 decay 0.36
-                iteration 8
+                iteration 7
                 unit 800
               ; js/console.log $ .flatten ps
               comp-polylines $ {} (:shader wgsl-flower-ball)
@@ -830,7 +830,7 @@
                     fn (delta d!)
                       d! $ : state cursor
                         assoc state :tau $ + tau
-                          * 0.01 $ nth delta 0
+                          * 0.01 $ nth delta 1
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.helicoid $ :require
@@ -1245,7 +1245,7 @@
                     ; fold-line3 12 (quaternion 0 0 0 0) (quaternion 100 0 0 0) (quaternion 22.5 0 0 25) (quaternion 22.5 12.5 12.5 25) (quaternion 22.5 0 0 25)
                       q-inverse $ quaternion 0 0 0 50
                       , 0.008 write!
-                    fold-line4 10 (quaternion 0 0 0 0) (quaternion 200 0 0 0) (quaternion 0 0 0 25) (quaternion 10 10 10 25) (quaternion 10 10 -10 25) (quaternion 0 0 0 25)
+                    fold-line4 8 (quaternion 0 0 0 0) (quaternion 200 0 0 0) (quaternion 0 0 0 25) (quaternion 10 10 10 25) (quaternion 10 10 -10 25) (quaternion 0 0 0 25)
                       q-inverse $ quaternion 0 0 0 50
                       , 0.1 write!
         |fold-line3 $ %{} :CodeEntry (:doc |)
@@ -1323,7 +1323,7 @@
                 p3 $ v3 0.5 0.0 0
                 p4 $ v3 0.52 0.4 0.1
                 p5 $ v3 0.54 0.01 0
-                level 7
+                level 6
                 target $ v3 1000 0 0
               comp-polylines $ {} (; :shader wgsl-flower-ball)
                 :writer $ fn (write!)
@@ -1344,37 +1344,37 @@
                   point1 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p1 0
-                        v-scale upward $ nth p1 1
-                        v-scale right $ nth p1 2
+                        v-scale forward $ nth p1 1
+                        v-scale upward $ nth p1 2
+                        v-scale right $ nth p1 3
                       , l
                   point2 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p2 0
-                        v-scale upward $ nth p2 1
-                        v-scale right $ nth p2 2
+                        v-scale forward $ nth p2 1
+                        v-scale upward $ nth p2 2
+                        v-scale right $ nth p2 3
                       , l
                   point3 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p3 0
-                        v-scale upward $ nth p3 1
-                        v-scale right $ nth p3 2
+                        v-scale forward $ nth p3 1
+                        v-scale upward $ nth p3 2
+                        v-scale right $ nth p3 3
                       , l
                   point4 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p4 0
-                        v-scale upward $ nth p4 1
-                        v-scale right $ nth p4 2
+                        v-scale forward $ nth p4 1
+                        v-scale upward $ nth p4 2
+                        v-scale right $ nth p4 3
                       , l
                   point5 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p5 0
-                        v-scale upward $ nth p5 1
-                        v-scale right $ nth p5 2
+                        v-scale forward $ nth p5 1
+                        v-scale upward $ nth p5 2
+                        v-scale right $ nth p5 3
                       , l
                   m $ middle base target
                 if (&> level 1)
@@ -1465,7 +1465,7 @@
               let
                   w 4
                   p5 $ v-scale (v+ p1 p2 p3 p4) 0.25
-                  max-level 7
+                  max-level 5
                 if (>= level max-level)
                   write! $ [] (:: :vertex p1 w level) (:: :vertex p5 w level) (:: :vertex p2 w level) break-mark (:: :vertex p3 w level) (:: :vertex p5 w level) (:: :vertex p4 w level) break-mark
                 when (< level max-level)
@@ -1591,7 +1591,7 @@
               reset-clear-color! $ either bg-color
                 {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
               render-app!
-              renderControl
+              ; renderControl
               startControlLoop 10 onControlEvent
               registerShaderResult handle-compilation
               set! js/window.onresize $ fn (e) (resetCanvasSize canvas) (initializeCanvasTextures) (paintLagopusTree)
