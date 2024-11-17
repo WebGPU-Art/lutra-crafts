@@ -397,6 +397,7 @@
                   :tree-3 $ comp-tree-3
                   :sedimentary $ comp-sedimentary
                   :concentric $ comp-concentric
+                  :snowing $ comp-snowflakes-demo
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -448,6 +449,7 @@
             app.comp.prime-walk :refer $ comp-prime-walk comp-prime-pyramid
             app.comp.christmas-tree :refer $ comp-tree-1 comp-tree-2 comp-tree-3
             app.cmop.sedimentary :refer $ comp-sedimentary comp-concentric
+            app.comp.snowflakes-demo :refer $ comp-snowflakes-demo
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -953,7 +955,7 @@
             "\"../shaders/hopf.wgsl" :default wgsl-hopf
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
             memof.once :refer $ memof1-call
-            quaternion.vector :refer $ c+ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize v3
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize v3
             quaternion.complex :refer $ complex
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -1058,7 +1060,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark) (:: :tree-1 "|Tree 1" :dark) (:: :tree-2 "|Tree 2" :dark) (:: :tree-3 "|Tree 3" :dark) (:: :sedimentary "\"Sedimentary" :dark) (:: :concentric "\"Concenytic" :dark)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark) (:: :tree-1 "|Tree 1" :dark) (:: :tree-2 "|Tree 2" :dark) (:: :tree-3 "|Tree 3" :dark) (:: :sedimentary "\"Sedimentary" :dark) (:: :concentric "\"Concenytic" :dark) (:: :snowing "\"Snowing" :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -1444,6 +1446,217 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.snowflakes-demo $ %{} :FileEntry
+      :defs $ {}
+        |comp-snowflakes-demo $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-snowflakes-demo () $ let
+                area 240
+                d-size 2.2
+                placements $ -> (range 8000)
+                  map $ fn (i)
+                    let
+                        p $ v3 (rand-shift 0 area)
+                          do (rand-shift 0 area) 0
+                          rand-shift 0 area
+                        a $ v3 (rand) (rand) (rand)
+                        b $ v3 (rand) (rand) (rand)
+                        c $ v-cross a b
+                        a1 $ v-normalize a
+                        c1 $ v-normalize c
+                      {} (:x a1) (:y c1) (:p p)
+                        :size $ pow (rand d-size) 2
+                  conj $ {}
+                    :x $ v3 1 0 0
+                    :y $ v3 0 1 0
+                    :p $ v3 0 0 0
+                    :size 4
+              comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-snowing)
+                :writer $ fn (write!)
+                  -> placements $ map
+                    fn (info)
+                      let-sugar
+                            {} x y p size
+                            , info
+                          picked-shape $ case-default (rand-int 7) snowflake-shape-sparse (0 snowflake-shape) (1 snowflake-shape-bare) (2 snowflake-shape-sparse) (3 snowflake-shape-hairy) (4 snowflake-shape-ring) (5 snowflake-shape-branch) (6 snowflake-shape-star)
+                          seed $ rand 20
+                        -> picked-shape $ map
+                          fn (path)
+                            let{} (from to) path $ write!
+                              []
+                                :: :vertex
+                                  v+ p
+                                    v-scale x $ * size (nth from 1)
+                                    v-scale y $ * size (nth from 2)
+                                  , 0.12 seed
+                                :: :vertex
+                                  v+ p
+                                    v-scale x $ * size (nth to 1)
+                                    v-scale y $ * size (nth to 2)
+                                  , 0.12 seed
+                                , break-mark
+                :get-params $ fn ()
+                  js-array $ &* 0.08
+                    - (js/performance.now) start-time
+        |rotate-branches $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn rotate-branches (branch0)
+              apply-args (branch0 branch0 5)
+                fn (acc template level)
+                  if (= level 0) acc $ let
+                      xs $ -> template
+                        map $ fn (info)
+                          let
+                              from $ :from info
+                              to $ :to info
+                            {}
+                              :from $ &c* from snowflake-rotation
+                              :to $ &c* to snowflake-rotation
+                    recur (concat acc xs) xs $ dec level
+        |snowflake-rotation $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-rotation $ complex 0.5 (* 0.5 sqrt3)
+        |snowflake-shape $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 1 0
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.24 0.16
+                  {}
+                    :from $ complex 0.6 0
+                    :to $ complex 0.84 0.34
+                  {}
+                    :from $ complex 0.6 0
+                    :to $ complex 0.84 -0.34
+                  {}
+                    :from $ complex 0.3 0
+                    :to $ complex 0.56 0.26
+                  {}
+                    :from $ complex 0.3 0
+                    :to $ complex 0.56 -0.26
+                  {}
+                    :from $ complex 0.80 0
+                    :to $ complex 0.92 0.16
+                  {}
+                    :from $ complex 0.80 0
+                    :to $ complex 0.92 -0.16
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-bare $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-bare $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.6 0
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-branch $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-branch $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.8 0
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.4 0.16
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-hairy $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-hairy $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 1 0
+                  {}
+                    :from $ complex 0.6 0
+                    :to $ complex 0.84 0.34
+                  {}
+                    :from $ complex 0.6 0
+                    :to $ complex 0.84 -0.34
+                  {}
+                    :from $ complex 0.7 0
+                    :to $ complex 0.9 0.27
+                  {}
+                    :from $ complex 0.7 0
+                    :to $ complex 0.9 -0.27
+                  {}
+                    :from $ complex 0.80 0
+                    :to $ complex 0.92 0.16
+                  {}
+                    :from $ complex 0.80 0
+                    :to $ complex 0.92 -0.16
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-ring $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-ring $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0.4 0.44
+                    :to $ complex 0.4 -0.44
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-sparse $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-sparse $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.9 0
+                  {}
+                    :from $ complex 0.32 0
+                    :to $ complex 0.66 0.54
+                  {}
+                    :from $ complex 0.32 0
+                    :to $ complex 0.66 -0.54
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-star $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-star $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.8 0
+                  {}
+                    :from $ complex 0.42 0.12
+                    :to $ complex 0.58 -0.12
+                  {}
+                    :from $ complex 0.58 0.12
+                    :to $ complex 0.42 -0.12
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |sqrt3 $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def sqrt3 $ sqrt 3
+        |start-time $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def start-time $ js/performance.now
+      :ns $ %{} :CodeEntry (:doc |)
+        :code $ quote
+          ns app.comp.snowflakes-demo $ :require
+            quaternion.vector :refer $ &v+ &v- v+ v-scale v-cross v-normalize v3
+            quaternion.complex :refer $ &c* complex &c+
+            "\"../shaders/snowing.wgsl" :default wgsl-snowing
+            memof.once :refer $ memof1-call
+            triadica.comp.segments :refer $ fibo-grid-range
+            lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
+            app.config :refer $ inline-shader
+            "\"@calcit/std" :refer $ rand rand-int rand-shift
     |app.comp.split-triangles $ %{} :FileEntry
       :defs $ {}
         |comp-split-triangles $ %{} :CodeEntry (:doc |)
