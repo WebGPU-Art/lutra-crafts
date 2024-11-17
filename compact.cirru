@@ -1816,7 +1816,7 @@
               registerShaderResult handle-compilation
               set! js/window.onresize $ fn (e) (resetCanvasSize canvas) (initializeCanvasTextures) (; paintLagopusTree)
               resetCanvasSize canvas
-              ; add-watch *store :change $ fn (next store) (render-app!) (paintLagopusTree)
+              add-watch *store :change $ fn (next store) (render-app!) (; paintLagopusTree)
               setupMouseEvents canvas
               if remote-control? $ setupRemoteControl
                 fn (action)

@@ -13355,7 +13355,6 @@
                   |b $ %{} :Leaf (:at 1679819952782) (:by |rJG4IHzWf) (:text |canvas)
               |zP $ %{} :Expr (:at 1677948445310) (:by |rJG4IHzWf)
                 :data $ {}
-                  |D $ %{} :Leaf (:at 1731858771115) (:by |rJG4IHzWf) (:text |;)
                   |T $ %{} :Leaf (:at 1677948447140) (:by |rJG4IHzWf) (:text |add-watch)
                   |b $ %{} :Leaf (:at 1677948449255) (:by |rJG4IHzWf) (:text |*store)
                   |h $ %{} :Leaf (:at 1677948451009) (:by |rJG4IHzWf) (:text |:change)
@@ -13371,6 +13370,7 @@
                           |T $ %{} :Leaf (:at 1677948459886) (:by |rJG4IHzWf) (:text |render-app!)
                       |l $ %{} :Expr (:at 1731783239728) (:by |rJG4IHzWf)
                         :data $ {}
+                          |D $ %{} :Leaf (:at 1731861755670) (:by |rJG4IHzWf) (:text |;)
                           |T $ %{} :Leaf (:at 1731783239728) (:by |rJG4IHzWf) (:text |paintLagopusTree)
               |zY $ %{} :Expr (:at 1677932976878) (:by |rJG4IHzWf)
                 :data $ {}
