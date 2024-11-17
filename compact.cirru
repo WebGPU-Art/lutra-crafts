@@ -1629,6 +1629,7 @@
                   {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
               renderLagopusTree tree dispatch!
               render! mount-target nav dispatch!
+              paintLagopusTree
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.main $ :require

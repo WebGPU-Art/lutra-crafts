@@ -12236,6 +12236,9 @@
                       |b $ %{} :Leaf (:at 1693708282109) (:by |rJG4IHzWf) (:text |mount-target)
                       |g $ %{} :Leaf (:at 1693708289258) (:by |rJG4IHzWf) (:text |nav)
                       |l $ %{} :Leaf (:at 1693708282109) (:by |rJG4IHzWf) (:text |dispatch!)
+                  |q $ %{} :Expr (:at 1731833490523) (:by |rJG4IHzWf)
+                    :data $ {}
+                      |T $ %{} :Leaf (:at 1731833490523) (:by |rJG4IHzWf) (:text |paintLagopusTree)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ %{} :Expr (:at 1677432884829) (:by |rJG4IHzWf)
           :data $ {}
