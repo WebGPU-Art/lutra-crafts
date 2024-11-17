@@ -850,11 +850,11 @@
           :code $ quote
             defn calc-k (p0 p1)
               let
-                  x0 $ nth p0 0
-                  z0 $ nth p0 2
-                  x1 $ nth p1 0
-                  y1 $ nth p1 1
-                  z1 $ nth p1 2
+                  x0 $ nth p0 1
+                  z0 $ nth p0 3
+                  x1 $ nth p1 1
+                  y1 $ nth p1 2
+                  z1 $ nth p1 3
                 * 0.5 $ &/
                   - (v-length2 p1) (v-length2 p0)
                   + (* x0 x1) (* z0 z1)
@@ -875,7 +875,7 @@
                   if show? $ comp-drag-point
                     {}
                       :position $ :base state
-                      :color $ [] 0.6 0.6 1.0 1.0
+                      :color $ [] 1.6 0.6 1.0 1.0
                     fn (move d!)
                       d! $ : :state cursor (assoc state :base move)
                   comp-polylines-marked $ {} (:shader wgsl-hopf)
@@ -925,11 +925,11 @@
             defn decide-circle (v0)
               let
                   p1 $ v-normalize v0
-                  c1 $ complex (nth p1 0) (nth p1 2)
-                  theta $ js/Math.atan2 (nth p1 2) (nth p1 0)
+                  c1 $ complex (nth p1 1) (nth p1 3)
+                  theta $ js/Math.atan2 (nth p1 3) (nth p1 1)
                   theta0 $ &- theta (* 0.5 &PI)
-                  p0 $ v3 (nth p1 2) 0
-                    negate $ nth p1 0
+                  p0 $ v3 (nth p1 3) 0
+                    negate $ nth p1 1
                   k $ calc-k p0 p1
                   center $ v-scale p0 k
                   rh $ v- p0 center
@@ -1564,7 +1564,7 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :concentric
+              :tab $ turn-tag (get-env "\"tab" "\"concentric")
               :theme :dark
               :show-tabs? true
               :show-controls? true
