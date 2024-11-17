@@ -7,8 +7,17 @@ export default defineConfig({
       // include: /wgsl/i,
     }),
   ],
-
+  build: {
+    minify: false,
+    rollupOptions: {
+      treeshake: false,
+      treeShaking: false,
+    },
+  },
   optimizeDeps: {
-    exclude: ["@triadica/lagopus/lib/comp/bottom.mjs", "@triadica/lagopus"],
+    exclude: ["@triadica/lagopus"],
+    esbuildOptions: {
+      treeShaking: false,
+    },
   },
 });
