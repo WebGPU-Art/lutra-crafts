@@ -1452,7 +1452,7 @@
           :code $ quote
             defn comp-snowflakes-demo () $ let
                 area 80
-                item-count 2000
+                item-count 6000
                 d-size 2.2
                 placements $ -> (range item-count)
                   map $ fn (i)
@@ -1467,11 +1467,6 @@
                         c1 $ v-normalize c
                       {} (:x a1) (:y c1) (:p p)
                         :size $ pow (rand d-size) 2
-                  ; conj $ {}
-                    :x $ v3 1 0 0
-                    :y $ v3 0 1 0
-                    :p $ v3 0 0 0
-                    :size 4
               comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-snowing)
                 :writer $ fn (write!)
                   -> placements $ map-indexed
@@ -1486,15 +1481,15 @@
                             let{} (from to) path $ write!
                               []
                                 :: :vertex
-                                  v+ p
+                                  v+
                                     v-scale x $ * size (nth from 1)
                                     v-scale y $ * size (nth from 2)
-                                  , 0.12 idx
+                                  , 0.4 idx
                                 :: :vertex
-                                  v+ p
+                                  v+
                                     v-scale x $ * size (nth to 1)
                                     v-scale y $ * size (nth to 2)
-                                  , 0.12 idx
+                                  , 0.4 idx
                                 , break-mark
                 :get-params $ fn ()
                   js-array $ &* 0.08
@@ -1503,7 +1498,7 @@
                   :initialBuffer $ new js/Float32Array
                     -> (range item-count)
                       mapcat $ fn (x)
-                        map (range 8)
+                        map (range 12)
                           fn (c) (rand-shift 0 100)
                       to-js-data
         |rotate-branches $ %{} :CodeEntry (:doc |)
@@ -1800,6 +1795,10 @@
                   store @*store
                   next-store $ updater store op
                 if (not= next-store store) (reset! *store next-store)
+        |loop-paint! $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn loop-paint! () $ js/requestAnimationFrame
+              fn (p) (paintLagopusTree) (loop-paint!)
         |main! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn main! () (hint-fn async)
@@ -1809,23 +1808,24 @@
               if dev? $ load-console-formatter!
               js-await $ initializeContext
               initializeCanvasTextures
-              reset-clear-color! $ either bg-color
+              ; reset-clear-color! $ either bg-color
                 {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
               render-app!
               ; renderControl
               startControlLoop 10 onControlEvent
               registerShaderResult handle-compilation
-              set! js/window.onresize $ fn (e) (resetCanvasSize canvas) (initializeCanvasTextures) (paintLagopusTree)
+              set! js/window.onresize $ fn (e) (resetCanvasSize canvas) (initializeCanvasTextures) (; paintLagopusTree)
               resetCanvasSize canvas
-              add-watch *store :change $ fn (next store) (render-app!) (paintLagopusTree)
+              ; add-watch *store :change $ fn (next store) (render-app!) (paintLagopusTree)
               setupMouseEvents canvas
               if remote-control? $ setupRemoteControl
                 fn (action)
                   case-default (.-button action) (js/console.warn "\"Unknown Action" action)
                     "\"toggle" $ dispatch! (: toggle)
                     "\"switch" $ dispatch! (: switch)
+              loop-paint!
               loadGamepadControl
-              paintLagopusTree
+              ; paintLagopusTree
         |mount-target $ %{} :CodeEntry (:doc |)
           :code $ quote
             def mount-target $ js/document.querySelector |.app
@@ -1844,13 +1844,14 @@
                 tree $ memof1-call comp-container store
                 nav $ memof1-call comp-nav store
               reset-clear-color! $ either bg-color
-                if
-                  = :dark $ :theme store
-                  {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
+                case-default (:theme store)
                   {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
+                  :dark $ {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
+                  :gray $ {} (:r 0.3) (:g 0.3) (:b 0.3) (:a 0.98)
+                  :white $ {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
               renderLagopusTree tree dispatch!
               render! mount-target nav dispatch!
-              paintLagopusTree
+              ; paintLagopusTree
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.main $ :require

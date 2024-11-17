@@ -1,12 +1,21 @@
 
 #import lagopus::perspective
 
+#import lagopus::rotation
+
 // #import // lagopus::colors
 
+struct Params {
+  // custom
+  time: f32,
+}
+
+@group(0) @binding(1) var<uniform> params: Params;
 
 struct ParticleInfo {
   position: vec3f,
   velocity: vec3f,
+  axis: vec3f,
 }
 
 struct Particles {
@@ -21,8 +30,26 @@ fn main(@builtin(global_invocation_id) GlobalInvocationID: vec3<u32>) {
   var index = GlobalInvocationID.x;
   let input_item = input.particles[index];
 
-  output.particles[index].position = input_item.position + 0.002 * input_item.velocity;
-  // TODO
+  var next_pos = input_item.position + 0.0003 * input_item.velocity + vec3f(0.02, -0.08, 0.);
+  if next_pos.y < -100. {
+    next_pos.y = 100.;
+  }
+  if next_pos.y > 100. {
+    next_pos.y = -100.;
+  }
+  if next_pos.x < -320. {
+    next_pos.x = 320.;
+  }
+  if next_pos.x > 320. {
+    next_pos.x = -320.;
+  }
+  if next_pos.z < -320. {
+    next_pos.z = 320.;
+  }
+  if next_pos.z > 320. {
+    next_pos.z = -320.;
+  }
+  output.particles[index].position = next_pos;
 }
 
 
@@ -44,11 +71,11 @@ fn vertex_main(
 ) -> VertexOut {
 
   let picker_idx = u32(picker);
-  let base = input.particles[picker_idx].position;
+  let base_info = input.particles[picker_idx];
+  let base = base_info.position;
 
-  var output: VertexOut;
 
-  var p1 = position + base;
+  var p1 = rotate_around(position, base_info.axis, 0.022 * params.time);
 
   var next = cross(direction, uniforms.forward);
   if length(next) < 0.0001 {
@@ -61,12 +88,16 @@ fn vertex_main(
   } else {
     p1 -= brush_direction * width * 0.5;
   }
+  let pos = base + p1;
 
-  let result = transform_perspective(p1.xyz);
+  let result = transform_perspective(pos * 4.);
   let p = result.point_position;
   let scale: f32 = 0.002;
-  output.position = vec4(p[0] * scale, p[1] * scale, p[2] * scale, 1.0);
-  output.distance = result.r;
+
+  let output = VertexOut(
+    vec4(p[0] * scale, p[1] * scale, p[2] * scale, 1.0),
+    result.r
+  );
   // output.mark = mark;
 
   return output;
@@ -80,5 +111,5 @@ fn fragment_main(vtx_out: VertexOut) -> @location(0) vec4f {
   // return vec4f(vtx_out.color, 1.0);
   // let color = hsl(fract(0.01 + fract(vtx_out.mark * 0.17)), 0.7, 0.6);
   // return vec4f(color, max(0.16, 1.0 - vtx_out.distance * 0.6));
-  return vec4f(1., 1., 1., 0.7);
+  return vec4f(0.9, 0.9, 0.94, 0.6);
 }
