@@ -5,6 +5,6 @@
     |calcit-lang/memof |main
     |calcit-lang/lilac |main
     |calcit-lang/quaternion |main
-    |Triadica/lagopus |0.5.7
+    |WebGPU-Art/lagopus |0.5.8
     |Respo/respo.calcit |main
     |Respo/respo-ui.calcit |main

@@ -1496,11 +1496,14 @@
                     - (js/performance.now) start-time
                 :compute-options $ js-object (:particleCount item-count)
                   :initialBuffer $ new js/Float32Array
-                    -> (range item-count)
-                      mapcat $ fn (x)
-                        map (range 12)
-                          fn (c) (rand-shift 0 100)
-                      to-js-data
+                    let
+                        *buf $ js-array
+                      -> (range item-count)
+                        .each $ fn (x)
+                          .each (range 12)
+                            fn (c)
+                              .!push *buf $ rand-shift 0 100
+                      , *buf
         |rotate-branches $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn rotate-branches (branch0)
