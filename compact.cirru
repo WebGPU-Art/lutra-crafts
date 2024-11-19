@@ -648,30 +648,34 @@
             defn comp-fireworks () $ group nil
               comp-polylines-marked $ {} (:shader wgsl-fireworks)
                 :writer $ fn (write!)
-                  -> (range 2000)
-                    each $ fn (_)
+                  loop
+                      n 0
+                    if (&< n 2000)
                       let
                           base $ v3 (rand-shift 0 20000) (rand-shift 0 2080) (rand-shift 0 20000)
                           color $ rand 10
-                          w $ + 2 (rand 6)
+                          w $ &+ 2 (rand 6)
                         ->
                           fibo-grid-range $ rand-int 40 400
                           each $ fn (v)
                             let
                                 a1 $ rand 4
                                 a2 $ rand 4
-                              ->
-                                range $ rand-int 12
-                                map $ fn (n)
-                                  * 1 $ + n 3 a2
-                                each $ fn (n)
-                                  let
-                                      t $ * 2.2 n
-                                      p $ v+ base
-                                        v-scale v $ * 6 t a1
-                                        v-scale (v3 0 -0.4 0) (* t t 0.5)
-                                    write! $ : vertex (v-scale p 1) w color
+                                upper $ rand-int 12
+                              loop
+                                  i 0
+                                let
+                                    n $ &+ i (&+ 3 a2)
+                                    t $ &* 2.2 n
+                                    p $ v+ base
+                                      v-scale v $ &* 6 (&* t a1)
+                                      v-scale (v3 0 -0.4 0)
+                                        &* (&* t t) 0.5
+                                  write! $ : vertex p w color
+                                  if (&< i upper)
+                                    recur $ inc i
                             write! break-mark
+                        recur $ inc n
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.fireworks $ :require
@@ -1811,8 +1815,7 @@
               if dev? $ load-console-formatter!
               js-await $ initializeContext
               initializeCanvasTextures
-              ; reset-clear-color! $ either bg-color
-                {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
+              ; reset-clear-color! $ either bg-color (:: :rgba 0.04 0 0.1 0.98)
               render-app!
               ; renderControl
               startControlLoop 10 onControlEvent
@@ -1848,10 +1851,10 @@
                 nav $ memof1-call comp-nav store
               reset-clear-color! $ either bg-color
                 case-default (:theme store)
-                  {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
-                  :dark $ {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
-                  :gray $ {} (:r 0.3) (:g 0.3) (:b 0.3) (:a 0.98)
-                  :white $ {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
+                  :white $ :: :rgba 0.9 0.9 0.9 0.98
+                  :dark $ :: :rgba 0.04 0 0.1 0.98
+                  :gray $ :: :rgba 0.3 0.3 0.3 0.98
+                  :white $ :: :rgba 0.9 0.9 0.9 0.98
               renderLagopusTree tree dispatch!
               render! mount-target nav dispatch!
               ; paintLagopusTree
