@@ -397,6 +397,7 @@
                   :tree-3 $ comp-tree-3
                   :sedimentary $ comp-sedimentary
                   :concentric $ comp-concentric
+                  :snowing $ comp-snowflakes-demo
         |comp-fur $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn comp-fur () $ comp-curves
@@ -448,6 +449,7 @@
             app.comp.prime-walk :refer $ comp-prime-walk comp-prime-pyramid
             app.comp.christmas-tree :refer $ comp-tree-1 comp-tree-2 comp-tree-3
             app.cmop.sedimentary :refer $ comp-sedimentary comp-concentric
+            app.comp.snowflakes-demo :refer $ comp-snowflakes-demo
     |app.comp.cube-combo $ %{} :FileEntry
       :defs $ {}
         |comp-cubes $ %{} :CodeEntry (:doc |)
@@ -646,30 +648,34 @@
             defn comp-fireworks () $ group nil
               comp-polylines-marked $ {} (:shader wgsl-fireworks)
                 :writer $ fn (write!)
-                  -> (range 2000)
-                    each $ fn (_)
+                  loop
+                      n 0
+                    if (&< n 2000)
                       let
                           base $ v3 (rand-shift 0 20000) (rand-shift 0 2080) (rand-shift 0 20000)
                           color $ rand 10
-                          w $ + 2 (rand 6)
+                          w $ &+ 2 (rand 6)
                         ->
                           fibo-grid-range $ rand-int 40 400
                           each $ fn (v)
                             let
                                 a1 $ rand 4
                                 a2 $ rand 4
-                              ->
-                                range $ rand-int 12
-                                map $ fn (n)
-                                  * 1 $ + n 3 a2
-                                each $ fn (n)
-                                  let
-                                      t $ * 2.2 n
-                                      p $ v+ base
-                                        v-scale v $ * 6 t a1
-                                        v-scale (v3 0 -0.4 0) (* t t 0.5)
-                                    write! $ : vertex (v-scale p 1) w color
+                                upper $ rand-int 12
+                              loop
+                                  i 0
+                                let
+                                    n $ &+ i (&+ 3 a2)
+                                    t $ &* 2.2 n
+                                    p $ v+ base
+                                      v-scale v $ &* 6 (&* t a1)
+                                      v-scale (v3 0 -0.4 0)
+                                        &* (&* t t) 0.5
+                                  write! $ : vertex p w color
+                                  if (&< i upper)
+                                    recur $ inc i
                             write! break-mark
+                        recur $ inc n
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.fireworks $ :require
@@ -717,7 +723,7 @@
                 parts 8
                 elevation $ * &PI 0.5
                 decay 0.36
-                iteration 8
+                iteration 7
                 unit 800
               ; js/console.log $ .flatten ps
               comp-polylines $ {} (:shader wgsl-flower-ball)
@@ -830,7 +836,7 @@
                     fn (delta d!)
                       d! $ : state cursor
                         assoc state :tau $ + tau
-                          * 0.01 $ nth delta 0
+                          * 0.01 $ nth delta 1
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.helicoid $ :require
@@ -850,11 +856,11 @@
           :code $ quote
             defn calc-k (p0 p1)
               let
-                  x0 $ nth p0 0
-                  z0 $ nth p0 2
-                  x1 $ nth p1 0
-                  y1 $ nth p1 1
-                  z1 $ nth p1 2
+                  x0 $ nth p0 1
+                  z0 $ nth p0 3
+                  x1 $ nth p1 1
+                  y1 $ nth p1 2
+                  z1 $ nth p1 3
                 * 0.5 $ &/
                   - (v-length2 p1) (v-length2 p0)
                   + (* x0 x1) (* z0 z1)
@@ -875,7 +881,7 @@
                   if show? $ comp-drag-point
                     {}
                       :position $ :base state
-                      :color $ [] 0.6 0.6 1.0 1.0
+                      :color $ [] 1.6 0.6 1.0 1.0
                     fn (move d!)
                       d! $ : :state cursor (assoc state :base move)
                   comp-polylines-marked $ {} (:shader wgsl-hopf)
@@ -925,11 +931,11 @@
             defn decide-circle (v0)
               let
                   p1 $ v-normalize v0
-                  c1 $ complex (nth p1 0) (nth p1 2)
-                  theta $ js/Math.atan2 (nth p1 2) (nth p1 0)
+                  c1 $ complex (nth p1 1) (nth p1 3)
+                  theta $ js/Math.atan2 (nth p1 3) (nth p1 1)
                   theta0 $ &- theta (* 0.5 &PI)
-                  p0 $ v3 (nth p1 2) 0
-                    negate $ nth p1 0
+                  p0 $ v3 (nth p1 3) 0
+                    negate $ nth p1 1
                   k $ calc-k p0 p1
                   center $ v-scale p0 k
                   rh $ v- p0 center
@@ -953,7 +959,7 @@
             "\"../shaders/hopf.wgsl" :default wgsl-hopf
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
             memof.once :refer $ memof1-call
-            quaternion.vector :refer $ c+ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize v3
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize v3
             quaternion.complex :refer $ complex
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -1058,7 +1064,7 @@
                 :color :white
         |tabs $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark) (:: :tree-1 "|Tree 1" :dark) (:: :tree-2 "|Tree 2" :dark) (:: :tree-3 "|Tree 3" :dark) (:: :sedimentary "\"Sedimentary" :dark) (:: :concentric "\"Concenytic" :dark)
+            def tabs $ [] (:: :cube |Cube :light) (:: :helicoid |Helicoid :dark) (:: :hyperbolic-helicoid |Hyperbolic-helicoid :light) (:: :globe |Globe :light) (:: :fur |Fur :light) (:: :petal-wireframe |Petal-wireframe :light) (:: :mums |Mums :light) (:: :flower-ball |Ball :light) (:: :blow |Blow :light) (:: :triangles |Triangles :light) (:: :segments |Segments :light) (:: :quaternion-fold |Quaternion-fold :dark) (:: :hopf |Hopf :dark) (:: :fireworks |Fireworks :dark) (:: :blinks |Blinks :dark) (:: :split-triangles "|Split Triangles" :light) (:: :cubes-tree "|Cubes tree" :light) (:: :prime-walk "|Prime Walk" :dark) (:: :prime-pyramid "|Prime pyramid" :dark) (:: :tree-1 "|Tree 1" :dark) (:: :tree-2 "|Tree 2" :dark) (:: :tree-3 "|Tree 3" :dark) (:: :sedimentary "\"Sedimentary" :dark) (:: :concentric "\"Concenytic" :dark) (:: :snowing "\"Snowing" :dark)
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.nav $ :require
@@ -1245,7 +1251,7 @@
                     ; fold-line3 12 (quaternion 0 0 0 0) (quaternion 100 0 0 0) (quaternion 22.5 0 0 25) (quaternion 22.5 12.5 12.5 25) (quaternion 22.5 0 0 25)
                       q-inverse $ quaternion 0 0 0 50
                       , 0.008 write!
-                    fold-line4 10 (quaternion 0 0 0 0) (quaternion 200 0 0 0) (quaternion 0 0 0 25) (quaternion 10 10 10 25) (quaternion 10 10 -10 25) (quaternion 0 0 0 25)
+                    fold-line4 8 (quaternion 0 0 0 0) (quaternion 200 0 0 0) (quaternion 0 0 0 25) (quaternion 10 10 10 25) (quaternion 10 10 -10 25) (quaternion 0 0 0 25)
                       q-inverse $ quaternion 0 0 0 50
                       , 0.1 write!
         |fold-line3 $ %{} :CodeEntry (:doc |)
@@ -1323,7 +1329,7 @@
                 p3 $ v3 0.5 0.0 0
                 p4 $ v3 0.52 0.4 0.1
                 p5 $ v3 0.54 0.01 0
-                level 7
+                level 6
                 target $ v3 1000 0 0
               comp-polylines $ {} (; :shader wgsl-flower-ball)
                 :writer $ fn (write!)
@@ -1344,37 +1350,37 @@
                   point1 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p1 0
-                        v-scale upward $ nth p1 1
-                        v-scale right $ nth p1 2
+                        v-scale forward $ nth p1 1
+                        v-scale upward $ nth p1 2
+                        v-scale right $ nth p1 3
                       , l
                   point2 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p2 0
-                        v-scale upward $ nth p2 1
-                        v-scale right $ nth p2 2
+                        v-scale forward $ nth p2 1
+                        v-scale upward $ nth p2 2
+                        v-scale right $ nth p2 3
                       , l
                   point3 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p3 0
-                        v-scale upward $ nth p3 1
-                        v-scale right $ nth p3 2
+                        v-scale forward $ nth p3 1
+                        v-scale upward $ nth p3 2
+                        v-scale right $ nth p3 3
                       , l
                   point4 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p4 0
-                        v-scale upward $ nth p4 1
-                        v-scale right $ nth p4 2
+                        v-scale forward $ nth p4 1
+                        v-scale upward $ nth p4 2
+                        v-scale right $ nth p4 3
                       , l
                   point5 $ &v+ base
                     v-scale
                       v+
-                        v-scale forward $ nth p5 0
-                        v-scale upward $ nth p5 1
-                        v-scale right $ nth p5 2
+                        v-scale forward $ nth p5 1
+                        v-scale upward $ nth p5 2
+                        v-scale right $ nth p5 3
                       , l
                   m $ middle base target
                 if (&> level 1)
@@ -1444,6 +1450,223 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
+    |app.comp.snowflakes-demo $ %{} :FileEntry
+      :defs $ {}
+        |comp-snowflakes-demo $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-snowflakes-demo () $ let
+                area 80
+                item-count 6000
+                d-size 2.2
+                placements $ -> (range item-count)
+                  map $ fn (i)
+                    let
+                        p $ v3 (rand-shift 0 area)
+                          do (rand-shift 0 area) 0
+                          rand-shift 0 area
+                        a $ v3 (rand) (rand) (rand)
+                        b $ v3 (rand) (rand) (rand)
+                        c $ v-cross a b
+                        a1 $ v-normalize a
+                        c1 $ v-normalize c
+                      {} (:x a1) (:y c1) (:p p)
+                        :size $ pow (rand d-size) 2
+              comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-snowing)
+                :writer $ fn (write!)
+                  -> placements $ map-indexed
+                    fn (idx info)
+                      let-sugar
+                            {} x y p size
+                            , info
+                          picked-shape $ case-default (rand-int 7) snowflake-shape-sparse (0 snowflake-shape) (1 snowflake-shape-bare) (2 snowflake-shape-sparse) (3 snowflake-shape-hairy) (4 snowflake-shape-ring) (5 snowflake-shape-branch) (6 snowflake-shape-star)
+                          seed $ rand 20
+                        -> picked-shape $ map
+                          fn (path)
+                            let{} (from to) path $ write!
+                              []
+                                :: :vertex
+                                  v+
+                                    v-scale x $ * size (nth from 1)
+                                    v-scale y $ * size (nth from 2)
+                                  , 0.4 idx
+                                :: :vertex
+                                  v+
+                                    v-scale x $ * size (nth to 1)
+                                    v-scale y $ * size (nth to 2)
+                                  , 0.4 idx
+                                , break-mark
+                :get-params $ fn ()
+                  js-array $ &* 0.08
+                    - (js/performance.now) start-time
+                :compute-options $ js-object (:particleCount item-count)
+                  :initialBuffer $ new js/Float32Array
+                    let
+                        *buf $ js-array
+                      -> (range item-count)
+                        .each $ fn (x)
+                          .each (range 12)
+                            fn (c)
+                              .!push *buf $ rand-shift 0 100
+                      , *buf
+        |rotate-branches $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn rotate-branches (branch0)
+              apply-args (branch0 branch0 5)
+                fn (acc template level)
+                  if (= level 0) acc $ let
+                      xs $ -> template
+                        map $ fn (info)
+                          let
+                              from $ :from info
+                              to $ :to info
+                            {}
+                              :from $ &c* from snowflake-rotation
+                              :to $ &c* to snowflake-rotation
+                    recur (concat acc xs) xs $ dec level
+        |snowflake-rotation $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-rotation $ complex 0.5 (* 0.5 sqrt3)
+        |snowflake-shape $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 1 0
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.24 0.16
+                  {}
+                    :from $ complex 0.6 0
+                    :to $ complex 0.84 0.34
+                  {}
+                    :from $ complex 0.6 0
+                    :to $ complex 0.84 -0.34
+                  {}
+                    :from $ complex 0.3 0
+                    :to $ complex 0.56 0.26
+                  {}
+                    :from $ complex 0.3 0
+                    :to $ complex 0.56 -0.26
+                  {}
+                    :from $ complex 0.80 0
+                    :to $ complex 0.92 0.16
+                  {}
+                    :from $ complex 0.80 0
+                    :to $ complex 0.92 -0.16
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-bare $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-bare $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.6 0
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-branch $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-branch $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.8 0
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.4 0.16
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-hairy $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-hairy $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 1 0
+                  {}
+                    :from $ complex 0.6 0
+                    :to $ complex 0.84 0.34
+                  {}
+                    :from $ complex 0.6 0
+                    :to $ complex 0.84 -0.34
+                  {}
+                    :from $ complex 0.7 0
+                    :to $ complex 0.9 0.27
+                  {}
+                    :from $ complex 0.7 0
+                    :to $ complex 0.9 -0.27
+                  {}
+                    :from $ complex 0.80 0
+                    :to $ complex 0.92 0.16
+                  {}
+                    :from $ complex 0.80 0
+                    :to $ complex 0.92 -0.16
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-ring $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-ring $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0.4 0.44
+                    :to $ complex 0.4 -0.44
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-sparse $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-sparse $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.9 0
+                  {}
+                    :from $ complex 0.32 0
+                    :to $ complex 0.66 0.54
+                  {}
+                    :from $ complex 0.32 0
+                    :to $ complex 0.66 -0.54
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |snowflake-shape-star $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def snowflake-shape-star $ let
+                branch0 $ []
+                  {}
+                    :from $ complex 0 0
+                    :to $ complex 0.8 0
+                  {}
+                    :from $ complex 0.42 0.12
+                    :to $ complex 0.58 -0.12
+                  {}
+                    :from $ complex 0.58 0.12
+                    :to $ complex 0.42 -0.12
+                branches $ rotate-branches branch0
+              ; js/console.log branches
+              , branches
+        |sqrt3 $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def sqrt3 $ sqrt 3
+        |start-time $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def start-time $ js/performance.now
+      :ns $ %{} :CodeEntry (:doc |)
+        :code $ quote
+          ns app.comp.snowflakes-demo $ :require
+            quaternion.vector :refer $ &v+ &v- v+ v-scale v-cross v-normalize v3
+            quaternion.complex :refer $ &c* complex &c+
+            "\"../shaders/snowing.wgsl" :default wgsl-snowing
+            memof.once :refer $ memof1-call
+            triadica.comp.segments :refer $ fibo-grid-range
+            lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
+            app.config :refer $ inline-shader
+            "\"@calcit/std" :refer $ rand rand-int rand-shift
     |app.comp.split-triangles $ %{} :FileEntry
       :defs $ {}
         |comp-split-triangles $ %{} :CodeEntry (:doc |)
@@ -1465,7 +1688,7 @@
               let
                   w 4
                   p5 $ v-scale (v+ p1 p2 p3 p4) 0.25
-                  max-level 7
+                  max-level 5
                 if (>= level max-level)
                   write! $ [] (:: :vertex p1 w level) (:: :vertex p5 w level) (:: :vertex p2 w level) break-mark (:: :vertex p3 w level) (:: :vertex p5 w level) (:: :vertex p4 w level) break-mark
                 when (< level max-level)
@@ -1564,7 +1787,7 @@
           :code $ quote
             defatom *store $ {}
               :states $ {}
-              :tab :concentric
+              :tab $ turn-tag (get-env "\"tab" "\"concentric")
               :theme :dark
               :show-tabs? true
               :show-controls? true
@@ -1579,6 +1802,10 @@
                   store @*store
                   next-store $ updater store op
                 if (not= next-store store) (reset! *store next-store)
+        |loop-paint! $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn loop-paint! () $ js/requestAnimationFrame
+              fn (p) (paintLagopusTree) (loop-paint!)
         |main! $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn main! () (hint-fn async)
@@ -1588,23 +1815,23 @@
               if dev? $ load-console-formatter!
               js-await $ initializeContext
               initializeCanvasTextures
-              reset-clear-color! $ either bg-color
-                {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
+              ; reset-clear-color! $ either bg-color (:: :rgba 0.04 0 0.1 0.98)
               render-app!
-              renderControl
+              ; renderControl
               startControlLoop 10 onControlEvent
               registerShaderResult handle-compilation
-              set! js/window.onresize $ fn (e) (resetCanvasSize canvas) (initializeCanvasTextures) (paintLagopusTree)
+              set! js/window.onresize $ fn (e) (resetCanvasSize canvas) (initializeCanvasTextures) (; paintLagopusTree)
               resetCanvasSize canvas
-              add-watch *store :change $ fn (next store) (render-app!) (paintLagopusTree)
+              add-watch *store :change $ fn (next store) (render-app!) (; paintLagopusTree)
               setupMouseEvents canvas
               if remote-control? $ setupRemoteControl
                 fn (action)
                   case-default (.-button action) (js/console.warn "\"Unknown Action" action)
                     "\"toggle" $ dispatch! (: toggle)
                     "\"switch" $ dispatch! (: switch)
+              loop-paint!
               loadGamepadControl
-              paintLagopusTree
+              ; paintLagopusTree
         |mount-target $ %{} :CodeEntry (:doc |)
           :code $ quote
             def mount-target $ js/document.querySelector |.app
@@ -1623,12 +1850,14 @@
                 tree $ memof1-call comp-container store
                 nav $ memof1-call comp-nav store
               reset-clear-color! $ either bg-color
-                if
-                  = :dark $ :theme store
-                  {} (:r 0.04) (:g 0) (:b 0.1) (:a 0.98)
-                  {} (:r 0.9) (:g 0.9) (:b 0.9) (:a 0.98)
+                case-default (:theme store)
+                  :white $ :: :rgba 0.9 0.9 0.9 0.98
+                  :dark $ :: :rgba 0.04 0 0.1 0.98
+                  :gray $ :: :rgba 0.3 0.3 0.3 0.98
+                  :white $ :: :rgba 0.9 0.9 0.9 0.98
               renderLagopusTree tree dispatch!
               render! mount-target nav dispatch!
+              ; paintLagopusTree
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.main $ :require
