@@ -1850,7 +1850,7 @@
                 tree $ memof1-call comp-container store
                 nav $ memof1-call comp-nav store
               reset-clear-color! $ either bg-color
-                case-default (:theme store)
+                case-default (:theme store) (:: :rgba 0.04 0 0.1 0.98)
                   :white $ :: :rgba 0.9 0.9 0.9 0.98
                   :dark $ :: :rgba 0.04 0 0.1 0.98
                   :gray $ :: :rgba 0.3 0.3 0.3 0.98
