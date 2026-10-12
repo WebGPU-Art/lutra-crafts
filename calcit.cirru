@@ -1196,21 +1196,27 @@
                 :curves $ -> lines $ map
                   fn (pair)
                     let
-                        from $ nth pair 0
-                        to $ nth pair 1
+                        from $ .unwrap $ nth pair 0
+                        to $ .unwrap $ nth pair 1
                         points $ build-quadratic-curve
                           v-scale
-                            update from 1 $ fn (y) (* 0.4 y)
+                            match from $
+                              :v3 x y z
+                              v3 (* 0.4 x) y z
                             , 400
                           v-scale
-                            update to 1 $ fn (y)
-                              - (* 0.4 y) 0.5
+                            match to $
+                              :v3 x y z
+                              v3
+                                - (* 0.4 x) 0.5
+                                , y z
                             , 180
                           , 16 $ v3 0 -0.0016 0
                       map points $ fn (p)
                         {} (:position p) (:width 1.)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.patels
           :require
@@ -1229,21 +1235,25 @@
             comp-polylines-marked $ {} (:shader wgsl-prime-walk)
               :writer $ fn (write!)
                 prime-pyramid (v3 0 0 0) (do primes) write! 8 0 0
-              :get-params $ fn () $ js-array
-                wo-log $ * 0.8 $ - (js/Date.now) start-time 8000
+                , &unit
+              :get-params $ fn () $ shader-params
+                wo-log $ * 0.8 $ - (now-ms) start-time 8000
                 , 0 0 0
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'comp-prime-walk $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-prime-walk ()
             comp-polylines-marked $ {} (:shader wgsl-prime-walk)
               :writer $ fn (write!)
                 prime-walk (v3 0 0 0) primes write! 8 0 0
-              :get-params $ fn () $ js-array
-                wo-log $ * 0.4 $ - (js/Date.now) start-time 8000
+                , &unit
+              :get-params $ fn () $ shader-params
+                wo-log $ * 0.4 $ - (now-ms) start-time 8000
                 , 0 0 0
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'cube-middle-moves $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def cube-middle-moves
             [] (v3 1 0 0) (v3 0 1 0) (v3 0 0 -1) (v3 1 0 0) (v3 0 -1 0) (v3 0 0 -1) (v3 -1 0 0) (v3 0 -1 0) (v3 0 0 1) (v3 -1 0 0) (v3 0 1 0) (v3 0 0 1)
@@ -1361,6 +1371,7 @@
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             js-ffi.shared :refer $ now-ms
+            app.util :refer $ shader-params
     'app.comp.quaterion-fold $ %{} 'FileEntry
       :defs $ {}
         'comp-quaternion-fold $ %{} 'CodeEntry (:doc |)
@@ -1382,7 +1393,8 @@
                     q-inverse $ quaternion 0 0 0 50
                     , 0.1 write!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'fold-line3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn fold-line3
             level base v a b c full' minimal-seg write!
@@ -1839,7 +1851,8 @@
                     v-scale (v3 0 1200 0) s
                     , 0 true write!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'split-triangles $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn split-triangles (p1 p2 p3 p4 level root? write!)
             let
@@ -1911,7 +1924,8 @@
               :writer $ fn (write!)
                 build-sierpinski-triangles (v3 1000 0 0) (v3 -500 0 -800) (v3 -500 0 800) (v3 0 1200 0) 10 0.1 false write!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'third $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def third (&/ 1 3)
           :examples $ []
