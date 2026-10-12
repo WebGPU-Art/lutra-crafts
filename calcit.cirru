@@ -555,7 +555,8 @@
                 a-drop $ &v- a a-perp
               &v- a-perp a-drop
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3
         'render-cube $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-cube (cube write!)
             let
@@ -866,18 +867,17 @@
       :defs $ {}
         'calc-k $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-k (p0 p1)
-            let
-                x0 $ nth p0 1
-                z0 $ nth p0 3
-                x1 $ nth p1 1
-                y1 $ nth p1 2
-                z1 $ nth p1 3
-              * 0.5 $ &/
-                - (v-length2 p1) (v-length2 p0)
-                + (* x0 x1) (* z0 z1)
-                  negate $ v-length2 p0
+            match p0 $
+              :v3 x0 _y0 z0
+              match p1 $
+                :v3 x1 _y1 z1
+                * 0.5 $ &/
+                  - (v-length2 p1) (v-length2 p0)
+                  + (* x0 x1) (* z0 z1)
+                    negate $ v-length2 p0
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3
         'comp-hopf-fiber $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-hopf-fiber (states show?)
             let
@@ -958,13 +958,24 @@
           :schema $ :: 'Dynamic
         'v-length2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn v-length2 (a)
-            tag-match a $
+            match a $
               :v3 x y z
               -> (&* x x)
                 &+ $ &* y y
                 &+ $ &* z z
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'quaternion.vector/V3
+          :tests $ [] $ %{} 'TestEntry (:name |vector-and-quaternion-projection)
+            :code $ quote $ do
+              assert= 169 $ v-length2 $ quaternion.vector/v3 3 4 12
+              assert= ([] 2 4 6)
+                app.comp.quaterion-fold/take3 (quaternion.core/quaternion 9 1 2 3) 2
+              assert= 1.5 $ calc-k (quaternion.vector/v3 1 0 0) (quaternion.vector/v3 2 0 0)
+              assert=
+                [] (quaternion.vector/v3 0 0 0) (quaternion.vector/v3 1 0 0) (quaternion.vector/v3 2 0 0)
+                app.comp.patels/build-quadratic-curve (quaternion.vector/v3 0 0 0) (quaternion.vector/v3 2 0 0) 1 $ quaternion.vector/v3 0 0 0
+            :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.hopf-fiber
           :require
@@ -1101,7 +1112,7 @@
                 v $ &v- q p
                 l $ v-length v
                 dd $ &/ l step
-                size $ js/Math.floor dd
+                size $ floor dd
                 left $ &* 0.5 $ - l (&* size step)
                 unit $ v-normalize v
                 dist $ ->
@@ -1111,12 +1122,14 @@
                 l-middle $ * 0.25 l l
               -> dist $ map $ fn (ratio)
                 let
-                    s $ js/Math.abs $ &- ratio (&* 0.5 l)
+                    s $ abs $ &- ratio (&* 0.5 l)
                   &v+
                     &v+ p $ v-scale unit ratio
                     v-scale gravity $ &- l-middle $ pow s 2
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'quaternion.vector/V3
+            :return $ :: 'List 'quaternion.vector/V3
         'comp-petal-wireframe $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-petal-wireframe ()
             let
@@ -1338,11 +1351,13 @@
           :schema $ :: 'Dynamic
         'take3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn take3 (v s)
-            tag-match v $
+            match v $
               :quaternion w x y z
               [] (&* s x) (&* s y) (&* s z)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'quaternion.core/Quaternion 'Number
+            :return $ :: 'List 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.quaterion-fold
           :require
@@ -1463,14 +1478,16 @@
           :code $ quote $ defn middle (base target)
             v-scale (&v+ base target) 0.5
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3
         'safe-right $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn safe-right (v right)
             if
               &= 0 $ v-length v
               , right v
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.segments-fractal
           :require
