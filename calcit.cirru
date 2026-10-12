@@ -2138,16 +2138,25 @@
                 store @*store
                 tree $ memof1-call comp-container store
                 nav $ memof1-call comp-nav store
-              reset-clear-color! $ either bg-color $ case-default (:theme store) (:: :rgba 0.04 0 0.1 0.98)
-                :white $ :: :rgba 0.9 0.9 0.9 0.98
-                :dark $ :: :rgba 0.04 0 0.1 0.98
-                :gray $ :: :rgba 0.3 0.3 0.3 0.98
-                :white $ :: :rgba 0.9 0.9 0.9 0.98
+              reset-clear-color! $ .unwrap-or bg-color $ theme-color (:theme store)
               renderLagopusTree tree dispatch!
               render! mount-target nav dispatch!
-              ; paintLagopusTree
+              , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
+        'theme-color $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn theme-color (theme)
+            match theme
+              :white $ :: :rgba 0.9 0.9 0.9 0.98
+              :dark $ :: :rgba 0.04 0 0.1 0.98
+              :gray $ :: :rgba 0.3 0.3 0.3 0.98
+              _ $ :: :rgba 0.04 0 0.1 0.98
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Enum)
+            :args $ [] 'Tag
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
