@@ -8,3 +8,4 @@ dist/
 
 .DS_Store
 .calcit/
+.yarn/install-state.gz

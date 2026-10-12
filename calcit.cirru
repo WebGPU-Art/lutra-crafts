@@ -14,7 +14,7 @@
           :code $ quote $ defn comp-concentric ()
             let
                 r0 2
-                t0 $ js/performance.now
+                t0 $ performance-now
               group ({})
                 comp-polylines-marked $ {} (; :topology :line-strip) (:shader concentric-shader)
                   ; :attrs-list $ [] $ : float32x3 :position
@@ -34,11 +34,12 @@
                               x2 $ * (sin angle) x
                             write! $ [] $ :: :vertex (v3 x y 0) 1. hi
                         write! break-mark
-                  :get-params $ fn () $ js-array
-                    * 0.01 $ - (js/performance.now) t0 20000
+                  :get-params $ fn () $ shader-params
+                    * 0.01 $ - (performance-now) t0 20000
                     , 0 0 0
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'comp-sedimentary $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-sedimentary ()
             let
@@ -63,9 +64,10 @@
                                 , dh
                               , 3 hi
                         write! break-mark
-                  :get-params $ fn () $ js-array 0 0 0 0
+                  :get-params $ fn () $ shader-params 0 0 0 0
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.cmop.sedimentary
           :require
@@ -79,6 +81,8 @@
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             |@calcit/std :refer $ rand rand-int rand-shift rand-between
+            app.util :refer $ shader-params
+            js-ffi.shared :refer $ performance-now
     'app.comp.blinks $ %{} 'FileEntry
       :defs $ {} $ 'comp-blinks
         %{} 'CodeEntry (:doc |)
@@ -98,7 +102,8 @@
                       direction $ v-cross v1 v2
                     [] (:: :vertex p0 direction) (:: :vertex p1 direction) (:: :vertex p2 direction)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.blinks
           :require
@@ -139,7 +144,8 @@
                             + a gap l
                             dec step
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.blow
           :require
@@ -177,7 +183,7 @@
                       write! $ [] break-mark
                         :: :vertex (v3 0 h 0) 2 ratio
                         :: :vertex
-                          .+
+                          v+
                             v3
                               * r $ cos angle
                               , h $ * r $ sin angle
@@ -185,12 +191,13 @@
                           , 10 ratio
               :get-params $ fn () $ wo-js-log
                 let
-                    v $ * 0.000001 $ js/Date.now
-                  js-array
-                    - v $ js/Math.round v
+                    v $ * 0.000001 $ now-ms
+                  shader-params
+                    - v $ round-js v
                     , 0 0 0
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'comp-tree-2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-2 ()
             let
@@ -342,7 +349,8 @@
                         * (- r0 4) (cos angle2)
                         , 0 $ * (- r0 4) (sin angle2)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] 'Number 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.christmas-tree
           :require
@@ -358,6 +366,8 @@
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             |@calcit/std :refer $ rand rand-int rand-shift rand-between
+            app.util :refer $ shader-params round-js
+            js-ffi.shared :refer $ now-ms
     'app.comp.container $ %{} 'FileEntry
       :defs $ {}
         'comp-container $ %{} 'CodeEntry (:doc |)
@@ -414,7 +424,8 @@
                           :position $ v+ base $ v3 0 (* 2 hi) 0
                           :width 0.6
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -513,7 +524,8 @@
                       -> indices $ map $ fn (x)
                         + x $ * 8 idx
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.cube-combo
           :require
@@ -708,7 +720,8 @@
                           write! break-mark
                       recur $ inc n
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.fireworks
           :require
@@ -802,7 +815,8 @@
             comp-sphere $ {} (; :topology :line-strip) (:shader wgsl-globe) (:iteration 7) (:radius 1800)
               :color $ [] 0.6 0.9 0.7
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'wgsl-globe $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def wgsl-globe (inline-shader |globe)
           :examples $ []
@@ -1293,9 +1307,9 @@
           :examples $ []
           :schema $ :: 'Dynamic
         'start-time $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def start-time (js/Date.now)
+          :code $ quote $ def start-time (now-ms)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.prime-walk
           :require
@@ -1307,6 +1321,7 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
+            js-ffi.shared :refer $ now-ms
     'app.comp.quaterion-fold $ %{} 'FileEntry
       :defs $ {}
         'comp-quaternion-fold $ %{} 'CodeEntry (:doc |)
@@ -1755,9 +1770,9 @@
           :examples $ []
           :schema $ :: 'Dynamic
         'start-time $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def start-time (js/performance.now)
+          :code $ quote $ def start-time (performance-now)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.snowflakes-demo
           :require
@@ -1769,6 +1784,7 @@
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
             app.config :refer $ inline-shader
             |@calcit/std :refer $ rand rand-int rand-shift
+            js-ffi.shared :refer $ performance-now
     'app.comp.split-triangles $ %{} 'FileEntry
       :defs $ {}
         'comp-split-triangles $ %{} 'CodeEntry (:doc |)
@@ -2020,8 +2036,8 @@
         :code $ quote $ ns app.updater
           :require $ lagopus.cursor :refer $ update-states
     'app.util $ %{} 'FileEntry
-      :defs $ {} $ 'interoplate-line
-        %{} 'CodeEntry (:doc |)
+      :defs $ {}
+        'interoplate-line $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn interoplate-line (from to n)
             ->
               range $ inc n
@@ -2034,6 +2050,19 @@
           :schema $ :: 'Fn $ {}
             :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number
             :return $ :: 'List 'quaternion.vector/V3
+        'round-js $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn round-js (value)
+            js-ffi.contract/expect-number |Math.round $ js/Math.round value
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'Number
+            :features $ #{} :js-ffi
+        'shader-params $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn shader-params (a b c d) (js-array a b c d)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] 'Number 'Number 'Number 'Number
+            :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.util
           :require $ quaternion.vector :refer $ v+ v-scale
