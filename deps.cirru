@@ -7,5 +7,5 @@
     |calcit-lang/quaternion |0.2.11
     |WebGPU-Art/lagopus |0.5.10
     |Respo/respo.calcit |0.16.114
-    |Respo/respo-ui.calcit |0.7.32
+    |Respo/respo-ui.calcit |0.7.33
     |calcit-lang/js-ffi |0.2.1
