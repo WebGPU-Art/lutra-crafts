@@ -230,7 +230,7 @@
                                   out-direction $ v3 (cos angle) 0 $ sin angle
                                   up-direction $ v3 0 1 0
                                   right-direction $ v-cross out-direction up-direction
-                                  base-angle $ js/Math.random
+                                  base-angle $ random-number
                                   a1 $ + base-angle
                                   a2 $ + base-angle $ / &PI 3
                                   a3 $ + base-angle $ * 2 (/ &PI 3.2)
@@ -273,9 +273,9 @@
                         write! break-mark
                   :get-params $ fn () $ wo-js-log
                     let
-                        v $ * 0.000001 $ js/Date.now
-                      js-array
-                        - v $ js/Math.round v
+                        v $ * 0.000001 $ now-ms
+                      shader-params
+                        - v $ round-js v
                         , 0 0 0
                 comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-tree-2-strip)
                   ; :attrs-list $ [] $ : float32x3 :position
@@ -293,13 +293,14 @@
                             , 1 1
                   :get-params $ fn () $ wo-js-log
                     let
-                        v $ * 0.000001 $ js/Date.now
-                      js-array
-                        - v $ js/Math.round v
+                        v $ * 0.000001 $ now-ms
+                      shader-params
+                        - v $ round-js v
                         , 0 0 0
                 comp-tree-1
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'comp-tree-3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-3 ()
             let
@@ -312,7 +313,7 @@
                     -> 28 range $ each $ fn (hi)
                       let
                           r $ - r0 $ * 6.4 hi
-                          size $ js/Math.floor r
+                          size $ floor r
                           angle-unit $ / (* 2 &PI) size
                           dh $ * 20 hi
                         -> size inc range $ each $ fn (idx)
@@ -324,11 +325,12 @@
                                 , dh $ * r $ sin angle
                               , 8 hi
                         write! break-mark
-                  :get-params $ fn () $ js-array 0 0 0 0
+                  :get-params $ fn () $ shader-params 0 0 0 0
                 comp-tree-dark-area r0 h0
                 ; comp-tree-1
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'comp-tree-dark-area $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-dark-area (r0 h0)
             object $ {} (:shader wgsl-tree-2-dark) (:topology :triangle-list)
@@ -366,7 +368,7 @@
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             |@calcit/std :refer $ rand rand-int rand-shift rand-between
-            app.util :refer $ shader-params round-js
+            app.util :refer $ shader-params round-js random-number
             js-ffi.shared :refer $ now-ms
     'app.comp.container $ %{} 'FileEntry
       :defs $ {}
@@ -758,10 +760,14 @@
                 write! $ [] (: vertex p0 width)
                   : vertex (&v+ p0 v0) width
                   , break-mark
-                -> lines $ map $ fn (line)
+                -> lines $ each $ fn (line)
                   build-umbrella p-next line v0 parts elevation decay (dec step) write!
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'Number 'Number 'Number $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] $ :: 'List 'Enum
         'comp-flower-ball $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-flower-ball ()
             let
@@ -789,10 +795,14 @@
                         v3 0 0 $ negate unit
                         v3 0 1 0
                     take 1
-                    map $ fn (pair)
-                      build-umbrella origin (nth pair 0) (nth pair 1) parts elevation decay iteration write!
+                    each $ fn (pair)
+                      build-umbrella origin
+                        .unwrap $ nth pair 0
+                        .unwrap $ nth pair 1
+                        , parts elevation decay iteration write!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'v-zero $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def v-zero (v3 0 0 0)
           :examples $ []
