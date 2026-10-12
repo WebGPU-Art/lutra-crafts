@@ -1616,6 +1616,10 @@
             lagopus.math :refer $ fibo-grid-range rotate-3d
     'app.comp.snowflakes-demo $ %{} 'FileEntry
       :defs $ {}
+        'Placement $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct Placement (:x 'quaternion.vector/V3) (:y 'quaternion.vector/V3) (:p 'quaternion.vector/V3) (:size 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
         'comp-snowflakes-demo $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-snowflakes-demo ()
             let
@@ -1625,50 +1629,93 @@
                 placements $ -> (range item-count)
                   map $ fn (i)
                     let
-                        p $ v3 (rand-shift 0 area)
-                          do (rand-shift 0 area) 0
-                          rand-shift 0 area
-                        a $ v3 (rand) (rand) (rand)
-                        b $ v3 (rand) (rand) (rand)
+                        p $ v3 (random-shift 0 area)
+                          do (random-shift 0 area) 0
+                          random-shift 0 area
+                        a $ v3 (random-scaled 100) (random-scaled 100) (random-scaled 100)
+                        b $ v3 (random-scaled 100) (random-scaled 100) (random-scaled 100)
                         c $ v-cross a b
                         a1 $ v-normalize a
                         c1 $ v-normalize c
-                      {} (:x a1) (:y c1) (:p p)
-                        :size $ pow (rand d-size) 2
-              comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-snowing)
+                      %{} Placement (:x a1) (:y c1) (:p p)
+                        :size $ pow (random-scaled d-size) 2
+              comp-polylines-marked $ {} (:shader wgsl-snowing)
                 :writer $ fn (write!)
-                  -> placements $ map-indexed $ fn (idx info)
-                    let-sugar
-                          {} x y p size
-                          , info
-                        picked-shape $ case-default (rand-int 7) snowflake-shape-sparse (0 snowflake-shape) (1 snowflake-shape-bare) (2 snowflake-shape-sparse) (3 snowflake-shape-hairy) (4 snowflake-shape-ring) (5 snowflake-shape-branch) (6 snowflake-shape-star)
-                        seed $ rand 20
-                      -> picked-shape $ map $ fn (path)
-                        let{} (from to) path $ write! $ []
-                          :: :vertex
-                            v+
-                              v-scale x $ * size $ nth from 1
-                              v-scale y $ * size $ nth from 2
-                            , 0.4 idx
-                          :: :vertex
-                            v+
-                              v-scale x $ * size $ nth to 1
-                              v-scale y $ * size $ nth to 2
-                            , 0.4 idx
-                          , break-mark
-                :get-params $ fn () $ js-array
-                  &* 0.08 $ - (js/performance.now) start-time
-                :compute-options $ js-object (:particleCount item-count)
-                  :initialBuffer $ new js/Float32Array $ let
-                      *buf $ js-array
-                    -> (range item-count)
-                      .each $ fn (x)
-                        .each (range 12)
-                          fn (c)
-                            .!push *buf $ rand-shift 0 100
-                    , *buf
+                  each
+                    range $ .len placements
+                    fn (idx)
+                      let
+                          info $ .unwrap $ get placements idx
+                          x $ :x info
+                          y $ :y info
+                          size $ :size info
+                          picked-shape $ match
+                            floor $ * (random-scaled 1) 7
+                            0 snowflake-shape
+                            1 snowflake-shape-bare
+                            2 snowflake-shape-sparse
+                            3 snowflake-shape-hairy
+                            4 snowflake-shape-ring
+                            5 snowflake-shape-branch
+                            6 snowflake-shape-star
+                            _ snowflake-shape-sparse
+                          seed $ random-scaled 20
+                        each picked-shape $ fn (path)
+                          let
+                              from $ .unwrap $ get path :from
+                              to $ .unwrap $ get path :to
+                            write! $ []
+                              :: :vertex (project-point x y size from) 0.4 idx
+                              :: :vertex (project-point x y size to) 0.4 idx
+                              , break-mark
+                            , &unit
+                  , &unit
+                :get-params $ fn () $ time-params
+                  &* 0.08 $ - (performance-now) start-time
+                :compute-options $ particle-options item-count
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
+        'particle-options $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn particle-options (item-count)
+            let
+                values $ mapcat (range item-count)
+                  fn (_idx)
+                    map (range 12)
+                      fn (_component) (random-shift 0 100)
+              js-object (:particleCount item-count)
+                :initialBuffer $ new js/Float32Array $ to-js-data values
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] 'Number
+            :features $ #{} :js-ffi
+        'project-point $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn project-point (x y size point)
+            match point $
+              :complex a b
+              v+
+                v-scale x $ * size a
+                v-scale y $ * size b
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'quaternion.complex/Complex
+        'random-scaled $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn random-scaled (size)
+            js-ffi.contract/expect-number |rand $ rand size
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'Number
+            :features $ #{} :js-ffi
+        'random-shift $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn random-shift (center radius)
+            js-ffi.contract/expect-number |rand_shift $ rand-shift center radius
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'Number 'Number
+            :features $ #{} :js-ffi
         'rotate-branches $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-branches (branch0)
             apply-args (branch0 branch0 5)
@@ -1691,7 +1738,7 @@
           :code $ quote $ def snowflake-rotation
             complex 0.5 $ * 0.5 sqrt3
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'quaternion.complex/Complex
         'snowflake-shape $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape
             let
@@ -1724,7 +1771,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
         'snowflake-shape-bare $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-bare
             let
@@ -1735,7 +1782,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
         'snowflake-shape-branch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-branch
             let
@@ -1750,7 +1797,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
         'snowflake-shape-hairy $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-hairy
             let
@@ -1780,7 +1827,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
         'snowflake-shape-ring $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-ring
             let
@@ -1791,7 +1838,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
         'snowflake-shape-sparse $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-sparse
             let
@@ -1809,7 +1856,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
         'snowflake-shape-star $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-star
             let
@@ -1827,26 +1874,30 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
         'sqrt3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def sqrt3 (sqrt 3)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Number
         'start-time $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def start-time (performance-now)
           :examples $ []
           :schema $ :: 'Number
+        'time-params $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn time-params (elapsed) (js-array elapsed)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] 'Number
+            :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.snowflakes-demo
           :require
-            quaternion.vector :refer $ &v+ &v- v+ v-scale v-cross v-normalize v3
-            quaternion.complex :refer $ &c* complex &c+
+            quaternion.vector :refer $ v+ v-scale v-cross v-normalize v3
+            quaternion.complex :refer $ &c* complex
             |../shaders/snowing.wgsl :default wgsl-snowing
-            memof.once :refer $ memof1-call
-            triadica.comp.segments :refer $ fibo-grid-range
-            lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
-            app.config :refer $ inline-shader
-            |@calcit/std :refer $ rand rand-int rand-shift
+            lagopus.comp.curves :refer $ comp-polylines-marked break-mark
+            |@calcit/std :refer $ rand rand-shift
             js-ffi.shared :refer $ performance-now
     'app.comp.split-triangles $ %{} 'FileEntry
       :defs $ {}
