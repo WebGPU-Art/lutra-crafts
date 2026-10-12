@@ -951,12 +951,14 @@
                 rh $ v-normalize $ v-cross base (v3 0 1 0)
                 rv $ v-normalize $ v-cross rh base
               group nil
-                if show? $ comp-axis
-                if show? $ comp-drag-point
-                  {} (:position base)
-                    :color $ [] 1.6 0.6 1.0 1.0
-                  fn (move d!)
-                    d! $ Op :state cursor $ LocalState :hopf-base move
+                if show? (comp-axis) js/null
+                if show?
+                  comp-drag-point
+                    {} (:position base)
+                      :color $ [] 1.6 0.6 1.0 1.0
+                    fn (move d!)
+                      d! $ Op :state cursor $ LocalState :hopf-base move
+                  , js/null
                 comp-polylines-marked $ {} (:shader wgsl-hopf)
                   :writer $ fn (write!)
                     -> (range 16)
@@ -1001,6 +1003,7 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ [] 'app.state/StateCursor 'Bool
+            :features $ #{} :js-ffi
         'decide-circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decide-circle (v0)
             let
@@ -1047,7 +1050,7 @@
             |../shaders/hopf.wgsl :default wgsl-hopf
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
             memof.once :refer $ memof1-call
-            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize v3
+            quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v3
             quaternion.complex :refer $ complex
             app.config :refer $ hide-tabs?
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -2066,13 +2069,22 @@
           :schema $ :: 'js-ffi.browser/DomElementHost
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
-            if dev? $ js/console.log op
+            if dev? $ log-op! op
             let
                 store @*store
                 next-store $ updater store op
               if (not= next-store store) (reset! *store next-store)
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'app.state/Op
+        'log-op! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn log-op! (op) (js/console.log op) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'app.state/Op
+            :features $ #{} :js-ffi
         'loop-paint! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn loop-paint! ()
             request-animation-frame! $ fn (_timestamp) (paintLagopusTree) (loop-paint!) &unit
@@ -2098,8 +2110,8 @@
             setupMouseEvents canvas
             if remote-control? $ setupRemoteControl $ fn (action)
               case-default (.-button action) (js/console.warn "|Unknown Action" action)
-                |toggle $ dispatch! $ : toggle
-                |switch $ dispatch! $ : switch
+                |toggle $ dispatch! $ Op :toggle
+                |switch $ dispatch! $ Op :switch
             loop-paint!
             loadGamepadControl
             ; paintLagopusTree
@@ -2142,7 +2154,6 @@
             app.comp.container :refer $ comp-container
             |@triadica/lagopus :refer $ setupMouseEvents onControlEvent paintLagopusTree renderLagopusTree initializeContext resetCanvasSize initializeCanvasTextures registerShaderResult enableBloom loadGamepadControl
             |@triadica/touch-control :refer $ renderControl startControlLoop
-            lagopus.config :refer $ bg-color
             app.config :refer $ dev? mobile? bloom? remote-control?
             |bottom-tip :default hud!
             |./calcit.build-errors :default build-errors
@@ -2152,9 +2163,9 @@
             |@triadica/lagopus/lib/remote-control.mjs :refer $ setupRemoteControl
             app.comp.nav :refer $ comp-nav
             respo.core :refer $ render! clear-cache!
-            lagopus.config :refer $ bg-color
             js-ffi.browser :refer $ query-selector request-animation-frame!
-            app.state :refer $ Store empty-tree
+            app.state :refer $ Store empty-tree Op
+            lagopus.config :refer $ bg-color
     'app.state $ %{} 'FileEntry
       :defs $ {}
         'LocalState $ %{} 'CodeEntry (:doc |)
