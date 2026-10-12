@@ -11,7 +11,6 @@ export default defineConfig({
     minify: false,
     rollupOptions: {
       treeshake: false,
-      treeShaking: false,
     },
   },
   optimizeDeps: {
