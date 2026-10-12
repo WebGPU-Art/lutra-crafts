@@ -2092,7 +2092,8 @@
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
         'main! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn main! () (hint-fn async)
+          :code $ quote $ defn main! ()
+            hint-fn $ {} $ :async true
             if
               and bloom? $ not mobile?
               enableBloom
@@ -2106,17 +2107,25 @@
             registerShaderResult handle-compilation
             set! js/window.onresize $ fn (e) (resetCanvasSize canvas) (initializeCanvasTextures) (; paintLagopusTree)
             resetCanvasSize canvas
-            add-watch *store :change $ fn (next store) (render-app!) (; paintLagopusTree)
+            add-watch! *store :change $ fn (next store) (render-app!) (; paintLagopusTree)
             setupMouseEvents canvas
             if remote-control? $ setupRemoteControl $ fn (action)
-              case-default (.-button action) (js/console.warn "|Unknown Action" action)
-                |toggle $ dispatch! $ Op :toggle
-                |switch $ dispatch! $ Op :switch
+              let
+                  button $ .-button action
+                if (&= button |toggle)
+                  dispatch! $ Op :toggle
+                  if (&= button |switch)
+                    dispatch! $ Op :switch
+                    js/console.warn "|Unknown Action" action
+                , &unit
             loop-paint!
             loadGamepadControl
             ; paintLagopusTree
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
             .unwrap $ respo-browser/query-selector |.app
@@ -2125,19 +2134,22 @@
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
-              do (reset-memof1-caches!) (render-app!) (clear-cache!) (remove-watch *store :change)
-                add-watch *store :change $ fn (next store) (render-app!)
+              do (reset-memof1-caches!) (render-app!) (clear-cache!) (remove-watch! *store :change)
+                add-watch! *store :change $ fn (next store) (render-app!)
                 println |Reloaded.
                 hud! |ok~ |OK
               hud! |error build-errors
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             let
                 store @*store
-                tree $ memof1-call comp-container store
-                nav $ memof1-call comp-nav store
+                tree $ memof1-call-unary comp-container store
+                nav $ memof1-call-unary comp-nav store
               reset-clear-color! $ .unwrap-or bg-color $ theme-color (:theme store)
               renderLagopusTree tree dispatch!
               render! mount-target nav dispatch!
@@ -2166,7 +2178,7 @@
             app.config :refer $ dev? mobile? bloom? remote-control?
             |bottom-tip :default hud!
             |./calcit.build-errors :default build-errors
-            memof.once :refer $ memof1-call reset-memof1-caches!
+            memof.once :refer $ memof1-call-unary reset-memof1-caches!
             lagopus.util :refer $ handle-compilation reset-clear-color!
             app.updater :refer $ updater
             |@triadica/lagopus/lib/remote-control.mjs :refer $ setupRemoteControl
