@@ -920,6 +920,10 @@
             app.config :refer $ inline-shader
     'app.comp.hopf-fiber $ %{} 'FileEntry
       :defs $ {}
+        'Circle $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum Circle (:circle 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3)
+          :examples $ []
+          :schema $ :: 'EnumDef
         'calc-k $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-k (p0 p1)
             match p0 $
@@ -980,7 +984,7 @@
                                   map $ fn (idx)
                                     let
                                         ratio $ * 2 idx $ / &PI n
-                                      tag-match circle $
+                                      match circle $
                                         :circle center rh rv
                                         do nil $ write! $ : vertex
                                           v-scale
@@ -997,20 +1001,21 @@
           :code $ quote $ defn decide-circle (v0)
             let
                 p1 $ v-normalize v0
-                c1 $ complex (nth p1 1) (nth p1 3)
-                theta $ js/Math.atan2 (nth p1 3) (nth p1 1)
-                theta0 $ &- theta $ * 0.5 &PI
-                p0 $ v3 (nth p1 3) 0 $ negate (nth p1 1)
-                k $ calc-k p0 p1
-                center $ v-scale p0 k
-                rh $ v- p0 center
-                v1 $ v-cross rh $ v- p1 center
-                rv $ v-scale
-                  v-normalize $ v-cross v1 rh
-                  v-length rh
-              : circle center rh rv
+              match p1 $
+                :v3 x _y z
+                let
+                    p0 $ v3 z 0 $ negate x
+                    k $ calc-k p0 p1
+                    center $ v-scale p0 k
+                    rh $ v- p0 center
+                    v1 $ v-cross rh $ v- p1 center
+                    rv $ v-scale
+                      v-normalize $ v-cross v1 rh
+                      v-length rh
+                  Circle :circle center rh rv
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'app.comp.hopf-fiber/Circle)
+            :args $ [] 'quaternion.vector/V3
         'v-length2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn v-length2 (a)
             match a $
@@ -2001,9 +2006,10 @@
           :examples $ []
           :schema $ :: 'Dynamic
         'canvas $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def canvas (js/document.querySelector |canvas)
+          :code $ quote $ def canvas
+            .unwrap $ query-selector |canvas
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'js-ffi.browser/DomElementHost
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             if dev? $ js/console.log op
@@ -2015,9 +2021,10 @@
           :schema $ :: 'Dynamic
         'loop-paint! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn loop-paint! ()
-            js/requestAnimationFrame $ fn (p) (paintLagopusTree) (loop-paint!)
+            request-animation-frame! $ fn (_timestamp) (paintLagopusTree) (loop-paint!) &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ []
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (hint-fn async)
             if
@@ -2045,9 +2052,10 @@
           :examples $ []
           :schema $ :: 'Dynamic
         'mount-target $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def mount-target (js/document.querySelector |.app)
+          :code $ quote $ def mount-target
+            .unwrap $ query-selector |.app
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'js-ffi.browser/DomElementHost
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -2091,6 +2099,7 @@
             app.comp.nav :refer $ comp-nav
             respo.core :refer $ render! clear-cache!
             lagopus.config :refer $ bg-color
+            js-ffi.browser :refer $ query-selector request-animation-frame!
     'app.updater $ %{} 'FileEntry
       :defs $ {} $ 'updater
         %{} 'CodeEntry (:doc |)
