@@ -1491,6 +1491,14 @@
             |../shaders/quaternion-fold.wgsl :default wgsl-quaternion-fold
     'app.comp.segments-fractal $ %{} 'FileEntry
       :defs $ {}
+        'apply-basis $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn apply-basis (p forward upward right)
+            match p $
+              :v3 x y z
+              v+ (v-scale forward x) (v-scale upward y) (v-scale right z)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3
         'comp-segments-fractal $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-segments-fractal ()
             let
@@ -1509,7 +1517,8 @@
                     , break-mark
                   fold-fractal (v3 0 0 0) target (v3 0 0 1) p1 p2 p3 p4 p5 level write!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'fold-fractal $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn fold-fractal
             base target right p1 p2 p3 p4 p5 level write!
@@ -1519,36 +1528,11 @@
                 forward $ v-normalize next
                 upward $ v-cross right forward
                 l $ v-length next
-                point1 $ &v+ base $ v-scale
-                  v+
-                    v-scale forward $ nth p1 1
-                    v-scale upward $ nth p1 2
-                    v-scale right $ nth p1 3
-                  , l
-                point2 $ &v+ base $ v-scale
-                  v+
-                    v-scale forward $ nth p2 1
-                    v-scale upward $ nth p2 2
-                    v-scale right $ nth p2 3
-                  , l
-                point3 $ &v+ base $ v-scale
-                  v+
-                    v-scale forward $ nth p3 1
-                    v-scale upward $ nth p3 2
-                    v-scale right $ nth p3 3
-                  , l
-                point4 $ &v+ base $ v-scale
-                  v+
-                    v-scale forward $ nth p4 1
-                    v-scale upward $ nth p4 2
-                    v-scale right $ nth p4 3
-                  , l
-                point5 $ &v+ base $ v-scale
-                  v+
-                    v-scale forward $ nth p5 1
-                    v-scale upward $ nth p5 2
-                    v-scale right $ nth p5 3
-                  , l
+                point1 $ &v+ base $ v-scale (apply-basis p1 forward upward right) l
+                point2 $ &v+ base $ v-scale (apply-basis p2 forward upward right) l
+                point3 $ &v+ base $ v-scale (apply-basis p3 forward upward right) l
+                point4 $ &v+ base $ v-scale (apply-basis p4 forward upward right) l
+                point5 $ &v+ base $ v-scale (apply-basis p5 forward upward right) l
                 m $ middle base target
               if (&> level 1)
                 do nil
@@ -1591,7 +1575,10 @@
                     fold-fractal point4 target right6 p1 p2 p3 p4 p5 (dec level) write!
                 write! $ [] (: vertex base w) (: vertex point1 w) (: vertex point2 w) (: vertex point3 w) (: vertex point4 w) (: vertex point5 w) (: vertex target w) break-mark
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] $ :: 'List 'Enum
         'middle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn middle (base target)
             v-scale (&v+ base target) 0.5
@@ -1964,6 +1951,13 @@
             = |true $ .unwrap-or (get-env |bloom) |false
           :examples $ []
           :schema $ :: 'Bool
+        'detect-mobile? $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn detect-mobile? ()
+            expect-bool |ismobile.any $ .-any $ ismobile js/window.navigator
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ []
+            :features $ #{} :js-ffi
         'dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def dev?
             &= |dev $ .unwrap-or (get-env |mode) |release
@@ -1982,17 +1976,19 @@
             :capabilities $ #{} :fs-read
             :expansion $ :: 'Expr 'String
             :required $ [] $ :: 'Expr 'String
-        'mobile-info $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def mobile-info (ismobile js/window.navigator)
+        'mobile? $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ def mobile? (detect-mobile?)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Bool
         'remote-control? $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def remote-control? (get-env |remote-control nil)
+          :code $ quote $ def remote-control?
+            .some? $ get-env |remote-control
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Bool
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.config
-          :require $ |ismobilejs :default ismobile
+          :require (|ismobilejs :default ismobile)
+            js-ffi.contract :refer $ expect-bool
     'app.main $ %{} 'FileEntry
       :defs $ {}
         '*store $ %{} 'CodeEntry (:doc |)
@@ -2028,7 +2024,7 @@
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (hint-fn async)
             if
-              and bloom? $ not $ .-any mobile-info
+              and bloom? $ not mobile?
               enableBloom
             if dev? $ load-console-formatter!
             js-await $ initializeContext
@@ -2089,7 +2085,7 @@
             |@triadica/lagopus :refer $ setupMouseEvents onControlEvent paintLagopusTree renderLagopusTree initializeContext resetCanvasSize initializeCanvasTextures registerShaderResult enableBloom loadGamepadControl
             |@triadica/touch-control :refer $ renderControl startControlLoop
             lagopus.config :refer $ bg-color
-            app.config :refer $ dev? mobile-info bloom? remote-control?
+            app.config :refer $ dev? mobile? bloom? remote-control?
             |bottom-tip :default hud!
             |./calcit.build-errors :default build-errors
             memof.once :refer $ memof1-call reset-memof1-caches!
