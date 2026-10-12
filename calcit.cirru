@@ -1046,9 +1046,11 @@
                     let
                         v $ v-scale p $ * 2
                           pow
-                            v-length $ assoc p 1 0
+                            v-length $ match p $
+                              :v3 _x y z
+                              v3 0 y z
                             , 3
-                          + 0.3 $ js/Math.random
+                          + 0.3 $ random-number
                         path $ roll-curve v
                           v-normalize $ v-cross (v3 0 1 0) v
                           / 0.03 $ pow (v-length v) 2
@@ -1056,18 +1058,22 @@
                       -> path $ map $ fn (p2)
                         {} (:position p2) (:width 2)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'roll-curve $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-curve (v0 axis0 delta)
             let
                 steps 80
                 dt 2
                 p0 $ v3 0 0 0
-                ad $ v3 (js/Math.random) (js/Math.random) (js/Math.random)
+                ad $ v3 (random-number) (random-number) (random-number)
               apply-args
-                  []
+                  .empty $ [] p0
                   , p0 v0 axis0 0
                 fn (acc position v axis s)
+                  hint-fn $ {}
+                    :args $ [] (:: 'List 'quaternion.vector/V3) 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number
+                    :return $ :: 'List 'quaternion.vector/V3
                   if (&>= s steps) (conj acc position)
                     let
                         v-next $ rotate-3d (v3 0 0 0) axis
@@ -1081,7 +1087,9 @@
                         next $ &v+ position $ v-scale v dt
                       recur (conj acc position) next v-next axis-next $ inc s
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number
+            :return $ :: 'List 'quaternion.vector/V3
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.mums
           :require
@@ -1092,6 +1100,7 @@
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
+            app.util :refer $ random-number
     'app.comp.nav $ %{} 'FileEntry
       :defs $ {}
         'comp-nav $ %{} 'CodeEntry (:doc |)
@@ -1262,14 +1271,15 @@
           :code $ quote $ def octahedron-moves
             [] (v3 1 0 1) (v3 0 1 -1) (v3 1 -1 0) (v3 -1 0 -1) (v3 0 -1 1) (v3 -1 1 0)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List 'quaternion.vector/V3
         'prime-pyramid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn prime-pyramid (base primes write! width step prev)
-            tag-match (destruct-list primes)
+            match (destruct-list primes)
               (:some p0 ps)
                 let
                     m octahedron-moves
-                    move-direction $ nth m $ &number:rem step (count m)
+                    move-direction $ .unwrap $ nth m
+                      &number:rem step $ count m
                     len $ - p0 prev
                     move $ v-scale move-direction $ * len 10
                     next $ &v+ base move
@@ -1277,13 +1287,17 @@
                   recur next ps write! width (inc step) p0
               (:none) :ok
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Tag)
+            :args $ [] 'quaternion.vector/V3 (:: 'List 'Number)
+              :: 'Fn $ {} (:return 'Unit)
+                :args $ [] 'Enum
+              , 'Number 'Number 'Number
         'prime-walk $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn prime-walk (base primes write! width step prev)
-            tag-match (destruct-list primes)
+            match (destruct-list primes)
               (:some p0 ps)
                 let
-                    move-direction $ nth moves $ &number:rem step 6
+                    move-direction $ .unwrap $ nth moves (&number:rem step 6)
                     len $ - p0 prev
                     move $ v-scale move-direction $ * len 10
                     next $ &v+ base move
@@ -1291,7 +1305,32 @@
                   recur next ps write! width (inc step) p0
               (:none) :ok
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Tag)
+            :args $ [] 'quaternion.vector/V3 (:: 'List 'Number)
+              :: 'Fn $ {} (:return 'Unit)
+                :args $ [] 'Enum
+              , 'Number 'Number 'Number
+          :tests $ [] $ %{} 'TestEntry (:name |prime-path-writers)
+            :code $ quote $ do
+              assert= :ok $ prime-walk (quaternion.vector/v3 0 0 0) ([] 2)
+                fn (record)
+                  hint-fn $ {}
+                    :args $ [] 'Enum
+                    :return 'Unit
+                  assert=
+                    :: :vertex (quaternion.vector/v3 0 0 0) 1 0
+                    , record
+                , 1 0 0
+              assert= :ok $ prime-pyramid (quaternion.vector/v3 0 0 0) ([] 2)
+                fn (record)
+                  hint-fn $ {}
+                    :args $ [] 'Enum
+                    :return 'Unit
+                  assert=
+                    :: :vertex (quaternion.vector/v3 0 0 0) 1 0
+                    , record
+                , 1 0 0
+            :tags $ #{} :unit
         'primes $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def primes (load-primes)
           :examples $ []
@@ -1814,8 +1853,12 @@
                 split-triangles p1 p2 p4 p5 (inc level) false write!
                 split-triangles p1 p3 p4 p5 (inc level) false write!
                 split-triangles p2 p3 p4 p5 (inc level) false write!
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'Bool $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] $ :: 'List 'Enum
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.split-triangles
           :require
@@ -1850,14 +1893,18 @@
                   p-02 $ v-scale (&v- p-all p2) third
                   p-01 $ v-scale (&v- p-all p1) third
                 if
-                  > (js/Math.random) 0.1
+                  > (random-number) 0.1
                   build-sierpinski-triangles p1 p1-2 p1-3 p1-4 (dec level) w true write!
                 build-sierpinski-triangles p2 p1-2 p2-3 p2-4 (dec level) w true write!
                 build-sierpinski-triangles p3 p1-3 p2-3 p3-4 (dec level) w true write!
                 build-sierpinski-triangles p4 p1-4 p2-4 p3-4 (dec level) w true write!
                 ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false write!
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'Number 'Bool $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] $ :: 'List 'Enum
         'comp-triangles $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-triangles ()
             comp-polylines $ {} (:shader wgsl-triangles)
@@ -1880,6 +1927,7 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
+            app.util :refer $ random-number
     'app.config $ %{} 'FileEntry
       :defs $ {}
         'bloom? $ %{} 'CodeEntry (:doc |)
@@ -2050,6 +2098,13 @@
           :schema $ :: 'Fn $ {}
             :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number
             :return $ :: 'List 'quaternion.vector/V3
+        'random-number $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn random-number ()
+            js-ffi.contract/expect-number |Math.random $ js/Math.random
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ []
+            :features $ #{} :js-ffi
         'round-js $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn round-js (value)
             js-ffi.contract/expect-number |Math.round $ js/Math.round value
