@@ -2119,9 +2119,9 @@
           :schema $ :: 'Dynamic
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
-            .unwrap $ query-selector |.app
+            .unwrap $ respo-browser/query-selector |.app
           :examples $ []
-          :schema $ :: 'js-ffi.browser/DomElementHost
+          :schema $ :: 'respo.dom/DomElement
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -2175,6 +2175,7 @@
             js-ffi.browser :refer $ query-selector request-animation-frame!
             app.state :refer $ Store empty-tree Op
             lagopus.config :refer $ bg-color
+            respo.ffi.browser :as respo-browser
     'app.state $ %{} 'FileEntry
       :defs $ {}
         'LocalState $ %{} 'CodeEntry (:doc |)
