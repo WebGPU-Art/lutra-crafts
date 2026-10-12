@@ -527,6 +527,11 @@
             |@calcit/std :refer $ rand rand-shift
     'app.comp.cubes-tree $ %{} 'FileEntry
       :defs $ {}
+        'Cube $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum Cube
+            :cube 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3
+          :examples $ []
+          :schema $ :: 'EnumDef
         'branch-next $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn branch-next (cube write! level)
             when (>= level 0) (render-cube cube write!)
@@ -535,17 +540,34 @@
                   cube3 $ rotate-d2 cube 0.1 0.9
                 branch-next cube2 write! $ dec level
                 branch-next cube3 write! $ dec level
+            , &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'app.comp.cubes-tree/Cube
+              :: 'Fn $ {} (:return 'Unit)
+                :args $ [] $ :: 'List 'Enum
+              , 'Number
+          :tests $ [] $ %{} 'TestEntry (:name |cube-writer)
+            :code $ quote $ branch-next
+              Cube :cube (quaternion.vector/v3 0 0 0) (quaternion.vector/v3 1 0 0) (quaternion.vector/v3 1 0 -1) (quaternion.vector/v3 0 0 -1) (quaternion.vector/v3 0 1 0) (quaternion.vector/v3 1 1 0) (quaternion.vector/v3 1 1 -1) (quaternion.vector/v3 0 1 -1)
+              fn (records)
+                hint-fn $ {}
+                  :args $ [] $ :: 'List 'Enum
+                  :return 'Unit
+                assert= 20 $ count records
+                assert= break-mark $ .unwrap $ last records
+              , 0
+            :tags $ #{} :unit
         'comp-cubes-tree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-cubes-tree ()
             comp-polylines-marked $ {} (; :shader wgsl-split-triangles)
               :writer $ fn (write!)
                 let
-                    cube $ :: :cube (v3 0 0 0) (v3 100 0 0) (v3 100 0 -100) (v3 0 0 -100) (v3 0 100 0) (v3 100 100 0) (v3 100 100 -100) (v3 0 100 -100)
+                    cube $ Cube :cube (v3 0 0 0) (v3 100 0 0) (v3 100 0 -100) (v3 0 0 -100) (v3 0 100 0) (v3 100 100 0) (v3 100 100 -100) (v3 0 100 -100)
                   branch-next cube write! 10
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'reflect $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reflect (a base)
             let
@@ -562,14 +584,17 @@
             let
                 w 1
                 l 2
-              tag-match cube $
+              match cube $
                 :cube p0 p1 p2 p3 p4 p5 p6 p7
                 write! $ [] (:: :vertex p0 w l) (:: :vertex p1 w l) (:: :vertex p2 w l) (:: :vertex p3 w l) (:: :vertex p0 w l) (:: :vertex p4 w l) (:: :vertex p5 w l) (:: :vertex p6 w l) (:: :vertex p7 w l) (:: :vertex p4 w l) break-mark (:: :vertex p1 w l) (:: :vertex p5 w l) break-mark (:: :vertex p2 w l) (:: :vertex p6 w l) break-mark (:: :vertex p3 w l) (:: :vertex p7 w l) break-mark
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'app.comp.cubes-tree/Cube $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] $ :: 'List 'Enum
         'rotate-d1 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-d1 (cube ratio scale)
-            tag-match cube $
+            match cube $
               :cube p0 p1 p2 p3 p4 p5 p6 p7
               let
                   p00 $ &v- p0 p0
@@ -590,7 +615,7 @@
                   p50' $ reflect (reflect p50 v1) v2
                   p60' $ reflect (reflect p60 v1) v2
                   p70' $ reflect (reflect p70 v1) v2
-                :: :cube
+                Cube :cube
                   v+ p0 p40 $ v-scale p00' scale
                   v+ p0 p40 $ v-scale p10' scale
                   v+ p0 p40 $ v-scale p20' scale
@@ -600,10 +625,11 @@
                   v+ p0 p40 $ v-scale p60' scale
                   v+ p0 p40 $ v-scale p70' scale
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'app.comp.cubes-tree/Cube)
+            :args $ [] 'app.comp.cubes-tree/Cube 'Number 'Number
         'rotate-d2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-d2 (cube ratio scale)
-            tag-match cube $
+            match cube $
               :cube p0 p1 p2 p3 p4 p5 p6 p7
               let
                   p01 $ &v- p0 p1
@@ -624,7 +650,7 @@
                   p51' $ reflect (reflect p51 v1) v2
                   p61' $ reflect (reflect p61 v1) v2
                   p71' $ reflect (reflect p71 v1) v2
-                :: :cube
+                Cube :cube
                   v+ p1 p51 $ v-scale p01' scale
                   v+ p1 p51 $ v-scale p11' scale
                   v+ p1 p51 $ v-scale p21' scale
@@ -634,7 +660,8 @@
                   v+ p1 p51 $ v-scale p61' scale
                   v+ p1 p51 $ v-scale p71' scale
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'app.comp.cubes-tree/Cube)
+            :args $ [] 'app.comp.cubes-tree/Cube 'Number 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.cubes-tree
           :require
@@ -814,7 +841,10 @@
                           * r $ inc y
                       [] (&{} :position p0) (&{} :position p1) (&{} :position p2) (&{} :position p1) (&{} :position p2) (&{} :position p3)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Number 'Number
+            :return $ :: 'List $ :: 'List
+              :: 'List $ :: 'Map 'Tag $ :: 'List 'Number
         'comp-helicoid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-helicoid ()
             comp-plate $ {} (; :topology :line-strip)
@@ -826,7 +856,8 @@
               ; :y-direction $ [] 0 1 0
               :chromatism 0.14
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'comp-hyperbolic-helicoid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-hyperbolic-helicoid (states)
             let
@@ -1320,7 +1351,10 @@
                   fold-line3 (dec level) (&q+ base branch-b) (&q- branch-c branch-b) a b c full' minimal-seg write!
                   fold-line3 (dec level) (&q+ base branch-c) (&q- v branch-c) a b c full' minimal-seg write!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'Number 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'Number $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] $ :: 'List 'Enum
         'fold-line4 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn fold-line4
             level base v a b c d full' minimal-seg write!
@@ -1348,7 +1382,10 @@
                   fold-line4 dec-level (&q+ base branch-c) (&q- branch-d branch-c) a b c d full' minimal-seg write!
                   fold-line4 dec-level (&q+ base branch-d) (&q- v branch-d) a b c d full' minimal-seg write!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'Number 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'Number $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] $ :: 'List 'Enum
         'take3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn take3 (v s)
             match v $
@@ -1562,14 +1599,16 @@
                     xs $ -> template $ map
                       fn (info)
                         let
-                            from $ :from info
-                            to $ :to info
+                            from $ .unwrap $ get info :from
+                            to $ .unwrap $ get info :to
                           {}
                             :from $ &c* from snowflake-rotation
                             :to $ &c* to snowflake-rotation
                   recur (concat acc xs) xs $ dec level
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] $ :: 'List (:: 'Map 'Tag 'quaternion.complex/Complex)
+            :return $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
         'snowflake-rotation $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-rotation
             complex 0.5 $ * 0.5 sqrt3
