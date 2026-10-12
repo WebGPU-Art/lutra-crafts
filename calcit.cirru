@@ -163,7 +163,7 @@
           :code $ quote $ def &PHI
             * 0.5 $ - (sqrt 5) 1
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Number
         'comp-tree-1 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-1 ()
             comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-tree-1)
@@ -809,7 +809,7 @@
         'v-zero $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def v-zero (v3 0 0 0)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'quaternion.vector/V3
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.flower-ball
           :require
@@ -833,7 +833,7 @@
         'wgsl-globe $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def wgsl-globe (inline-shader |globe)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.globe
           :require
@@ -1156,7 +1156,7 @@
           :code $ quote $ defstyle style-nav
             {} $ |& $ {} (:position :absolute) (:top 12)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         'style-tab $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-tab
             {}
@@ -1170,7 +1170,7 @@
                 :background-color $ hsl 0 0 0 0.5
                 :color :white
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         'tabs $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def tabs
             [] (NavTab :key :cube :title |Cube :theme :light) (NavTab :key :helicoid :title |Helicoid :theme :dark) (NavTab :key :hyperbolic-helicoid :title |Hyperbolic-helicoid :theme :light) (NavTab :key :globe :title |Globe :theme :light) (NavTab :key :fur :title |Fur :theme :light) (NavTab :key :petal-wireframe :title |Petal-wireframe :theme :light) (NavTab :key :mums :title |Mums :theme :light) (NavTab :key :flower-ball :title |Ball :theme :light) (NavTab :key :blow :title |Blow :theme :light) (NavTab :key :triangles :title |Triangles :theme :light) (NavTab :key :segments :title |Segments :theme :light) (NavTab :key :quaternion-fold :title |Quaternion-fold :theme :dark) (NavTab :key :hopf :title |Hopf :theme :dark) (NavTab :key :fireworks :title |Fireworks :theme :dark) (NavTab :key :blinks :title |Blinks :theme :dark) (NavTab :key :split-triangles :title "|Split Triangles" :theme :light) (NavTab :key :cubes-tree :title "|Cubes tree" :theme :light) (NavTab :key :prime-walk :title "|Prime Walk" :theme :dark) (NavTab :key :prime-pyramid :title "|Prime pyramid" :theme :dark) (NavTab :key :tree-1 :title "|Tree 1" :theme :dark) (NavTab :key :tree-2 :title "|Tree 2" :theme :dark) (NavTab :key :tree-3 :title "|Tree 3" :theme :dark) (NavTab :key :sedimentary :title |Sedimentary :theme :dark) (NavTab :key :concentric :title |Concenytic :theme :dark) (NavTab :key :snowing :title |Snowing :theme :dark)
@@ -1286,7 +1286,7 @@
           :code $ quote $ def cube-middle-moves
             [] (v3 1 0 0) (v3 0 1 0) (v3 0 0 -1) (v3 1 0 0) (v3 0 -1 0) (v3 0 0 -1) (v3 -1 0 0) (v3 0 -1 0) (v3 0 0 1) (v3 -1 0 0) (v3 0 1 0) (v3 0 0 1)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List 'quaternion.vector/V3
         'load-primes $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defmacro load-primes ()
             &data-to-code $ parse-cirru-edn $ read-file |./primes.cirru
@@ -1304,7 +1304,7 @@
           :code $ quote $ def oct-moves
             [] (v3 1 0 0) (v3 -1 0 0) (v3 -1 0 0) (v3 1 0 0) (v3 0 1 0) (v3 0 -1 0) (v3 0 -1 0) (v3 0 1 0) (v3 0 0 1) (v3 0 0 -1) (v3 0 0 -1) (v3 0 0 1)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List 'quaternion.vector/V3
         'octahedron-moves $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def octahedron-moves
             [] (v3 1 0 1) (v3 0 1 -1) (v3 1 -1 0) (v3 -1 0 -1) (v3 0 -1 1) (v3 -1 1 0)
@@ -1382,7 +1382,7 @@
                 p4 $ v3 0 1 $ / 1 (sqrt 2)
               [] (&v- p2 p1) (&v- p3 p2) (&v- p4 p3) (&v- p1 p4)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'List 'quaternion.vector/V3
         'start-time $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def start-time (now-ms)
           :examples $ []
@@ -1995,7 +1995,7 @@
         'third $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def third (&/ 1 3)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.triangles
           :require
