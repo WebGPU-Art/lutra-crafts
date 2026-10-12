@@ -378,13 +378,10 @@
                 states $ :states store
                 show? $ :show-tabs? store
               ; js/console.log $ :tab store
-              group nil $ case-default (:tab store)
-                do
-                  eprintln "|Unknown tab" $ :tab store
-                  group nil
+              group nil $ match (:tab store)
                 :cube $ comp-cubes
                 :helicoid $ comp-helicoid
-                :hyperbolic-helicoid $ comp-hyperbolic-helicoid $ >> states :hh
+                :hyperbolic-helicoid $ comp-hyperbolic-helicoid $ cursor-state states ([] :hh)
                 :globe $ comp-globe
                 :fur $ comp-fur
                 :petal-wireframe $ comp-petal-wireframe
@@ -394,7 +391,9 @@
                 :triangles $ comp-triangles
                 :segments $ comp-segments-fractal
                 :quaternion-fold $ comp-quaternion-fold
-                :hopf $ comp-hopf-fiber (>> states :hopf) show?
+                :hopf $ comp-hopf-fiber
+                  cursor-state states $ [] :hopf
+                  , show?
                 :fireworks $ comp-fireworks
                 :blinks $ comp-blinks
                 :split-triangles $ comp-split-triangles
@@ -407,8 +406,12 @@
                 :sedimentary $ comp-sedimentary
                 :concentric $ comp-concentric
                 :snowing $ comp-snowflakes-demo
+                _ $ do
+                  eprintln "|Unknown tab" $ :tab store
+                  group nil
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] 'app.state/Store
         'comp-fur $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-fur ()
             comp-curves $ {} (:shader wgsl-fur)
@@ -443,7 +446,6 @@
             app.config :refer $ hide-tabs?
             app.comp.helicoid :refer $ comp-helicoid comp-hyperbolic-helicoid
             app.comp.globe :refer $ comp-globe
-            lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             app.comp.mums :refer $ comp-mums
             app.comp.patels :refer $ comp-petal-wireframe
@@ -461,6 +463,7 @@
             app.comp.christmas-tree :refer $ comp-tree-1 comp-tree-2 comp-tree-3
             app.cmop.sedimentary :refer $ comp-sedimentary comp-concentric
             app.comp.snowflakes-demo :refer $ comp-snowflakes-demo
+            app.state :refer $ cursor-state
     'app.comp.cube-combo $ %{} 'FileEntry
       :defs $ {} $ 'comp-cubes
         %{} 'CodeEntry (:doc |)
@@ -886,25 +889,26 @@
           :code $ quote $ defn comp-hyperbolic-helicoid (states)
             let
                 cursor $ :cursor states
-                state $ either (:data states)
-                  {} $ :tau 4.0
-                tau $ :tau state
+                tau $ tau-at states
               group nil
                 object $ {} (:shader hyperbolic-helicoid-wgsl)
                   :topology $ do :triangle-list :line-strip
                   :attrs-list $ [] $ :: :float32x2 :position
                   :data $ build-01-grid 80 6
-                  :get-params $ fn () $ js-array tau 0 0 0
+                  :get-params $ fn () $ shader-params tau 0 0 0
                 comp-slider
                   {}
                     :position $ [] 0 240 0
                     :size 12
                     :color $ [] 0.7 0.6 0.5 1.0
                   fn (delta d!)
-                    d! $ : state cursor $ assoc state :tau
-                      + tau $ * 0.01 $ nth delta 1
+                    match delta $
+                      :complex dx _dy
+                      d! $ Op :state cursor $ LocalState :hh
+                        + tau $ * 0.01 dx
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] 'app.state/StateCursor
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.helicoid
           :require
@@ -918,6 +922,8 @@
             |@calcit/std :refer $ rand rand-shift
             lagopus.comp.plate :refer $ comp-plate
             app.config :refer $ inline-shader
+            app.state :refer $ tau-at LocalState Op
+            app.util :refer $ shader-params
     'app.comp.hopf-fiber $ %{} 'FileEntry
       :defs $ {}
         'Circle $ %{} 'CodeEntry (:doc |)
@@ -941,19 +947,16 @@
           :code $ quote $ defn comp-hopf-fiber (states show?)
             let
                 cursor $ :cursor states
-                state $ either (:data states)
-                  {} $ :base $ v3 90 8 4
-                base $ :base state
+                base $ base-at states
                 rh $ v-normalize $ v-cross base (v3 0 1 0)
                 rv $ v-normalize $ v-cross rh base
               group nil
                 if show? $ comp-axis
                 if show? $ comp-drag-point
-                  {}
-                    :position $ :base state
+                  {} (:position base)
                     :color $ [] 1.6 0.6 1.0 1.0
                   fn (move d!)
-                    d! $ : :state cursor $ assoc state :base move
+                    d! $ Op :state cursor $ LocalState :hopf-base move
                 comp-polylines-marked $ {} (:shader wgsl-hopf)
                   :writer $ fn (write!)
                     -> (range 16)
@@ -996,7 +999,8 @@
                                           , ring-idx
                                 write! break-mark
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] 'app.state/StateCursor 'Bool
         'decide-circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decide-circle (v0)
             let
@@ -1046,9 +1050,9 @@
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v-normalize v3
             quaternion.complex :refer $ complex
             app.config :refer $ hide-tabs?
-            lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
             lagopus.comp.button :refer $ comp-drag-point
+            app.state :refer $ base-at LocalState Op
     'app.comp.mums $ %{} 'FileEntry
       :defs $ {}
         'comp-mums $ %{} 'CodeEntry (:doc |)
@@ -1138,12 +1142,13 @@
                         {}
                           :class-name $ str-spaced style-tab css/font-fancy!
                           :on-click $ fn (e d!)
-                            d! $ :: :tab t $ :theme pair
+                            d! $ Op :tab t $ :theme pair
                           :style $ if (= tab t)
                             {} $ :color :white
                         <> name
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
+            :args $ [] 'app.state/Store
         'style-nav $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-nav
             {} $ |& $ {} (:position :absolute) (:top 12)
@@ -1177,6 +1182,7 @@
             respo-ui.css :as css
             respo.util.format :refer $ hsl
             app.config :refer $ hide-tabs?
+            app.state :refer $ Op
     'app.comp.patels $ %{} 'FileEntry
       :defs $ {}
         'build-quadratic-curve $ %{} 'CodeEntry (:doc |)
@@ -1997,14 +2003,11 @@
       :defs $ {}
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defatom *store
-            {}
-              :states $ {}
-              :tab $ turn-tag $ get-env |tab |concentric
-              :theme :dark
-              :show-tabs? true
-              :show-controls? true
+            Store :states (empty-tree) :tab
+              turn-tag $ .unwrap-or (get-env |tab) |concentric
+              , :theme :dark :show-tabs? true :show-controls? true
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Ref 'app.state/Store
         'canvas $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def canvas
             .unwrap $ query-selector |canvas
@@ -2100,22 +2103,129 @@
             respo.core :refer $ render! clear-cache!
             lagopus.config :refer $ bg-color
             js-ffi.browser :refer $ query-selector request-animation-frame!
+            app.state :refer $ Store empty-tree
+    'app.state $ %{} 'FileEntry
+      :defs $ {}
+        'LocalState $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum LocalState (:hh 'Number) (:hopf-base 'quaternion.vector/V3)
+          :examples $ []
+          :schema $ :: 'EnumDef
+        'Op $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum Op
+            :state (:: 'List 'Tag) 'app.state/LocalState
+            :tab 'Tag 'Tag
+            :tau 'Number
+            :toggle
+            :switch
+          :examples $ []
+          :schema $ :: 'EnumDef
+        'StateCursor $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct StateCursor
+            :cursor $ :: 'List 'Tag
+            :data $ :: 'Option 'app.state/LocalState
+          :examples $ []
+          :schema $ :: 'StructDef
+        'StateTree $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct StateTree
+            :data $ :: 'Option 'app.state/LocalState
+            :branches $ :: 'Map 'Tag 'app.state/StateTree
+          :examples $ []
+          :schema $ :: 'StructDef
+        'Store $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct Store (:states 'app.state/StateTree) (:tab 'Tag) (:theme 'Tag) (:show-tabs? 'Bool) (:show-controls? 'Bool)
+            :tau $ :: 'Option 'Number
+          :examples $ []
+          :schema $ :: 'StructDef
+        'base-at $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn base-at (states)
+            match (:data states)
+              (:none) (quaternion.vector/v3 90 8 4)
+              (:some value)
+                match value
+                  (:hopf-base base) base
+                  _ $ raise |Expected-Hopf-state
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
+            :args $ [] 'app.state/StateCursor
+        'cursor-state $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn cursor-state (tree cursor)
+            StateCursor :cursor cursor :data $ state-at tree cursor
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'app.state/StateCursor)
+            :args $ [] 'app.state/StateTree $ :: 'List 'Tag
+        'empty-tree $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn empty-tree ()
+            StateTree :data (%none) :branches $ {}
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'app.state/StateTree)
+            :args $ []
+        'put-state $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn put-state (tree cursor value)
+            match (destruct-list cursor)
+              (:none)
+                assoc tree :data $ %some value
+              (:some key more)
+                assoc tree :branches $ assoc (:branches tree) key $ put-state
+                  .unwrap-or
+                    get (:branches tree) key
+                    empty-tree
+                  , more value
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'app.state/StateTree)
+            :args $ [] 'app.state/StateTree (:: 'List 'Tag) 'app.state/LocalState
+        'state-at $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn state-at (tree cursor)
+            match (destruct-list cursor)
+              (:some key more)
+                state-at
+                  .unwrap-or
+                    get (:branches tree) key
+                    empty-tree
+                  , more
+              (:none) (:data tree)
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'app.state/StateTree $ :: 'List 'Tag
+            :return $ :: 'Option 'app.state/LocalState
+        'tau-at $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn tau-at (states)
+            match (:data states)
+              (:none) 4.0
+              (:some value)
+                match value
+                  (:hh tau) tau
+                  _ $ raise |Expected-helicoid-state
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'app.state/StateCursor
+        'warn-op! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn warn-op! (op) (js/console.warn "|Unknown op:" op) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'app.state/Op
+            :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote $ ns app.state
     'app.updater $ %{} 'FileEntry
       :defs $ {} $ 'updater
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op)
-            tag-match op
-              (:state c s) (update-states store c s)
-              (:tab t theme)
-                -> store (assoc :tab t) (assoc :theme theme)
-              (:tau t) (assoc store :tau t)
-              (:toggle) (update store :show-tabs? not)
-              _ $ do (js/console.warn "|Unknown op:" op) store
+            match op
+              (:state cursor state)
+                assoc store :states $ put-state (:states store) cursor state
+              (:tab tab theme)
+                -> store (assoc :tab tab) (assoc :theme theme)
+              (:tau tau)
+                assoc store :tau $ %some tau
+              (:toggle)
+                assoc store :show-tabs? $ not $ :show-tabs? store
+              _ $ do (warn-op! op) store
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'app.state/Store)
+            :args $ [] 'app.state/Store 'app.state/Op
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
-          :require $ lagopus.cursor :refer $ update-states
+          :require $ app.state :refer $ put-state warn-op!
     'app.util $ %{} 'FileEntry
       :defs $ {}
         'interoplate-line $ %{} 'CodeEntry (:doc |)
