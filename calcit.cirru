@@ -125,24 +125,23 @@
               comp-curves $ {} (; :topology :line-list) (:shader wgsl-blow)
                 :curves $ -> points $ mapcat
                   fn (p)
-                    apply-args
-                        []
-                        rand 100
-                        , 4
-                      fn (acc a step)
-                        if (<= step 0) acc $ let
-                            l $ + 40 $ rand 160
-                            gap $ + 3 $ rand 8
-                          recur
-                            conj acc $ []
-                              {}
-                                :position $ v-scale p $ + gap a
-                                :width $ * (+ gap a) width
-                              {}
-                                :position $ v-scale p $ + a gap l
-                                :width $ * (+ a gap l) width
-                            + a gap l
-                            dec step
+                    loop
+                        acc $ []
+                        a $ rand 100
+                        step 4
+                      if (<= step 0) acc $ let
+                          l $ + 40 $ rand 160
+                          gap $ + 3 $ rand 8
+                        recur
+                          conj acc $ []
+                            {}
+                              :position $ v-scale p $ + gap a
+                              :width $ * (+ gap a) width
+                            {}
+                              :position $ v-scale p $ + a gap l
+                              :width $ * (+ a gap l) width
+                          + a gap l
+                          dec step
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ []
@@ -189,12 +188,11 @@
                               , h $ * r $ sin angle
                             v3 (rand-shift 0 22) (rand-shift 0 22) (rand-shift 0 22)
                           , 10 ratio
-              :get-params $ fn () $ wo-js-log
-                let
-                    v $ * 0.000001 $ now-ms
-                  shader-params
-                    - v $ round-js v
-                    , 0 0 0
+              :get-params $ fn () $ let
+                  v $ * 0.000001 $ now-ms
+                shader-params
+                  - v $ round-js v
+                  , 0 0 0
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ []
@@ -271,12 +269,11 @@
                               write! break-mark
                             write! $ [] $ :: :vertex position 2 ratio
                         write! break-mark
-                  :get-params $ fn () $ wo-js-log
-                    let
-                        v $ * 0.000001 $ now-ms
-                      shader-params
-                        - v $ round-js v
-                        , 0 0 0
+                  :get-params $ fn () $ let
+                      v $ * 0.000001 $ now-ms
+                    shader-params
+                      - v $ round-js v
+                      , 0 0 0
                 comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-tree-2-strip)
                   ; :attrs-list $ [] $ : float32x3 :position
                   :writer $ fn (write!)
@@ -291,12 +288,11 @@
                               * r0 $ cos angle
                               , 0 $ * r0 $ sin angle
                             , 1 1
-                  :get-params $ fn () $ wo-js-log
-                    let
-                        v $ * 0.000001 $ now-ms
-                      shader-params
-                        - v $ round-js v
-                        , 0 0 0
+                  :get-params $ fn () $ let
+                      v $ * 0.000001 $ now-ms
+                    shader-params
+                      - v $ round-js v
+                      , 0 0 0
                 comp-tree-1
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
@@ -851,9 +847,19 @@
       :defs $ {}
         'build-01-grid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn build-01-grid (size s)
-            -> (range-bothway size)
+            ->
+              let
+                  range-end size
+                range
+                  inc $ negate range-end
+                  , range-end
               map $ fn (x)
-                -> (range-bothway size)
+                ->
+                  let
+                      range-end size
+                    range
+                      inc $ negate range-end
+                      , range-end
                   map $ fn (y)
                     let
                         r $ * s $ &/ 1 size
@@ -1089,25 +1095,27 @@
                 dt 2
                 p0 $ v3 0 0 0
                 ad $ v3 (random-number) (random-number) (random-number)
-              apply-args
-                  .empty $ [] p0
-                  , p0 v0 axis0 0
-                fn (acc position v axis s)
-                  hint-fn $ {}
-                    :args $ [] (:: 'List 'quaternion.vector/V3) 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number
-                    :return $ :: 'List 'quaternion.vector/V3
-                  if (&>= s steps) (conj acc position)
-                    let
-                        v-next $ rotate-3d (v3 0 0 0) axis
-                          -
-                            pow (&* s delta) 7
-                            , 0.008
-                          , v
-                        axis-next $ rotate-3d (v3 0 0 0) ad
-                          pow (&* s 0.011) 8
-                          , axis
-                        next $ &v+ position $ v-scale v dt
-                      recur (conj acc position) next v-next axis-next $ inc s
+              loop
+                  acc $ .empty $ [] p0
+                  position p0
+                  v v0
+                  axis axis0
+                  s 0
+                hint-fn $ {}
+                  :args $ [] (:: 'List 'quaternion.vector/V3) 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number
+                  :return $ :: 'List 'quaternion.vector/V3
+                if (&>= s steps) (conj acc position)
+                  let
+                      v-next $ rotate-3d (v3 0 0 0) axis
+                        -
+                          pow (&* s delta) 7
+                          , 0.008
+                        , v
+                      axis-next $ rotate-3d (v3 0 0 0) ad
+                        pow (&* s 0.011) 8
+                        , axis
+                      next $ &v+ position $ v-scale v dt
+                    recur (conj acc position) next v-next axis-next $ inc s
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number
@@ -1265,7 +1273,7 @@
                 prime-pyramid (v3 0 0 0) (do primes) write! 8 0 0
                 , &unit
               :get-params $ fn () $ shader-params
-                wo-log $ * 0.8 $ - (now-ms) start-time 8000
+                * 0.8 $ - (now-ms) start-time 8000
                 , 0 0 0
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
@@ -1277,7 +1285,7 @@
                 prime-walk (v3 0 0 0) primes write! 8 0 0
                 , &unit
               :get-params $ fn () $ shader-params
-                wo-log $ * 0.4 $ - (now-ms) start-time 8000
+                * 0.4 $ - (now-ms) start-time 8000
                 , 0 0 0
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
@@ -1721,18 +1729,20 @@
             :features $ #{} :js-ffi
         'rotate-branches $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-branches (branch0)
-            apply-args (branch0 branch0 5)
-              fn (acc template level)
-                if (= level 0) acc $ let
-                    xs $ -> template $ map
-                      fn (info)
-                        let
-                            from $ .unwrap $ get info :from
-                            to $ .unwrap $ get info :to
-                          {}
-                            :from $ &c* from snowflake-rotation
-                            :to $ &c* to snowflake-rotation
-                  recur (concat acc xs) xs $ dec level
+            loop
+                acc branch0
+                template branch0
+                level 5
+              if (= level 0) acc $ let
+                  xs $ -> template $ map
+                    fn (info)
+                      let
+                          from $ .unwrap $ get info :from
+                          to $ .unwrap $ get info :to
+                        {}
+                          :from $ &c* from snowflake-rotation
+                          :to $ &c* to snowflake-rotation
+                recur (concat acc xs) xs $ dec level
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'List (:: 'Map 'Tag 'quaternion.complex/Complex)
@@ -2056,7 +2066,7 @@
     'app.main $ %{} 'FileEntry
       :defs $ {}
         '*store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *store
+          :code $ quote $ defref *store
             Store :states (empty-tree) :tab
               turn-tag $ .unwrap-or (get-env |tab) |concentric
               , :theme :dark :show-tabs? true :show-controls? true
@@ -2239,7 +2249,7 @@
             :args $ [] 'app.state/StateTree $ :: 'List 'Tag
         'empty-tree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn empty-tree ()
-            StateTree :data (%none) :branches $ {}
+            StateTree :data (Option :none) :branches $ {}
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'app.state/StateTree)
             :args $ []
@@ -2247,7 +2257,7 @@
           :code $ quote $ defn put-state (tree cursor value)
             match (destruct-list cursor)
               (:none)
-                assoc tree :data $ %some value
+                assoc tree :data $ Option :some value
               (:some key more)
                 assoc tree :branches $ assoc (:branches tree) key $ put-state
                   .unwrap-or
@@ -2300,7 +2310,7 @@
               (:tab tab theme)
                 -> store (assoc :tab tab) (assoc :theme theme)
               (:tau tau)
-                assoc store :tau $ %some tau
+                assoc store :tau $ Option :some tau
               (:toggle)
                 assoc store :show-tabs? $ not $ :show-tabs? store
               _ $ do (warn-op! op) store
