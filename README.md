@@ -2,13 +2,21 @@
 
 Demo https://r.tiye.me/Triadica/lutra-crafts .
 
-This migration candidate requires the matched Calcit / `@calcit/procs` 0.30.0 pair,
-Caps 0.1.1, Node.js 24 and Yarn 4.18.0. The official pair is published; local
-immutable installation, JS compilation and production build pass. Full strict
-workflow acceptance is still blocked by the Lagopus options boundary tracked in
-https://github.com/WebGPU-Art/lagopus/issues/32, so this candidate is not a
-completed application migration or a claim of 0.30.1 compatibility.
-`deps.cirru` pins the formal Calcit module releases.
+使用者影响：此候选正在配对迁移到已发布的 Calcit / `@calcit/procs`
+`0.30.1-alpha.5`，保留 Caps 0.1.1、Node24/Yarn4.18。0.30.1 正式 CLI/npm
+尚未配对发布。Memof、Quaternion、Respo/UI 使用精确正式 tag，不把未发布的
+Lagopus 候选当作可安装依赖；现有画面、资源和原部署目录没有在本阶段改动。
+
+本阶段仅不可变安装及原三个几何测试通过，完整迁移尚未完成。正式 Lagopus 0.5.12
+仍将已变为 Option 的低层 Map 读取当原值处理，使整体验收失败；其未发布候选已修复
+一部分问题，但完整 strict 仍有 V3 名义类型边界。跟踪
+https://github.com/WebGPU-Art/lagopus/issues/32 与
+https://github.com/calcit-lang/calcit/issues/2154。
+alpha.5 的现有 decoder 在 native 保留 V3 身份，在 JS 复制对象；不能靠先解码再强转原对象
+绕过门禁。公开 typed options/载荷的 API 选择尚待确认，不在此候选擅自修改消费者合同。
+
+原候选曾通过 0.30.0 下的普通检查和构建；这些旧结果不作为当前 0.30.1 整体验收证据。
+本阶段未推送 PR、发版或部署，`deps.cirru` 仍只引用正式 Calcit 模块 tag。
 
 ```sh
 caps --strict --ci
