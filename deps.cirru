@@ -1,11 +1,11 @@
 
 {}
-  :calcit-version |0.30.1-alpha.5
+  :calcit-version |0.31.0
   :version |0.0.10
   :dependencies $ {}
-    |calcit-lang/memof |0.0.39
-    |calcit-lang/quaternion |0.2.14
-    |WebGPU-Art/lagopus |0.5.12
-    |Respo/respo.calcit |0.16.122
-    |Respo/respo-ui.calcit |0.7.41
-    |calcit-lang/js-ffi |0.2.3
+    |calcit-lang/memof |0.0.41
+    |calcit-lang/quaternion |0.2.17
+    |WebGPU-Art/lagopus |0.5.13
+    |Respo/respo.calcit |0.17.0-alpha.4
+    |Respo/respo-ui.calcit |0.9.0-alpha.4
+    |calcit-lang/js-ffi |0.2.7

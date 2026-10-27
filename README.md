@@ -1,51 +1,54 @@
 ## Lutra Crafts
 
-Demo https://r.tiye.me/Triadica/lutra-crafts .
+WebGPU 几何与动画示例：[原 Demo](https://r.tiye.me/Triadica/lutra-crafts)。
 
-使用者影响：此候选正在配对迁移到已发布的 Calcit / `@calcit/procs`
-`0.30.1-alpha.5`，保留 Caps 0.1.1、Node24/Yarn4.18。0.30.1 正式 CLI/npm
-尚未配对发布。Memof、Quaternion、Respo/UI 使用精确正式 tag，不把未发布的
-Lagopus 候选当作可安装依赖；现有画面、资源和原部署目录没有在本阶段改动。
+使用者影响：本迁移候选使用正式 Calcit / `@calcit/procs` **0.31.0**，
+并保留原场景、shader、随机取样顺序及 `hud!` 页面错误提示。
+JS 随机数现在经过 Number 检查；非法宿主结果会更早报错。
+导航隐藏时不产生子节点，未选中标签使用空样式。
 
-本阶段仅不可变安装及原三个几何测试通过，完整迁移尚未完成。正式 Lagopus 0.5.12
-仍将已变为 Option 的低层 Map 读取当原值处理，使整体验收失败；其未发布候选已修复
-一部分问题，但完整 strict 仍有 V3 名义类型边界。跟踪
-https://github.com/WebGPU-Art/lagopus/issues/32 与
-https://github.com/calcit-lang/calcit/issues/2154。
-alpha.5 的现有 decoder 在 native 保留 V3 身份，在 JS 复制对象；不能靠先解码再强转原对象
-绕过门禁。公开 typed options/载荷的 API 选择尚待确认，不在此候选擅自修改消费者合同。
+源码只使用 `calcit.cirru` 与 `deps.cirru`，不再维护 `compact.cirru` 或
+`package.cirru`。模块使用实际发布的精确 tag，包括 Lagopus 0.5.13、
+Memof 0.0.41、Quaternion 0.2.17、JS-FFI 0.2.7；Respo/UI 的配套版本
+仍带 alpha 标记，不表示所有依赖都是稳定版。
 
-原候选曾通过 0.30.0 下的普通检查和构建；这些旧结果不作为当前 0.30.1 整体验收证据。
-本阶段未推送 PR、发版或部署，`deps.cirru` 仍只引用正式 Calcit 模块 tag。
+### 开发
+
+使用 Node.js 24、Yarn 4.18.0、Caps 0.1.1：
 
 ```sh
 caps --strict --ci
 yarn install --immutable
 caps verify --toolchain
-calcit calcit.cirru --check-only --all-defs
-calcit calcit.cirru test --require-match
-calcit calcit.cirru js
+calcit --check-only --all-defs
+calcit fix --workflow strict --verify
+calcit test --require-match
+calcit js
 yarn vite
 ```
 
-CI builds frontend assets with the repository's `https://cos-sh.tiye.me/`
-prefix. Main-branch deployment uses `COS_BUCKET`, `COS_SECRET_ID`,
-`COS_SECRET_KEY` and the existing `rsync_private_key`. The COS action itself
-verifies uploaded files through `public-base-url`; no extra verification
-script is needed. The original server destination is unchanged. Same-repository
-PRs upload only to isolated PR/run/attempt prefixes; PRs never publish the
-production page.
+需要实时编译时另开终端运行 `calcit js -w`。
 
-`calcit.cirru` is the only source snapshot; the unused `compact.cirru` is retired.
-Current APIs replace `defatom`, Option helper constructors, identity logging
-wrappers, `range-bothway` and literal `apply-args` loops without changing the
-original loop initializers, shader math or clock/random evaluation counts.
+### 迁移验收
 
-The npm renderer itself still declares `@triadica/touch-control` ^0.0.4-a1.
-The registry's newest stable controller is 0.0.3, outside that declared range;
-compatibility with this older release has not been established. Replacing this
-alpha dependency needs renderer/controller compatibility verification rather than
-an unverified downgrade or a swap to the separate Calcit module.
+正式 0.31.0 的完整 strict、406 个定义、原三个几何测试及 Vite 构建通过。
+随机函数只在集中适配层检查返回值，writer 使用实际回调合同；固定三维坐标直接传入
+`v3`，没有添加 unsafe 强转或放宽类型门禁。
+
+浏览器已观察到 Cube、Fireworks、Snowing、Cubes tree、Prime Walk 及默认场景的渲染。
+完整运行验收尚未完成：复杂场景切换发生过浏览器操作超时；Ball 当前只显示背景，
+仍在核对几何输出和视野，跟踪 [既有问题 #27](https://github.com/WebGPU-Art/lutra-crafts/issues/27)。Triangles 的暗色来自原 shader 的半透明黑色输出，shader
+与原 main 相同。上述局部验收不代表所有场景、控制设备或后端已完成验收。
+
+### 前端部署
+
+CI 使用 `https://cos-sh.tiye.me/` 下的仓库前缀。上传仅包含 `dist/`，
+通过 COS action 自带的 `public-base-url` 校验，不另加验证脚本。
+同仓库 PR 使用独立 PR/run/attempt 前缀；生产页面仍使用原 rsync 目录。
+需要 `COS_BUCKET`、`COS_SECRET_ID`、`COS_SECRET_KEY` 及原 `rsync_private_key`。
+
+npm renderer 仍要求 `@triadica/touch-control` 的 `^0.0.4-a1` 范围；不能未经
+renderer/controller 兼容验收就换成范围之外的旧稳定版或另一个 Calcit 模块。
 
 ### Workflow
 

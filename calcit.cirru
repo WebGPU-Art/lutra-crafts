@@ -6,7 +6,7 @@
     {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |memof/ |quaternion/ |lagopus/ |respo.calcit/ |respo-ui.calcit/ |js-ffi/
-      :type-slots $ {}
+      :type-slots $ {} $ :dispatch-op |app.state/Op
   :files $ {}
     'app.cmop.sedimentary $ %{} 'FileEntry
       :defs $ {}
@@ -50,7 +50,7 @@
                   :writer $ fn (write!)
                     -> 4000 range $ each $ fn (hi)
                       let
-                          r $ + r0 $ rand 1600
+                          r $ + r0 $ random/rand 1600
                           size 4
                           angle-unit $ / (* 2 &PI) size
                           dh $ * -4 hi
@@ -80,9 +80,9 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-            |@calcit/std :refer $ rand rand-int rand-shift rand-between
             app.util :refer $ shader-params
             js-ffi.shared :refer $ performance-now
+            app.random :as random
     'app.comp.blinks $ %{} 'FileEntry
       :defs $ {} $ 'comp-blinks
         %{} 'CodeEntry (:doc |)
@@ -94,9 +94,9 @@
                   let
                       r0 400
                       r1 4
-                      p0 $ v3 (rand-shift 0 r0) (rand-shift 0 r0) (rand-shift 0 r0)
-                      v1 $ v3 (rand-shift 0 r1) (rand-shift 0 r1) (rand-shift 0 r1)
-                      v2 $ v3 (rand-shift 0 r1) (rand-shift 0 r1) (rand-shift 0 r1)
+                      p0 $ v3 (random/rand-shift 0 r0) (random/rand-shift 0 r0) (random/rand-shift 0 r0)
+                      v1 $ v3 (random/rand-shift 0 r1) (random/rand-shift 0 r1) (random/rand-shift 0 r1)
+                      v2 $ v3 (random/rand-shift 0 r1) (random/rand-shift 0 r1) (random/rand-shift 0 r1)
                       p1 $ &v+ p0 v1
                       p2 $ &v+ p0 v2
                       direction $ v-cross v1 v2
@@ -114,7 +114,7 @@
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-            |@calcit/std :refer $ rand rand-shift
+            app.random :as random
     'app.comp.blow $ %{} 'FileEntry
       :defs $ {} $ 'comp-blow
         %{} 'CodeEntry (:doc |)
@@ -127,11 +127,11 @@
                   fn (p)
                     loop
                         acc $ []
-                        a $ rand 100
+                        a $ random/rand 100
                         step 4
                       if (<= step 0) acc $ let
-                          l $ + 40 $ rand 160
-                          gap $ + 3 $ rand 8
+                          l $ + 40 $ random/rand 160
+                          gap $ + 3 $ random/rand 8
                         recur
                           conj acc $ []
                             {}
@@ -155,7 +155,7 @@
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-            |@calcit/std :refer $ rand rand-shift
+            app.random :as random
     'app.comp.christmas-tree $ %{} 'FileEntry
       :defs $ {}
         '&PHI $ %{} 'CodeEntry (:doc |)
@@ -186,7 +186,7 @@
                             v3
                               * r $ cos angle
                               , h $ * r $ sin angle
-                            v3 (rand-shift 0 22) (rand-shift 0 22) (rand-shift 0 22)
+                            v3 (random/rand-shift 0 22) (random/rand-shift 0 22) (random/rand-shift 0 22)
                           , 10 ratio
               :get-params $ fn () $ let
                   v $ * 0.000001 $ now-ms
@@ -363,9 +363,9 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-            |@calcit/std :refer $ rand rand-int rand-shift rand-between
             app.util :refer $ shader-params round-js random-number
             js-ffi.shared :refer $ now-ms
+            app.random :as random
     'app.comp.container $ %{} 'FileEntry
       :defs $ {}
         'comp-container $ %{} 'CodeEntry (:doc |)
@@ -473,51 +473,44 @@
                   map $ fn (idx)
                     let
                         area 460
-                        base $ v3 (rand-shift 0 area) (rand-shift 0 area) (rand-shift 0 area)
+                        base $ v3 (random/rand-shift 0 area) (random/rand-shift 0 area) (random/rand-shift 0 area)
                         size-bound 80
-                        offsets $ []
-                          + 10 $ rand size-bound
-                          + 10 $ rand size-bound
-                          + 10 $ rand size-bound
+                        offset-x $ + 10 $ random/rand size-bound
+                        offset-y $ + 10 $ random/rand size-bound
+                        offset-z $ + 10 $ random/rand size-bound
+                        offsets $ [] offset-x offset-y offset-z
                       []
                         {} (:idx idx) (:offsets offsets)
                           :metrics $ [] -1 -1 1
-                          :position $ &v+ base $ v3 &
-                            -> offsets (update 0 negate) (update 1 negate)
+                          :position $ &v+ base $ v3 (negate offset-x) (negate offset-y) offset-z
                         {} (:idx idx)
-                          :offsets $ v3 & offsets
+                          :offsets $ v3 offset-x offset-y offset-z
                           :metrics $ [] 1 -1 1
-                          :position $ &v+ base $ v3 &
-                            -> offsets $ update 1 negate
+                          :position $ &v+ base $ v3 offset-x (negate offset-y) offset-z
                         {} (:idx idx)
-                          :offsets $ v3 & offsets
+                          :offsets $ v3 offset-x offset-y offset-z
                           :metrics $ [] 1 -1 -1
-                          :position $ &v+ base $ v3 &
-                            -> offsets (update 1 negate) (update 2 negate)
+                          :position $ &v+ base $ v3 offset-x (negate offset-y) (negate offset-z)
                         {} (:idx idx)
-                          :offsets $ v3 & offsets
+                          :offsets $ v3 offset-x offset-y offset-z
                           :metrics $ [] -1 -1 -1
-                          :position $ &v+ base $ v3 &
-                            -> offsets (update 0 negate) (update 1 negate) (update 2 negate)
+                          :position $ &v+ base $ v3 (negate offset-x) (negate offset-y) (negate offset-z)
                         {} (:idx idx)
-                          :offsets $ v3 & offsets
+                          :offsets $ v3 offset-x offset-y offset-z
                           :metrics $ [] -1 1 1
-                          :position $ &v+ base $ v3 &
-                            -> offsets $ update 0 negate
+                          :position $ &v+ base $ v3 (negate offset-x) offset-y offset-z
                         {} (:idx idx)
-                          :offsets $ v3 & offsets
+                          :offsets $ v3 offset-x offset-y offset-z
                           :metrics $ [] 1 1 1
-                          :position $ &v+ base $ v3 & offsets
+                          :position $ &v+ base $ v3 offset-x offset-y offset-z
                         {} (:idx idx)
-                          :offsets $ v3 & offsets
+                          :offsets $ v3 offset-x offset-y offset-z
                           :metrics $ [] 1 1 -1
-                          :position $ &v+ base $ v3 &
-                            -> offsets $ update 2 negate
+                          :position $ &v+ base $ v3 offset-x offset-y (negate offset-z)
                         {} (:idx idx)
-                          :offsets $ v3 & offsets
+                          :offsets $ v3 offset-x offset-y offset-z
                           :metrics $ [] -1 1 -1
-                          :position $ &v+ base $ v3 &
-                            -> offsets (update 0 negate) (update 2 negate)
+                          :position $ &v+ base $ v3 (negate offset-x) offset-y (negate offset-z)
                 :indices $ let
                     indices $ concat & $ [] ([] 0 1 2 0 2 3) ([] 0 1 5 0 4 5) ([] 1 2 6 1 6 5) ([] 2 3 6 3 6 7) ([] 0 3 4 3 4 7) ([] 4 5 6 4 6 7)
                   -> (range cube-count)
@@ -537,7 +530,7 @@
             lagopus.comp.spots :refer $ comp-spots
             memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ v3 &v+
-            |@calcit/std :refer $ rand rand-shift
+            app.random :as random
     'app.comp.cubes-tree $ %{} 'FileEntry
       :defs $ {}
         'Cube $ %{} 'CodeEntry (:doc |)
@@ -575,9 +568,16 @@
           :code $ quote $ defn comp-cubes-tree ()
             comp-polylines-marked $ {} (; :shader wgsl-split-triangles)
               :writer $ fn (write!)
+                hint-fn $ {}
+                  :args $ [] $ :: 'Fn
+                    {}
+                      :args $ [] $ :: 'List 'Enum
+                      :return 'Unit
+                  :return 'Unit
                 let
                     cube $ Cube :cube (v3 0 0 0) (v3 100 0 0) (v3 100 0 -100) (v3 0 0 -100) (v3 0 100 0) (v3 100 100 0) (v3 100 100 -100) (v3 0 100 -100)
                   branch-next cube write! 10
+                , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ []
@@ -696,16 +696,16 @@
                     n 0
                   if (&< n 2000)
                     let
-                        base $ v3 (rand-shift 0 20000) (rand-shift 0 2080) (rand-shift 0 20000)
-                        color $ rand 10
-                        w $ &+ 2 $ rand 6
+                        base $ v3 (random/rand-shift 0 20000) (random/rand-shift 0 2080) (random/rand-shift 0 20000)
+                        color $ random/rand 10
+                        w $ &+ 2 $ random/rand 6
                       ->
-                        fibo-grid-range $ rand-int 40 400
+                        fibo-grid-range $ random/rand-int-between 40 400
                         each $ fn (v)
                           let
-                              a1 $ rand 4
-                              a2 $ rand 4
-                              upper $ rand-int 12
+                              a1 $ random/rand 4
+                              a2 $ random/rand 4
+                              upper $ random/rand-int 12
                             loop
                                 i 0
                               let
@@ -734,7 +734,7 @@
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
-            |@calcit/std :refer $ rand rand-int rand-shift rand-between
+            app.random :as random
     'app.comp.flower-ball $ %{} 'FileEntry
       :defs $ {}
         'build-umbrella $ %{} 'CodeEntry (:doc |)
@@ -779,6 +779,12 @@
               ; js/console.log $ .flatten ps
               comp-polylines $ {} (:shader wgsl-flower-ball)
                 :writer $ fn (write!)
+                  hint-fn $ {}
+                    :args $ [] $ :: 'Fn
+                      {}
+                        :args $ [] $ :: 'List 'Enum
+                        :return 'Unit
+                    :return 'Unit
                   ->
                     []
                       [] (v3 0 unit 0) (v3 0 0 1)
@@ -799,6 +805,7 @@
                         .unwrap $ nth pair 0
                         .unwrap $ nth pair 1
                         , parts elevation decay iteration write!
+                  , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ []
@@ -1144,19 +1151,22 @@
                 show-tabs? $ and (not hide-tabs?) (:show-tabs? store)
               div
                 {} $ :class-name style-nav
-                if show-tabs? $ list-> ({})
-                  -> tabs $ map $ fn (pair)
-                    let
-                        t $ :key pair
-                        name $ :title pair
-                      [] t $ div
-                        {}
-                          :class-name $ str-spaced style-tab css/font-fancy!
-                          :on-click $ fn (e d!)
-                            d! $ Op :tab t $ :theme pair
-                          :style $ if (= tab t)
-                            {} $ :color :white
-                        <> name
+                , & $ if show-tabs?
+                  [] $ list-> ({})
+                    -> tabs $ map $ fn (pair)
+                      let
+                          t $ :key pair
+                          name $ :title pair
+                        [] t $ div
+                          {}
+                            :class-name $ str-spaced style-tab css/font-fancy!
+                            :on-click $ fn (e d!)
+                              d! $ Op :tab t $ :theme pair
+                            :style $ if (= tab t)
+                              {} $ :color :white
+                              {}
+                          <> name
+                  []
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
             :args $ [] 'app.state/Store
@@ -1270,7 +1280,13 @@
           :code $ quote $ defn comp-prime-pyramid ()
             comp-polylines-marked $ {} (:shader wgsl-prime-walk)
               :writer $ fn (write!)
-                prime-pyramid (v3 0 0 0) (do primes) write! 8 0 0
+                hint-fn $ {}
+                  :args $ [] $ :: 'Fn
+                    {}
+                      :args $ [] 'Enum
+                      :return 'Unit
+                  :return 'Unit
+                prime-pyramid (v3 0 0 0) primes write! 8 0 0
                 , &unit
               :get-params $ fn () $ shader-params
                 * 0.8 $ - (now-ms) start-time 8000
@@ -1282,6 +1298,12 @@
           :code $ quote $ defn comp-prime-walk ()
             comp-polylines-marked $ {} (:shader wgsl-prime-walk)
               :writer $ fn (write!)
+                hint-fn $ {}
+                  :args $ [] $ :: 'Fn
+                    {}
+                      :args $ [] 'Enum
+                      :return 'Unit
+                  :return 'Unit
                 prime-walk (v3 0 0 0) primes write! 8 0 0
                 , &unit
               :get-params $ fn () $ shader-params
@@ -1416,6 +1438,12 @@
               {} (:topology :line-strip) (:shader wgsl-quaternion-fold)
                 :attrs-list $ [] $ : float32x3 :position
                 :writer $ fn (write!)
+                  hint-fn $ {}
+                    :args $ [] $ :: 'Fn
+                      {}
+                        :args $ [] $ :: 'List 'Enum
+                        :return 'Unit
+                    :return 'Unit
                   ; fold-line4 19 (quaternion 0 0 0 0) (quaternion 0 100 0 0) (quaternion 0 20 0 22) (quaternion 16 20 0 23) (quaternion 16 20 0 27) (quaternion 0 20 0 28)
                     q-inverse $ quaternion 0 0 0 50
                     , 0.0027 write!
@@ -1428,6 +1456,7 @@
                   fold-line4 8 (quaternion 0 0 0 0) (quaternion 200 0 0 0) (quaternion 0 0 0 25) (quaternion 10 10 10 25) (quaternion 10 10 -10 25) (quaternion 0 0 0 25)
                     q-inverse $ quaternion 0 0 0 50
                     , 0.1 write!
+                  , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ []
@@ -1532,11 +1561,18 @@
                 target $ v3 1000 0 0
               comp-polylines $ {} (; :shader wgsl-flower-ball)
                 :writer $ fn (write!)
+                  hint-fn $ {}
+                    :args $ [] $ :: 'Fn
+                      {}
+                        :args $ [] $ :: 'List 'Enum
+                        :return 'Unit
+                    :return 'Unit
                   write! $ []
                     : vertex (v3 0 0 0) 4
                     : vertex target 4
                     , break-mark
                   fold-fractal (v3 0 0 0) target (v3 0 0 1) p1 p2 p3 p4 p5 level write!
+                  , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ []
@@ -1648,8 +1684,7 @@
                         c $ v-cross a b
                         a1 $ v-normalize a
                         c1 $ v-normalize c
-                      %{} Placement (:x a1) (:y c1) (:p p)
-                        :size $ pow (random-scaled d-size) 2
+                      Placement :x a1 :y c1 :p p :size $ pow (random-scaled d-size) 2
               comp-polylines-marked $ {} (:shader wgsl-snowing)
                 :writer $ fn (write!)
                   each
@@ -1713,7 +1748,7 @@
             :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'quaternion.complex/Complex
         'random-scaled $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn random-scaled (size)
-            js-ffi.contract/expect-number |rand $ rand size
+            js-ffi.contract/expect-number |rand $ random/rand size
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Number)
@@ -1721,7 +1756,7 @@
             :features $ #{} :js-ffi
         'random-shift $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn random-shift (center radius)
-            js-ffi.contract/expect-number |rand_shift $ rand-shift center radius
+            js-ffi.contract/expect-number |rand_shift $ random/rand-shift center radius
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Number)
@@ -1910,14 +1945,20 @@
             quaternion.complex :refer $ &c* complex
             |../shaders/snowing.wgsl :default wgsl-snowing
             lagopus.comp.curves :refer $ comp-polylines-marked break-mark
-            |@calcit/std :refer $ rand rand-shift
             js-ffi.shared :refer $ performance-now
+            app.random :as random
     'app.comp.split-triangles $ %{} 'FileEntry
       :defs $ {}
         'comp-split-triangles $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-split-triangles ()
             comp-polylines-marked $ {} (:shader wgsl-split-triangles)
               :writer $ fn (write!)
+                hint-fn $ {}
+                  :args $ [] $ :: 'Fn
+                    {}
+                      :args $ [] $ :: 'List 'Enum
+                      :return 'Unit
+                  :return 'Unit
                 let
                     s 1
                   split-triangles
@@ -1926,6 +1967,7 @@
                     v-scale (v3 -500 0 800) s
                     v-scale (v3 0 1200 0) s
                     , 0 true write!
+                , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ []
@@ -1998,7 +2040,14 @@
           :code $ quote $ defn comp-triangles ()
             comp-polylines $ {} (:shader wgsl-triangles)
               :writer $ fn (write!)
+                hint-fn $ {}
+                  :args $ [] $ :: 'Fn
+                    {}
+                      :args $ [] $ :: 'List 'Enum
+                      :return 'Unit
+                  :return 'Unit
                 build-sierpinski-triangles (v3 1000 0 0) (v3 -500 0 -800) (v3 -500 0 800) (v3 0 1200 0) 10 0.1 false write!
+                , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ []
@@ -2198,6 +2247,39 @@
             app.state :refer $ Store empty-tree Op
             lagopus.config :refer $ bg-color
             respo.ffi.browser :as respo-browser
+    'app.random $ %{} 'FileEntry
+      :defs $ {}
+        'rand $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn rand (n)
+            js-ffi.contract/expect-number |@calcit/std/rand $ std/rand n
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'Number
+            :features $ #{} :js-ffi
+        'rand-int $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn rand-int (n)
+            js-ffi.contract/expect-number |@calcit/std/rand-int $ std/rand-int n
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'Number
+            :features $ #{} :js-ffi
+        'rand-int-between $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn rand-int-between (n m)
+            js-ffi.contract/expect-number |@calcit/std/rand-int $ std/rand-int n m
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'Number 'Number
+            :features $ #{} :js-ffi
+        'rand-shift $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn rand-shift (n dn)
+            js-ffi.contract/expect-number |@calcit/std/rand-shift $ std/rand-shift n dn
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'Number 'Number
+            :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote $ ns app.random
+          :require $ |@calcit/std :as std
     'app.state $ %{} 'FileEntry
       :defs $ {}
         'LocalState $ %{} 'CodeEntry (:doc |)
