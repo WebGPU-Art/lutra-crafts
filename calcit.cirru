@@ -770,12 +770,12 @@
         'comp-flower-ball $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-flower-ball ()
             let
-                origin $ v3 0 0 0
                 parts 8
                 elevation $ * &PI 0.5
                 decay 0.36
                 iteration 7
                 unit 800
+                origin $ v3 0 (negate unit) 0
               ; js/console.log $ .flatten ps
               comp-polylines $ {} (:shader wgsl-flower-ball)
                 :writer $ fn (write!)
