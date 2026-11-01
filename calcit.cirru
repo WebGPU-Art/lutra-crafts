@@ -38,8 +38,7 @@
                     * 0.01 $ - (performance-now) t0 20000
                     , 0 0 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'comp-sedimentary $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-sedimentary ()
             let
@@ -66,8 +65,7 @@
                         write! break-mark
                   :get-params $ fn () $ shader-params 0 0 0 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.cmop.sedimentary
           :require
@@ -102,8 +100,7 @@
                       direction $ v-cross v1 v2
                     [] (:: :vertex p0 direction) (:: :vertex p1 direction) (:: :vertex p2 direction)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.blinks
           :require
@@ -143,8 +140,7 @@
                           + a gap l
                           dec step
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.blow
           :require
@@ -162,7 +158,7 @@
           :code $ quote $ def &PHI
             * 0.5 $ - (sqrt 5) 1
           :examples $ []
-          :schema $ :: 'Number
+          :schema $ quote Number
         'comp-tree-1 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-1 ()
             comp-polylines-marked $ {} (; :topology :line-strip) (:shader wgsl-tree-1)
@@ -194,8 +190,7 @@
                   - v $ round-js v
                   , 0 0 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'comp-tree-2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-2 ()
             let
@@ -295,8 +290,7 @@
                       , 0 0 0
                 comp-tree-1
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'comp-tree-3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-3 ()
             let
@@ -325,8 +319,7 @@
                 comp-tree-dark-area r0 h0
                 ; comp-tree-1
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'comp-tree-dark-area $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-dark-area (r0 h0)
             object $ {} (:shader wgsl-tree-2-dark) (:topology :triangle-list)
@@ -347,8 +340,7 @@
                         * (- r0 4) (cos angle2)
                         , 0 $ * (- r0 4) (sin angle2)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'Number 'Number
+          :schema $ quote $ Fn Number Number (-> JsObject)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.christmas-tree
           :require
@@ -406,8 +398,7 @@
                   eprintln "|Unknown tab" $ :tab store
                   group nil
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'app.state/Store
+          :schema $ quote $ Fn app.state/Store (-> JsObject)
         'comp-fur $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-fur ()
             comp-curves $ {} (:shader wgsl-fur)
@@ -425,8 +416,7 @@
                           :position $ v+ base $ v3 0 (* 2 hi) 0
                           :width 0.6
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -518,8 +508,7 @@
                       -> indices $ map $ fn (x)
                         + x $ * 8 idx
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.cube-combo
           :require
@@ -537,7 +526,7 @@
           :code $ quote $ defenum Cube
             :cube 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'branch-next $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn branch-next (cube write! level)
             when (>= level 0) (render-cube cube write!)
@@ -548,18 +537,14 @@
                 branch-next cube3 write! $ dec level
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'app.comp.cubes-tree/Cube
-              :: 'Fn $ {} (:return 'Unit)
-                :args $ [] $ :: 'List 'Enum
-              , 'Number
+          :schema $ quote $ Fn app.comp.cubes-tree/Cube
+            Fn (List Enum) (-> Unit)
+            , Number (-> Unit)
           :tests $ [] $ %{} 'TestEntry (:name |cube-writer)
             :code $ quote $ branch-next
               Cube :cube (quaternion.vector/v3 0 0 0) (quaternion.vector/v3 1 0 0) (quaternion.vector/v3 1 0 -1) (quaternion.vector/v3 0 0 -1) (quaternion.vector/v3 0 1 0) (quaternion.vector/v3 1 1 0) (quaternion.vector/v3 1 1 -1) (quaternion.vector/v3 0 1 -1)
               fn (records)
-                hint-fn $ {}
-                  :args $ [] $ :: 'List 'Enum
-                  :return 'Unit
+                hint-fn $ Fn (List Enum) (-> Unit)
                 assert= 20 $ count records
                 assert= break-mark $ .unwrap $ last records
               , 0
@@ -568,19 +553,15 @@
           :code $ quote $ defn comp-cubes-tree ()
             comp-polylines-marked $ {} (; :shader wgsl-split-triangles)
               :writer $ fn (write!)
-                hint-fn $ {}
-                  :args $ [] $ :: 'Fn
-                    {}
-                      :args $ [] $ :: 'List 'Enum
-                      :return 'Unit
-                  :return 'Unit
+                hint-fn $ Fn
+                  Fn (List Enum) (-> Unit)
+                  -> Unit
                 let
                     cube $ Cube :cube (v3 0 0 0) (v3 100 0 0) (v3 100 0 -100) (v3 0 0 -100) (v3 0 100 0) (v3 100 100 0) (v3 100 100 -100) (v3 0 100 -100)
                   branch-next cube write! 10
                 , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'reflect $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reflect (a base)
             let
@@ -590,8 +571,7 @@
                 a-drop $ &v- a a-perp
               &v- a-perp a-drop
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 (-> quaternion.vector/V3)
         'render-cube $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-cube (cube write!)
             let
@@ -601,10 +581,9 @@
                 :cube p0 p1 p2 p3 p4 p5 p6 p7
                 write! $ [] (:: :vertex p0 w l) (:: :vertex p1 w l) (:: :vertex p2 w l) (:: :vertex p3 w l) (:: :vertex p0 w l) (:: :vertex p4 w l) (:: :vertex p5 w l) (:: :vertex p6 w l) (:: :vertex p7 w l) (:: :vertex p4 w l) break-mark (:: :vertex p1 w l) (:: :vertex p5 w l) break-mark (:: :vertex p2 w l) (:: :vertex p6 w l) break-mark (:: :vertex p3 w l) (:: :vertex p7 w l) break-mark
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'app.comp.cubes-tree/Cube $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ [] $ :: 'List 'Enum
+          :schema $ quote $ Fn app.comp.cubes-tree/Cube
+            Fn (List Enum) (-> Unit)
+            -> Unit
         'rotate-d1 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-d1 (cube ratio scale)
             match cube $
@@ -638,8 +617,7 @@
                   v+ p0 p40 $ v-scale p60' scale
                   v+ p0 p40 $ v-scale p70' scale
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.comp.cubes-tree/Cube)
-            :args $ [] 'app.comp.cubes-tree/Cube 'Number 'Number
+          :schema $ quote $ Fn app.comp.cubes-tree/Cube Number Number (-> app.comp.cubes-tree/Cube)
         'rotate-d2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-d2 (cube ratio scale)
             match cube $
@@ -673,8 +651,7 @@
                   v+ p1 p51 $ v-scale p61' scale
                   v+ p1 p51 $ v-scale p71' scale
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.comp.cubes-tree/Cube)
-            :args $ [] 'app.comp.cubes-tree/Cube 'Number 'Number
+          :schema $ quote $ Fn app.comp.cubes-tree/Cube Number Number (-> app.comp.cubes-tree/Cube)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.cubes-tree
           :require
@@ -721,8 +698,7 @@
                           write! break-mark
                       recur $ inc n
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.fireworks
           :require
@@ -763,10 +739,9 @@
                   build-umbrella p-next line v0 parts elevation decay (dec step) write!
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'Number 'Number 'Number $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ [] $ :: 'List 'Enum
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number Number Number Number
+            Fn (List Enum) (-> Unit)
+            -> Unit
         'comp-flower-ball $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-flower-ball ()
             let
@@ -779,12 +754,9 @@
               ; js/console.log $ .flatten ps
               comp-polylines $ {} (:shader wgsl-flower-ball)
                 :writer $ fn (write!)
-                  hint-fn $ {}
-                    :args $ [] $ :: 'Fn
-                      {}
-                        :args $ [] $ :: 'List 'Enum
-                        :return 'Unit
-                    :return 'Unit
+                  hint-fn $ Fn
+                    Fn (List Enum) (-> Unit)
+                    -> Unit
                   ->
                     []
                       [] (v3 0 unit 0) (v3 0 0 1)
@@ -807,12 +779,11 @@
                         , parts elevation decay iteration write!
                   , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'v-zero $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def v-zero (v3 0 0 0)
           :examples $ []
-          :schema $ :: 'quaternion.vector/V3
+          :schema $ quote quaternion.vector/V3
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.flower-ball
           :require
@@ -831,12 +802,11 @@
             comp-sphere $ {} (; :topology :line-strip) (:shader wgsl-globe) (:iteration 7) (:radius 1800)
               :color $ [] 0.6 0.9 0.7
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'wgsl-globe $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def wgsl-globe (inline-shader |globe)
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.globe
           :require
@@ -881,10 +851,9 @@
                           * r $ inc y
                       [] (&{} :position p0) (&{} :position p1) (&{} :position p2) (&{} :position p1) (&{} :position p2) (&{} :position p3)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Number 'Number
-            :return $ :: 'List $ :: 'List
-              :: 'List $ :: 'Map 'Tag $ :: 'List 'Number
+          :schema $ quote $ Fn Number Number
+            -> $ List $ List
+              List $ Map Tag $ List Number
         'comp-helicoid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-helicoid ()
             comp-plate $ {} (; :topology :line-strip)
@@ -896,8 +865,7 @@
               ; :y-direction $ [] 0 1 0
               :chromatism 0.14
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'comp-hyperbolic-helicoid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-hyperbolic-helicoid (states)
             let
@@ -920,8 +888,7 @@
                       d! $ Op :state cursor $ LocalState :hh
                         + tau $ * 0.01 dx
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'app.state/StateCursor
+          :schema $ quote $ Fn app.state/StateCursor (-> JsObject)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.helicoid
           :require
@@ -942,7 +909,7 @@
         'Circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Circle (:circle 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3)
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'calc-k $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calc-k (p0 p1)
             match p0 $
@@ -954,8 +921,7 @@
                   + (* x0 x1) (* z0 z1)
                     negate $ v-length2 p0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 (-> Number)
         'comp-hopf-fiber $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-hopf-fiber (states show?)
             let
@@ -1014,9 +980,7 @@
                                           , ring-idx
                                 write! break-mark
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'app.state/StateCursor 'Bool
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn app.state/StateCursor Bool (-> JsObject) (:features :js-ffi)
         'decide-circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decide-circle (v0)
             let
@@ -1034,8 +998,7 @@
                       v-length rh
                   Circle :circle center rh rv
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.comp.hopf-fiber/Circle)
-            :args $ [] 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 (-> app.comp.hopf-fiber/Circle)
         'v-length2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn v-length2 (a)
             match a $
@@ -1044,8 +1007,7 @@
                 &+ $ &* y y
                 &+ $ &* z z
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 (-> Number)
           :tests $ [] $ %{} 'TestEntry (:name |vector-and-quaternion-projection)
             :code $ quote $ do
               assert= 169 $ v-length2 $ quaternion.vector/v3 3 4 12
@@ -1093,8 +1055,7 @@
                       -> path $ map $ fn (p2)
                         {} (:position p2) (:width 2)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'roll-curve $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-curve (v0 axis0 delta)
             let
@@ -1108,9 +1069,7 @@
                   v v0
                   axis axis0
                   s 0
-                hint-fn $ {}
-                  :args $ [] (:: 'List 'quaternion.vector/V3) 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number
-                  :return $ :: 'List 'quaternion.vector/V3
+                hint-fn $ Fn (List quaternion.vector/V3) quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number $ -> (List quaternion.vector/V3)
                 if (&>= s steps) (conj acc position)
                   let
                       v-next $ rotate-3d (v3 0 0 0) axis
@@ -1124,9 +1083,8 @@
                       next $ &v+ position $ v-scale v dt
                     recur (conj acc position) next v-next axis-next $ inc s
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number
-            :return $ :: 'List 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 Number
+            -> $ List quaternion.vector/V3
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.mums
           :require
@@ -1143,7 +1101,7 @@
         'NavTab $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct NavTab (:key 'Tag) (:title 'String) (:theme 'Tag)
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'comp-nav $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-nav (store)
             let
@@ -1168,13 +1126,12 @@
                           <> name
                   []
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'app.state/Store
+          :schema $ quote $ Fn app.state/Store (-> respo.schema/Component)
         'style-nav $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-nav
             {} $ |& $ {} (:position :absolute) (:top 12)
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'style-tab $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-tab
             {}
@@ -1188,12 +1145,12 @@
                 :background-color $ hsl 0 0 0 0.5
                 :color :white
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'tabs $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def tabs
             [] (NavTab :key :cube :title |Cube :theme :light) (NavTab :key :helicoid :title |Helicoid :theme :dark) (NavTab :key :hyperbolic-helicoid :title |Hyperbolic-helicoid :theme :light) (NavTab :key :globe :title |Globe :theme :light) (NavTab :key :fur :title |Fur :theme :light) (NavTab :key :petal-wireframe :title |Petal-wireframe :theme :light) (NavTab :key :mums :title |Mums :theme :light) (NavTab :key :flower-ball :title |Ball :theme :light) (NavTab :key :blow :title |Blow :theme :light) (NavTab :key :triangles :title |Triangles :theme :light) (NavTab :key :segments :title |Segments :theme :light) (NavTab :key :quaternion-fold :title |Quaternion-fold :theme :dark) (NavTab :key :hopf :title |Hopf :theme :dark) (NavTab :key :fireworks :title |Fireworks :theme :dark) (NavTab :key :blinks :title |Blinks :theme :dark) (NavTab :key :split-triangles :title "|Split Triangles" :theme :light) (NavTab :key :cubes-tree :title "|Cubes tree" :theme :light) (NavTab :key :prime-walk :title "|Prime Walk" :theme :dark) (NavTab :key :prime-pyramid :title "|Prime pyramid" :theme :dark) (NavTab :key :tree-1 :title "|Tree 1" :theme :dark) (NavTab :key :tree-2 :title "|Tree 2" :theme :dark) (NavTab :key :tree-3 :title "|Tree 3" :theme :dark) (NavTab :key :sedimentary :title |Sedimentary :theme :dark) (NavTab :key :concentric :title |Concenytic :theme :dark) (NavTab :key :snowing :title |Snowing :theme :dark)
           :examples $ []
-          :schema $ :: 'List 'app.comp.nav/NavTab
+          :schema $ quote $ List app.comp.nav/NavTab
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.nav
           :require
@@ -1227,9 +1184,8 @@
                     &v+ p $ v-scale unit ratio
                     v-scale gravity $ &- l-middle $ pow s 2
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'quaternion.vector/V3
-            :return $ :: 'List 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 Number quaternion.vector/V3
+            -> $ List quaternion.vector/V3
         'comp-petal-wireframe $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-petal-wireframe ()
             let
@@ -1261,8 +1217,7 @@
                       map points $ fn (p)
                         {} (:position p) (:width 1.)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.patels
           :require
@@ -1280,66 +1235,57 @@
           :code $ quote $ defn comp-prime-pyramid ()
             comp-polylines-marked $ {} (:shader wgsl-prime-walk)
               :writer $ fn (write!)
-                hint-fn $ {}
-                  :args $ [] $ :: 'Fn
-                    {}
-                      :args $ [] 'Enum
-                      :return 'Unit
-                  :return 'Unit
+                hint-fn $ Fn
+                  Fn Enum $ -> Unit
+                  -> Unit
                 prime-pyramid (v3 0 0 0) primes write! 8 0 0
                 , &unit
               :get-params $ fn () $ shader-params
                 * 0.8 $ - (now-ms) start-time 8000
                 , 0 0 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'comp-prime-walk $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-prime-walk ()
             comp-polylines-marked $ {} (:shader wgsl-prime-walk)
               :writer $ fn (write!)
-                hint-fn $ {}
-                  :args $ [] $ :: 'Fn
-                    {}
-                      :args $ [] 'Enum
-                      :return 'Unit
-                  :return 'Unit
+                hint-fn $ Fn
+                  Fn Enum $ -> Unit
+                  -> Unit
                 prime-walk (v3 0 0 0) primes write! 8 0 0
                 , &unit
               :get-params $ fn () $ shader-params
                 * 0.4 $ - (now-ms) start-time 8000
                 , 0 0 0
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'cube-middle-moves $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def cube-middle-moves
             [] (v3 1 0 0) (v3 0 1 0) (v3 0 0 -1) (v3 1 0 0) (v3 0 -1 0) (v3 0 0 -1) (v3 -1 0 0) (v3 0 -1 0) (v3 0 0 1) (v3 -1 0 0) (v3 0 1 0) (v3 0 0 1)
           :examples $ []
-          :schema $ :: 'List 'quaternion.vector/V3
+          :schema $ quote $ List quaternion.vector/V3
         'load-primes $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defmacro load-primes ()
             &data-to-code $ parse-cirru-edn $ read-file |./primes.cirru
           :examples $ []
-          :schema $ :: 'Macro $ {}
-            :capabilities $ #{} :fs-read
-            :expansion $ :: 'Expr $ :: 'List 'Number
-            :required $ []
+          :schema $ quote $ Macro
+            -> $ Expr $ List Number
+            :capabilities :fs-read
         'moves $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def moves
             [] (v3 1 0 0) (v3 0 0 -1) (v3 0 1 0) (v3 -1 0 0) (v3 0 0 1) (v3 0 -1 0)
           :examples $ []
-          :schema $ :: 'List 'quaternion.vector/V3
+          :schema $ quote $ List quaternion.vector/V3
         'oct-moves $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def oct-moves
             [] (v3 1 0 0) (v3 -1 0 0) (v3 -1 0 0) (v3 1 0 0) (v3 0 1 0) (v3 0 -1 0) (v3 0 -1 0) (v3 0 1 0) (v3 0 0 1) (v3 0 0 -1) (v3 0 0 -1) (v3 0 0 1)
           :examples $ []
-          :schema $ :: 'List 'quaternion.vector/V3
+          :schema $ quote $ List quaternion.vector/V3
         'octahedron-moves $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def octahedron-moves
             [] (v3 1 0 1) (v3 0 1 -1) (v3 1 -1 0) (v3 -1 0 -1) (v3 0 -1 1) (v3 -1 1 0)
           :examples $ []
-          :schema $ :: 'List 'quaternion.vector/V3
+          :schema $ quote $ List quaternion.vector/V3
         'prime-pyramid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn prime-pyramid (base primes write! width step prev)
             match (destruct-list primes)
@@ -1355,11 +1301,9 @@
                   recur next ps write! width (inc step) p0
               (:none) :ok
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Tag)
-            :args $ [] 'quaternion.vector/V3 (:: 'List 'Number)
-              :: 'Fn $ {} (:return 'Unit)
-                :args $ [] 'Enum
-              , 'Number 'Number 'Number
+          :schema $ quote $ Fn quaternion.vector/V3 (List Number)
+            Fn Enum $ -> Unit
+            , Number Number Number (-> Tag)
         'prime-walk $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn prime-walk (base primes write! width step prev)
             match (destruct-list primes)
@@ -1373,27 +1317,21 @@
                   recur next ps write! width (inc step) p0
               (:none) :ok
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Tag)
-            :args $ [] 'quaternion.vector/V3 (:: 'List 'Number)
-              :: 'Fn $ {} (:return 'Unit)
-                :args $ [] 'Enum
-              , 'Number 'Number 'Number
+          :schema $ quote $ Fn quaternion.vector/V3 (List Number)
+            Fn Enum $ -> Unit
+            , Number Number Number (-> Tag)
           :tests $ [] $ %{} 'TestEntry (:name |prime-path-writers)
             :code $ quote $ do
               assert= :ok $ prime-walk (quaternion.vector/v3 0 0 0) ([] 2)
                 fn (record)
-                  hint-fn $ {}
-                    :args $ [] 'Enum
-                    :return 'Unit
+                  hint-fn $ Fn Enum $ -> Unit
                   assert=
                     :: :vertex (quaternion.vector/v3 0 0 0) 1 0
                     , record
                 , 1 0 0
               assert= :ok $ prime-pyramid (quaternion.vector/v3 0 0 0) ([] 2)
                 fn (record)
-                  hint-fn $ {}
-                    :args $ [] 'Enum
-                    :return 'Unit
+                  hint-fn $ Fn Enum $ -> Unit
                   assert=
                     :: :vertex (quaternion.vector/v3 0 0 0) 1 0
                     , record
@@ -1402,7 +1340,7 @@
         'primes $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def primes (load-primes)
           :examples $ []
-          :schema $ :: 'List 'Number
+          :schema $ quote $ List Number
         'pyramid-moves $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def pyramid-moves
             let
@@ -1412,11 +1350,11 @@
                 p4 $ v3 0 1 $ / 1 (sqrt 2)
               [] (&v- p2 p1) (&v- p3 p2) (&v- p4 p3) (&v- p1 p4)
           :examples $ []
-          :schema $ :: 'List 'quaternion.vector/V3
+          :schema $ quote $ List quaternion.vector/V3
         'start-time $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def start-time (now-ms)
           :examples $ []
-          :schema $ :: 'Number
+          :schema $ quote Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.prime-walk
           :require
@@ -1438,12 +1376,9 @@
               {} (:topology :line-strip) (:shader wgsl-quaternion-fold)
                 :attrs-list $ [] $ : float32x3 :position
                 :writer $ fn (write!)
-                  hint-fn $ {}
-                    :args $ [] $ :: 'Fn
-                      {}
-                        :args $ [] $ :: 'List 'Enum
-                        :return 'Unit
-                    :return 'Unit
+                  hint-fn $ Fn
+                    Fn (List Enum) (-> Unit)
+                    -> Unit
                   ; fold-line4 19 (quaternion 0 0 0 0) (quaternion 0 100 0 0) (quaternion 0 20 0 22) (quaternion 16 20 0 23) (quaternion 16 20 0 27) (quaternion 0 20 0 28)
                     q-inverse $ quaternion 0 0 0 50
                     , 0.0027 write!
@@ -1458,8 +1393,7 @@
                     , 0.1 write!
                   , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'fold-line3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn fold-line3
             level base v a b c full' minimal-seg write!
@@ -1482,10 +1416,9 @@
                   fold-line3 (dec level) (&q+ base branch-b) (&q- branch-c branch-b) a b c full' minimal-seg write!
                   fold-line3 (dec level) (&q+ base branch-c) (&q- v branch-c) a b c full' minimal-seg write!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Number 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'Number $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ [] $ :: 'List 'Enum
+          :schema $ quote $ Fn Number quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion Number
+            Fn (List Enum) (-> Unit)
+            -> Unit
         'fold-line4 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn fold-line4
             level base v a b c d full' minimal-seg write!
@@ -1513,19 +1446,17 @@
                   fold-line4 dec-level (&q+ base branch-c) (&q- branch-d branch-c) a b c d full' minimal-seg write!
                   fold-line4 dec-level (&q+ base branch-d) (&q- v branch-d) a b c d full' minimal-seg write!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Number 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'quaternion.core/Quaternion 'Number $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ [] $ :: 'List 'Enum
+          :schema $ quote $ Fn Number quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion Number
+            Fn (List Enum) (-> Unit)
+            -> Unit
         'take3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn take3 (v s)
             match v $
               :quaternion w x y z
               [] (&* s x) (&* s y) (&* s z)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'quaternion.core/Quaternion 'Number
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn quaternion.core/Quaternion Number
+            -> $ List Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.quaterion-fold
           :require
@@ -1547,8 +1478,7 @@
               :v3 x y z
               v+ (v-scale forward x) (v-scale upward y) (v-scale right z)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 (-> quaternion.vector/V3)
         'comp-segments-fractal $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-segments-fractal ()
             let
@@ -1561,12 +1491,9 @@
                 target $ v3 1000 0 0
               comp-polylines $ {} (; :shader wgsl-flower-ball)
                 :writer $ fn (write!)
-                  hint-fn $ {}
-                    :args $ [] $ :: 'Fn
-                      {}
-                        :args $ [] $ :: 'List 'Enum
-                        :return 'Unit
-                    :return 'Unit
+                  hint-fn $ Fn
+                    Fn (List Enum) (-> Unit)
+                    -> Unit
                   write! $ []
                     : vertex (v3 0 0 0) 4
                     : vertex target 4
@@ -1574,8 +1501,7 @@
                   fold-fractal (v3 0 0 0) target (v3 0 0 1) p1 p2 p3 p4 p5 level write!
                   , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'fold-fractal $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn fold-fractal
             base target right p1 p2 p3 p4 p5 level write!
@@ -1632,24 +1558,21 @@
                     fold-fractal point4 target right6 p1 p2 p3 p4 p5 (dec level) write!
                 write! $ [] (: vertex base w) (: vertex point1 w) (: vertex point2 w) (: vertex point3 w) (: vertex point4 w) (: vertex point5 w) (: vertex target w) break-mark
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ [] $ :: 'List 'Enum
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number
+            Fn (List Enum) (-> Unit)
+            -> Unit
         'middle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn middle (base target)
             v-scale (&v+ base target) 0.5
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 (-> quaternion.vector/V3)
         'safe-right $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn safe-right (v right)
             if
               &= 0 $ v-length v
               , right v
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 (-> quaternion.vector/V3)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.segments-fractal
           :require
@@ -1666,7 +1589,7 @@
         'Placement $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Placement (:x 'quaternion.vector/V3) (:y 'quaternion.vector/V3) (:p 'quaternion.vector/V3) (:size 'Number)
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'comp-snowflakes-demo $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-snowflakes-demo ()
             let
@@ -1720,8 +1643,7 @@
                   &* 0.08 $ - (performance-now) start-time
                 :compute-options $ particle-options item-count
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'particle-options $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn particle-options (item-count)
             let
@@ -1733,9 +1655,7 @@
                 :initialBuffer $ new js/Float32Array $ to-js-data values
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> JsObject) (:features :js-ffi)
         'project-point $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn project-point (x y size point)
             match point $
@@ -1744,24 +1664,19 @@
                 v-scale x $ * size a
                 v-scale y $ * size b
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'quaternion.complex/Complex
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 Number quaternion.complex/Complex (-> quaternion.vector/V3)
         'random-scaled $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn random-scaled (size)
             js-ffi.contract/expect-number |rand $ random/rand size
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
         'random-shift $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn random-shift (center radius)
             js-ffi.contract/expect-number |rand_shift $ random/rand-shift center radius
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number Number (-> Number) (:features :js-ffi)
         'rotate-branches $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-branches (branch0)
             loop
@@ -1779,14 +1694,14 @@
                           :to $ &c* to snowflake-rotation
                 recur (concat acc xs) xs $ dec level
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'List (:: 'Map 'Tag 'quaternion.complex/Complex)
-            :return $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
+          :schema $ quote $ Fn
+            List $ Map Tag quaternion.complex/Complex
+            -> $ List $ Map Tag quaternion.complex/Complex
         'snowflake-rotation $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-rotation
             complex 0.5 $ * 0.5 sqrt3
           :examples $ []
-          :schema $ :: 'quaternion.complex/Complex
+          :schema $ quote quaternion.complex/Complex
         'snowflake-shape $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape
             let
@@ -1819,7 +1734,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
+          :schema $ quote $ List (Map Tag quaternion.complex/Complex)
         'snowflake-shape-bare $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-bare
             let
@@ -1830,7 +1745,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
+          :schema $ quote $ List (Map Tag quaternion.complex/Complex)
         'snowflake-shape-branch $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-branch
             let
@@ -1845,7 +1760,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
+          :schema $ quote $ List (Map Tag quaternion.complex/Complex)
         'snowflake-shape-hairy $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-hairy
             let
@@ -1875,7 +1790,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
+          :schema $ quote $ List (Map Tag quaternion.complex/Complex)
         'snowflake-shape-ring $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-ring
             let
@@ -1886,7 +1801,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
+          :schema $ quote $ List (Map Tag quaternion.complex/Complex)
         'snowflake-shape-sparse $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-sparse
             let
@@ -1904,7 +1819,7 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
+          :schema $ quote $ List (Map Tag quaternion.complex/Complex)
         'snowflake-shape-star $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def snowflake-shape-star
             let
@@ -1922,22 +1837,20 @@
               ; js/console.log branches
               , branches
           :examples $ []
-          :schema $ :: 'List $ :: 'Map 'Tag 'quaternion.complex/Complex
+          :schema $ quote $ List (Map Tag quaternion.complex/Complex)
         'sqrt3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def sqrt3 (sqrt 3)
           :examples $ []
-          :schema $ :: 'Number
+          :schema $ quote Number
         'start-time $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def start-time (performance-now)
           :examples $ []
-          :schema $ :: 'Number
+          :schema $ quote Number
         'time-params $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn time-params (elapsed) (js-array elapsed)
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> JsObject) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.snowflakes-demo
           :require
@@ -1953,12 +1866,9 @@
           :code $ quote $ defn comp-split-triangles ()
             comp-polylines-marked $ {} (:shader wgsl-split-triangles)
               :writer $ fn (write!)
-                hint-fn $ {}
-                  :args $ [] $ :: 'Fn
-                    {}
-                      :args $ [] $ :: 'List 'Enum
-                      :return 'Unit
-                  :return 'Unit
+                hint-fn $ Fn
+                  Fn (List Enum) (-> Unit)
+                  -> Unit
                 let
                     s 1
                   split-triangles
@@ -1969,8 +1879,7 @@
                     , 0 true write!
                 , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'split-triangles $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn split-triangles (p1 p2 p3 p4 level root? write!)
             let
@@ -1986,10 +1895,9 @@
                 split-triangles p2 p3 p4 p5 (inc level) false write!
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'Bool $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ [] $ :: 'List 'Enum
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number Bool
+            Fn (List Enum) (-> Unit)
+            -> Unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.split-triangles
           :require
@@ -2032,29 +1940,24 @@
                 ; build-sierpinski-triangles p-01 p-02 p-03 p-04 (dec level) w false write!
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'Number 'Number 'Bool $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ [] $ :: 'List 'Enum
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number Number Bool
+            Fn (List Enum) (-> Unit)
+            -> Unit
         'comp-triangles $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-triangles ()
             comp-polylines $ {} (:shader wgsl-triangles)
               :writer $ fn (write!)
-                hint-fn $ {}
-                  :args $ [] $ :: 'Fn
-                    {}
-                      :args $ [] $ :: 'List 'Enum
-                      :return 'Unit
-                  :return 'Unit
+                hint-fn $ Fn
+                  Fn (List Enum) (-> Unit)
+                  -> Unit
                 build-sierpinski-triangles (v3 1000 0 0) (v3 -500 0 -800) (v3 -500 0 800) (v3 0 1200 0) 10 0.1 false write!
                 , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'third $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def third (&/ 1 3)
           :examples $ []
-          :schema $ :: 'Number
+          :schema $ quote Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.triangles
           :require
@@ -2073,41 +1976,38 @@
           :code $ quote $ def bloom?
             = |true $ .unwrap-or (get-env |bloom) |false
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'detect-mobile? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn detect-mobile? ()
             expect-bool |ismobile.any $ .-any $ ismobile js/window.navigator
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Bool) (:features :js-ffi)
         'dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def dev?
             &= |dev $ .unwrap-or (get-env |mode) |release
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'hide-tabs? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def hide-tabs?
             = |true $ .unwrap-or (get-env |hide-tabs) |false
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'inline-shader $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defmacro inline-shader (path)
             read-file $ str |shaders/ path |.wgsl
           :examples $ []
-          :schema $ :: 'Macro $ {}
-            :capabilities $ #{} :fs-read
-            :expansion $ :: 'Expr 'String
-            :required $ [] $ :: 'Expr 'String
+          :schema $ quote $ Macro (Expr String)
+            -> $ Expr String
+            :capabilities :fs-read
         'mobile? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mobile? (detect-mobile?)
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'remote-control? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def remote-control?
             .some? $ get-env |remote-control
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.config
           :require (|ismobilejs :default ismobile)
@@ -2120,12 +2020,12 @@
               turn-tag $ .unwrap-or (get-env |tab) |concentric
               , :theme :dark :show-tabs? true :show-controls? true
           :examples $ []
-          :schema $ :: 'Ref 'app.state/Store
+          :schema $ quote $ Ref app.state/Store
         'canvas $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def canvas
             .unwrap $ query-selector |canvas
           :examples $ []
-          :schema $ :: 'js-ffi.browser/DomElementHost
+          :schema $ quote js-ffi.browser/DomElementHost
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             if dev? $ log-op! op
@@ -2135,24 +2035,19 @@
               if (not= next-store store) (reset! *store next-store)
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'app.state/Op
+          :schema $ quote $ Fn app.state/Op (-> Unit)
         'log-op! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn log-op! (op) (js/console.log op) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'app.state/Op
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn app.state/Op (-> Unit) (:features :js-ffi)
         'loop-paint! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn loop-paint! ()
             request-animation-frame! $ fn (_timestamp) (paintLagopusTree) (loop-paint!) &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
+          :schema $ quote $ Fn (-> Number)
         'main! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn main! ()
-            hint-fn $ {} $ :async true
+          :code $ quote $ defn main! () (hint-fn Async)
             if
               and bloom? $ not mobile?
               enableBloom
@@ -2182,14 +2077,12 @@
             ; paintLagopusTree
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
             .unwrap $ respo-browser/query-selector |.app
           :examples $ []
-          :schema $ :: 'respo.dom/DomElement
+          :schema $ quote respo.dom/DomElement
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -2200,9 +2093,7 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             let
@@ -2215,9 +2106,7 @@
               , &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'theme-color $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn theme-color (theme)
             match theme
@@ -2226,8 +2115,7 @@
               :gray $ :: :rgba 0.3 0.3 0.3 0.98
               _ $ :: :rgba 0.04 0 0.1 0.98
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Enum)
-            :args $ [] 'Tag
+          :schema $ quote $ Fn Tag (-> Enum)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -2253,30 +2141,22 @@
           :code $ quote $ defn rand (n)
             js-ffi.contract/expect-number |@calcit/std/rand $ std/rand n
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
         'rand-int $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand-int (n)
             js-ffi.contract/expect-number |@calcit/std/rand-int $ std/rand-int n
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
         'rand-int-between $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand-int-between (n m)
             js-ffi.contract/expect-number |@calcit/std/rand-int $ std/rand-int n m
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number Number (-> Number) (:features :js-ffi)
         'rand-shift $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand-shift (n dn)
             js-ffi.contract/expect-number |@calcit/std/rand-shift $ std/rand-shift n dn
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number Number (-> Number) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.random
           :require $ |@calcit/std :as std
@@ -2285,33 +2165,35 @@
         'LocalState $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum LocalState (:hh 'Number) (:hopf-base 'quaternion.vector/V3)
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
-            :state (:: 'List 'Tag) 'app.state/LocalState
+            :state
+              quote $ List Tag
+              , 'app.state/LocalState
             :tab 'Tag 'Tag
             :tau 'Number
             :toggle
             :switch
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'StateCursor $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StateCursor
-            :cursor $ :: 'List 'Tag
-            :data $ :: 'Option 'app.state/LocalState
+            :cursor $ quote $ List Tag
+            :data $ quote $ Option app.state/LocalState
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'StateTree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StateTree
-            :data $ :: 'Option 'app.state/LocalState
-            :branches $ :: 'Map 'Tag 'app.state/StateTree
+            :data $ quote $ Option app.state/LocalState
+            :branches $ quote $ Map Tag app.state/StateTree
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'Store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Store (:states 'app.state/StateTree) (:tab 'Tag) (:theme 'Tag) (:show-tabs? 'Bool) (:show-controls? 'Bool)
-            :tau $ :: 'Option 'Number
+            :tau $ quote $ Option Number
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'base-at $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn base-at (states)
             match (:data states)
@@ -2321,20 +2203,17 @@
                   (:hopf-base base) base
                   _ $ raise |Expected-Hopf-state
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
-            :args $ [] 'app.state/StateCursor
+          :schema $ quote $ Fn app.state/StateCursor (-> quaternion.vector/V3)
         'cursor-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn cursor-state (tree cursor)
             StateCursor :cursor cursor :data $ state-at tree cursor
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.state/StateCursor)
-            :args $ [] 'app.state/StateTree $ :: 'List 'Tag
+          :schema $ quote $ Fn app.state/StateTree (List Tag) (-> app.state/StateCursor)
         'empty-tree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn empty-tree ()
             StateTree :data (Option :none) :branches $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.state/StateTree)
-            :args $ []
+          :schema $ quote $ Fn (-> app.state/StateTree)
         'put-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-state (tree cursor value)
             match (destruct-list cursor)
@@ -2347,8 +2226,7 @@
                     empty-tree
                   , more value
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.state/StateTree)
-            :args $ [] 'app.state/StateTree (:: 'List 'Tag) 'app.state/LocalState
+          :schema $ quote $ Fn app.state/StateTree (List Tag) app.state/LocalState (-> app.state/StateTree)
         'state-at $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn state-at (tree cursor)
             match (destruct-list cursor)
@@ -2360,9 +2238,8 @@
                   , more
               (:none) (:data tree)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'app.state/StateTree $ :: 'List 'Tag
-            :return $ :: 'Option 'app.state/LocalState
+          :schema $ quote $ Fn app.state/StateTree (List Tag)
+            -> $ Option app.state/LocalState
         'tau-at $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn tau-at (states)
             match (:data states)
@@ -2372,14 +2249,11 @@
                   (:hh tau) tau
                   _ $ raise |Expected-helicoid-state
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'app.state/StateCursor
+          :schema $ quote $ Fn app.state/StateCursor (-> Number)
         'warn-op! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn warn-op! (op) (js/console.warn "|Unknown op:" op) &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'app.state/Op
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn app.state/Op (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.state
     'app.updater $ %{} 'FileEntry
@@ -2397,8 +2271,7 @@
                 assoc store :show-tabs? $ not $ :show-tabs? store
               _ $ do (warn-op! op) store
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.state/Store)
-            :args $ [] 'app.state/Store 'app.state/Op
+          :schema $ quote $ Fn app.state/Store app.state/Op (-> app.state/Store)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
           :require $ app.state :refer $ put-state warn-op!
@@ -2414,29 +2287,22 @@
                     b $ - 1 a
                   v+ (v-scale from a) (v-scale to b)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'quaternion.vector/V3 'quaternion.vector/V3 'Number
-            :return $ :: 'List 'quaternion.vector/V3
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 Number
+            -> $ List quaternion.vector/V3
         'random-number $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn random-number ()
             js-ffi.contract/expect-number |Math.random $ js/Math.random
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Number) (:features :js-ffi)
         'round-js $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn round-js (value)
             js-ffi.contract/expect-number |Math.round $ js/Math.round value
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Number) (:features :js-ffi)
         'shader-params $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn shader-params (a b c d) (js-array a b c d)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'Number 'Number 'Number 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number Number Number Number (-> JsObject) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.util
           :require $ quaternion.vector :refer $ v+ v-scale
