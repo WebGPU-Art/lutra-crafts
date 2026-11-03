@@ -524,7 +524,7 @@
       :defs $ {}
         'Cube $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Cube
-            :cube 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3
+            :cube quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3
           :examples $ []
           :schema $ quote EnumDef
         'branch-next $ %{} 'CodeEntry (:doc |)
@@ -907,7 +907,7 @@
     'app.comp.hopf-fiber $ %{} 'FileEntry
       :defs $ {}
         'Circle $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum Circle (:circle 'quaternion.vector/V3 'quaternion.vector/V3 'quaternion.vector/V3)
+          :code $ quote $ defenum Circle (:circle quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3)
           :examples $ []
           :schema $ quote EnumDef
         'calc-k $ %{} 'CodeEntry (:doc |)
@@ -1099,7 +1099,7 @@
     'app.comp.nav $ %{} 'FileEntry
       :defs $ {}
         'NavTab $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct NavTab (:key 'Tag) (:title 'String) (:theme 'Tag)
+          :code $ quote $ defstruct NavTab (:key Tag) (:title String) (:theme Tag)
           :examples $ []
           :schema $ quote StructDef
         'comp-nav $ %{} 'CodeEntry (:doc |)
@@ -1587,7 +1587,7 @@
     'app.comp.snowflakes-demo $ %{} 'FileEntry
       :defs $ {}
         'Placement $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct Placement (:x 'quaternion.vector/V3) (:y 'quaternion.vector/V3) (:p 'quaternion.vector/V3) (:size 'Number)
+          :code $ quote $ defstruct Placement (:x quaternion.vector/V3) (:y quaternion.vector/V3) (:p quaternion.vector/V3) (:size Number)
           :examples $ []
           :schema $ quote StructDef
         'comp-snowflakes-demo $ %{} 'CodeEntry (:doc |)
@@ -2163,16 +2163,16 @@
     'app.state $ %{} 'FileEntry
       :defs $ {}
         'LocalState $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum LocalState (:hh 'Number) (:hopf-base 'quaternion.vector/V3)
+          :code $ quote $ defenum LocalState (:hh Number) (:hopf-base quaternion.vector/V3)
           :examples $ []
           :schema $ quote EnumDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
             :state
               quote $ List Tag
-              , 'app.state/LocalState
-            :tab 'Tag 'Tag
-            :tau 'Number
+              , app.state/LocalState
+            :tab Tag Tag
+            :tau Number
             :toggle
             :switch
           :examples $ []
@@ -2190,7 +2190,7 @@
           :examples $ []
           :schema $ quote StructDef
         'Store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct Store (:states 'app.state/StateTree) (:tab 'Tag) (:theme 'Tag) (:show-tabs? 'Bool) (:show-controls? 'Bool)
+          :code $ quote $ defstruct Store (:states app.state/StateTree) (:tab Tag) (:theme Tag) (:show-tabs? Bool) (:show-controls? Bool)
             :tau $ quote $ Option Number
           :examples $ []
           :schema $ quote StructDef

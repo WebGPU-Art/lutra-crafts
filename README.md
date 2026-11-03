@@ -2,13 +2,13 @@
 
 WebGPU 几何与动画示例：[原 Demo](https://r.tiye.me/Triadica/lutra-crafts)。
 
-使用者影响：CLI / `@calcit/procs` 配对正式 **0.32.1**，需要重新安装依赖并构建。
+使用者影响：CLI / `@calcit/procs` 配对正式 **0.34.3**，需要重新安装依赖并构建。
 原场景、几何公式、shader、随机取样顺序和 `hud!` 页面错误提示保留。
 本次用官方 formatter 迁移类型标注存储语法；124 个完整定义视图规范化前后完全一致，
 没有改变执行代码、schema、测试或其他元数据。
 
-模块配对精确正式 Lagopus 0.5.15、Memof 0.0.43、Quaternion 0.2.19、JS-FFI 0.2.9、
-Respo 0.17.1、UI 0.9.0；UI 传递的 Router 0.9.0-alpha.4 沿用其已发布图。
+模块配对精确正式 Lagopus 0.5.16、Memof 0.0.44、Quaternion 0.2.20、JS-FFI 0.2.10、
+Respo 0.19.1、UI 0.14.0；UI 传递的 Router 0.11.1 沿用其已发布图。
 源码仅 `calcit.cirru` / `deps.cirru`，生成 js-out/dist 与旧 compact/package Snapshot 不入库。
 `@calcit/std` 仍由真实随机数适配层使用，保留现有返回值检查，不机械替换随机数实现。
 
