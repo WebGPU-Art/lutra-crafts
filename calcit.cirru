@@ -6,7 +6,7 @@
     {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |memof/ |quaternion/ |lagopus/ |respo.calcit/ |respo-ui.calcit/ |js-ffi/
-      :type-slots $ {} $ :dispatch-op |app.state/Op
+      :type-slots $ {} $ :dispatch-op 'app.state/Op
   :files $ {}
     'app.cmop.sedimentary $ %{} 'FileEntry
       :defs $ {}
@@ -538,13 +538,13 @@
             , &unit
           :examples $ []
           :schema $ quote $ Fn app.comp.cubes-tree/Cube
-            Fn (List Enum) (-> Unit)
+            Fn (List app.state/MarkedItem) (-> Unit)
             , Number (-> Unit)
           :tests $ [] $ %{} 'TestEntry (:name |cube-writer)
             :code $ quote $ branch-next
               Cube :cube (quaternion.vector/v3 0 0 0) (quaternion.vector/v3 1 0 0) (quaternion.vector/v3 1 0 -1) (quaternion.vector/v3 0 0 -1) (quaternion.vector/v3 0 1 0) (quaternion.vector/v3 1 1 0) (quaternion.vector/v3 1 1 -1) (quaternion.vector/v3 0 1 -1)
               fn (records)
-                hint-fn $ Fn (List Enum) (-> Unit)
+                hint-fn $ Fn (List app.state/MarkedItem) (-> Unit)
                 assert= 20 $ count records
                 assert= break-mark $ .unwrap $ last records
               , 0
@@ -554,7 +554,7 @@
             comp-polylines-marked $ {} (; :shader wgsl-split-triangles)
               :writer $ fn (write!)
                 hint-fn $ Fn
-                  Fn (List Enum) (-> Unit)
+                  Fn (List app.state/MarkedItem) (-> Unit)
                   -> Unit
                 let
                     cube $ Cube :cube (v3 0 0 0) (v3 100 0 0) (v3 100 0 -100) (v3 0 0 -100) (v3 0 100 0) (v3 100 100 0) (v3 100 100 -100) (v3 0 100 -100)
@@ -579,10 +579,10 @@
                 l 2
               match cube $
                 :cube p0 p1 p2 p3 p4 p5 p6 p7
-                write! $ [] (:: :vertex p0 w l) (:: :vertex p1 w l) (:: :vertex p2 w l) (:: :vertex p3 w l) (:: :vertex p0 w l) (:: :vertex p4 w l) (:: :vertex p5 w l) (:: :vertex p6 w l) (:: :vertex p7 w l) (:: :vertex p4 w l) break-mark (:: :vertex p1 w l) (:: :vertex p5 w l) break-mark (:: :vertex p2 w l) (:: :vertex p6 w l) break-mark (:: :vertex p3 w l) (:: :vertex p7 w l) break-mark
+                write! $ [] (app.state/MarkedPoint :vertex p0 w l) (app.state/MarkedPoint :vertex p1 w l) (app.state/MarkedPoint :vertex p2 w l) (app.state/MarkedPoint :vertex p3 w l) (app.state/MarkedPoint :vertex p0 w l) (app.state/MarkedPoint :vertex p4 w l) (app.state/MarkedPoint :vertex p5 w l) (app.state/MarkedPoint :vertex p6 w l) (app.state/MarkedPoint :vertex p7 w l) (app.state/MarkedPoint :vertex p4 w l) break-mark (app.state/MarkedPoint :vertex p1 w l) (app.state/MarkedPoint :vertex p5 w l) break-mark (app.state/MarkedPoint :vertex p2 w l) (app.state/MarkedPoint :vertex p6 w l) break-mark (app.state/MarkedPoint :vertex p3 w l) (app.state/MarkedPoint :vertex p7 w l) break-mark
           :examples $ []
           :schema $ quote $ Fn app.comp.cubes-tree/Cube
-            Fn (List Enum) (-> Unit)
+            Fn (List app.state/MarkedItem) (-> Unit)
             -> Unit
         'rotate-d1 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-d1 (cube ratio scale)
@@ -732,15 +732,15 @@
                     map $ fn (idx)
                       rotate-3d v-zero forward (&* theta0 idx) line0
                   width 0.2
-                write! $ [] (: vertex p0 width)
-                  : vertex (&v+ p0 v0) width
+                write! $ [] (app.state/LinePoint :vertex p0 width)
+                  app.state/LinePoint :vertex (&v+ p0 v0) width
                   , break-mark
                 -> lines $ each $ fn (line)
                   build-umbrella p-next line v0 parts elevation decay (dec step) write!
             , &unit
           :examples $ []
           :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number Number Number Number
-            Fn (List Enum) (-> Unit)
+            Fn (List app.state/LineItem) (-> Unit)
             -> Unit
         'comp-flower-ball $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-flower-ball ()
@@ -755,7 +755,7 @@
               comp-polylines $ {} (:shader wgsl-flower-ball)
                 :writer $ fn (write!)
                   hint-fn $ Fn
-                    Fn (List Enum) (-> Unit)
+                    Fn (List app.state/LineItem) (-> Unit)
                     -> Unit
                   ->
                     []
@@ -883,6 +883,9 @@
                     :size 12
                     :color $ [] 0.7 0.6 0.5 1.0
                   fn (delta d!)
+                    hint-fn $ Fn quaternion.complex/Complex
+                      Fn app.state/Op $ -> Unit
+                      -> Unit
                     match delta $
                       :complex dx _dy
                       d! $ Op :state cursor $ LocalState :hh
@@ -936,6 +939,9 @@
                     {} (:position base)
                       :color $ [] 1.6 0.6 1.0 1.0
                     fn (move d!)
+                      hint-fn $ Fn quaternion.vector/V3
+                        Fn app.state/Op $ -> Unit
+                        -> Unit
                       d! $ Op :state cursor $ LocalState :hopf-base move
                   , js/null
                 comp-polylines-marked $ {} (:shader wgsl-hopf)
@@ -957,7 +963,7 @@
                                   p $ v+ start
                                     v-scale rh1 $ cos theta
                                     v-scale rv1 $ sin theta
-                                if show? $ write! $ : vertex p 1 1
+                                if show? $ write! $ app.state/MarkedPoint :vertex p 1 1
                                 , p
                             map-indexed $ fn (i control)
                               let
@@ -970,7 +976,7 @@
                                         ratio $ * 2 idx $ / &PI n
                                       match circle $
                                         :circle center rh rv
-                                        do nil $ write! $ : vertex
+                                        do nil $ write! $ app.state/MarkedPoint :vertex
                                           v-scale
                                             v+ center
                                               v-scale rh $ cos ratio
@@ -1236,7 +1242,7 @@
             comp-polylines-marked $ {} (:shader wgsl-prime-walk)
               :writer $ fn (write!)
                 hint-fn $ Fn
-                  Fn Enum $ -> Unit
+                  Fn app.state/MarkedPoint $ -> Unit
                   -> Unit
                 prime-pyramid (v3 0 0 0) primes write! 8 0 0
                 , &unit
@@ -1250,7 +1256,7 @@
             comp-polylines-marked $ {} (:shader wgsl-prime-walk)
               :writer $ fn (write!)
                 hint-fn $ Fn
-                  Fn Enum $ -> Unit
+                  Fn app.state/MarkedPoint $ -> Unit
                   -> Unit
                 prime-walk (v3 0 0 0) primes write! 8 0 0
                 , &unit
@@ -1297,12 +1303,12 @@
                     len $ - p0 prev
                     move $ v-scale move-direction $ * len 10
                     next $ &v+ base move
-                  write! $ :: :vertex base width prev
+                  write! $ app.state/MarkedPoint :vertex base width prev
                   recur next ps write! width (inc step) p0
               (:none) :ok
           :examples $ []
           :schema $ quote $ Fn quaternion.vector/V3 (List Number)
-            Fn Enum $ -> Unit
+            Fn app.state/MarkedPoint $ -> Unit
             , Number Number Number (-> Tag)
         'prime-walk $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn prime-walk (base primes write! width step prev)
@@ -1313,27 +1319,27 @@
                     len $ - p0 prev
                     move $ v-scale move-direction $ * len 10
                     next $ &v+ base move
-                  write! $ :: :vertex base width prev
+                  write! $ app.state/MarkedPoint :vertex base width prev
                   recur next ps write! width (inc step) p0
               (:none) :ok
           :examples $ []
           :schema $ quote $ Fn quaternion.vector/V3 (List Number)
-            Fn Enum $ -> Unit
+            Fn app.state/MarkedPoint $ -> Unit
             , Number Number Number (-> Tag)
           :tests $ [] $ %{} 'TestEntry (:name |prime-path-writers)
             :code $ quote $ do
               assert= :ok $ prime-walk (quaternion.vector/v3 0 0 0) ([] 2)
                 fn (record)
-                  hint-fn $ Fn Enum $ -> Unit
+                  hint-fn $ Fn app.state/MarkedPoint $ -> Unit
                   assert=
-                    :: :vertex (quaternion.vector/v3 0 0 0) 1 0
+                    app.state/MarkedPoint :vertex (quaternion.vector/v3 0 0 0) 1 0
                     , record
                 , 1 0 0
               assert= :ok $ prime-pyramid (quaternion.vector/v3 0 0 0) ([] 2)
                 fn (record)
-                  hint-fn $ Fn Enum $ -> Unit
+                  hint-fn $ Fn app.state/MarkedPoint $ -> Unit
                   assert=
-                    :: :vertex (quaternion.vector/v3 0 0 0) 1 0
+                    app.state/MarkedPoint :vertex (quaternion.vector/v3 0 0 0) 1 0
                     , record
                 , 1 0 0
             :tags $ #{} :unit
@@ -1377,7 +1383,7 @@
                 :attrs-list $ [] $ : float32x3 :position
                 :writer $ fn (write!)
                   hint-fn $ Fn
-                    Fn (List Enum) (-> Unit)
+                    Fn (List app.state/PositionVertex) (-> Unit)
                     -> Unit
                   ; fold-line4 19 (quaternion 0 0 0 0) (quaternion 0 100 0 0) (quaternion 0 20 0 22) (quaternion 16 20 0 23) (quaternion 16 20 0 27) (quaternion 0 20 0 28)
                     q-inverse $ quaternion 0 0 0 50
@@ -1406,10 +1412,10 @@
                 or (<= level 0)
                   &< (q-length2 v) minimal-seg
                 write! $ []
-                  : vertex $ take3 (&q+ base branch-a) 20
-                  : vertex $ take3 (&q+ base branch-b) 20
-                  : vertex $ take3 (&q+ base branch-c) 20
-                  : vertex $ take3 (&q+ base v) 20
+                  app.state/PositionVertex :vertex $ take3 (&q+ base branch-a) 20
+                  app.state/PositionVertex :vertex $ take3 (&q+ base branch-b) 20
+                  app.state/PositionVertex :vertex $ take3 (&q+ base branch-c) 20
+                  app.state/PositionVertex :vertex $ take3 (&q+ base v) 20
                 do
                   fold-line3 (dec level) base branch-a a b c full' minimal-seg write!
                   fold-line3 (dec level) (&q+ base branch-a) (&q- branch-b branch-a) a b c full' minimal-seg write!
@@ -1417,7 +1423,7 @@
                   fold-line3 (dec level) (&q+ base branch-c) (&q- v branch-c) a b c full' minimal-seg write!
           :examples $ []
           :schema $ quote $ Fn Number quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion Number
-            Fn (List Enum) (-> Unit)
+            Fn (List app.state/PositionVertex) (-> Unit)
             -> Unit
         'fold-line4 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn fold-line4
@@ -1434,11 +1440,11 @@
                 or (&<= level 0)
                   &< (q-length2 v) minimal-seg
                 write! $ []
-                  : vertex $ take3 (&q+ base branch-b) 20
-                  : vertex $ take3 (&q+ base branch-b) 20
-                  : vertex $ take3 (&q+ base branch-c) 20
-                  : vertex $ take3 (&q+ base branch-d) 20
-                  : vertex $ take3 (&q+ base v) 20
+                  app.state/PositionVertex :vertex $ take3 (&q+ base branch-b) 20
+                  app.state/PositionVertex :vertex $ take3 (&q+ base branch-b) 20
+                  app.state/PositionVertex :vertex $ take3 (&q+ base branch-c) 20
+                  app.state/PositionVertex :vertex $ take3 (&q+ base branch-d) 20
+                  app.state/PositionVertex :vertex $ take3 (&q+ base v) 20
                 do
                   fold-line4 dec-level base branch-a a b c d full' minimal-seg write!
                   fold-line4 dec-level (&q+ base branch-a) (&q- branch-b branch-a) a b c d full' minimal-seg write!
@@ -1447,7 +1453,7 @@
                   fold-line4 dec-level (&q+ base branch-d) (&q- v branch-d) a b c d full' minimal-seg write!
           :examples $ []
           :schema $ quote $ Fn Number quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion quaternion.core/Quaternion Number
-            Fn (List Enum) (-> Unit)
+            Fn (List app.state/PositionVertex) (-> Unit)
             -> Unit
         'take3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn take3 (v s)
@@ -1492,11 +1498,11 @@
               comp-polylines $ {} (; :shader wgsl-flower-ball)
                 :writer $ fn (write!)
                   hint-fn $ Fn
-                    Fn (List Enum) (-> Unit)
+                    Fn (List app.state/LineItem) (-> Unit)
                     -> Unit
                   write! $ []
-                    : vertex (v3 0 0 0) 4
-                    : vertex target 4
+                    app.state/LinePoint :vertex (v3 0 0 0) 4
+                    app.state/LinePoint :vertex target 4
                     , break-mark
                   fold-fractal (v3 0 0 0) target (v3 0 0 1) p1 p2 p3 p4 p5 level write!
                   , &unit
@@ -1556,10 +1562,10 @@
                           &v- (middle point5 target) m
                         , right
                     fold-fractal point4 target right6 p1 p2 p3 p4 p5 (dec level) write!
-                write! $ [] (: vertex base w) (: vertex point1 w) (: vertex point2 w) (: vertex point3 w) (: vertex point4 w) (: vertex point5 w) (: vertex target w) break-mark
+                write! $ [] (app.state/LinePoint :vertex base w) (app.state/LinePoint :vertex point1 w) (app.state/LinePoint :vertex point2 w) (app.state/LinePoint :vertex point3 w) (app.state/LinePoint :vertex point4 w) (app.state/LinePoint :vertex point5 w) (app.state/LinePoint :vertex target w) break-mark
           :examples $ []
           :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number
-            Fn (List Enum) (-> Unit)
+            Fn (List app.state/LineItem) (-> Unit)
             -> Unit
         'middle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn middle (base target)
@@ -1867,7 +1873,7 @@
             comp-polylines-marked $ {} (:shader wgsl-split-triangles)
               :writer $ fn (write!)
                 hint-fn $ Fn
-                  Fn (List Enum) (-> Unit)
+                  Fn (List app.state/MarkedItem) (-> Unit)
                   -> Unit
                 let
                     s 1
@@ -1887,7 +1893,7 @@
                 p5 $ v-scale (v+ p1 p2 p3 p4) 0.25
                 max-level 5
               if (>= level max-level)
-                write! $ [] (:: :vertex p1 w level) (:: :vertex p5 w level) (:: :vertex p2 w level) break-mark (:: :vertex p3 w level) (:: :vertex p5 w level) (:: :vertex p4 w level) break-mark
+                write! $ [] (app.state/MarkedPoint :vertex p1 w level) (app.state/MarkedPoint :vertex p5 w level) (app.state/MarkedPoint :vertex p2 w level) break-mark (app.state/MarkedPoint :vertex p3 w level) (app.state/MarkedPoint :vertex p5 w level) (app.state/MarkedPoint :vertex p4 w level) break-mark
               when (< level max-level)
                 split-triangles p1 p2 p3 p5 (inc level) false write!
                 split-triangles p1 p2 p4 p5 (inc level) false write!
@@ -1896,7 +1902,7 @@
             , &unit
           :examples $ []
           :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number Bool
-            Fn (List Enum) (-> Unit)
+            Fn (List app.state/MarkedItem) (-> Unit)
             -> Unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.split-triangles
@@ -1914,8 +1920,8 @@
         'build-sierpinski-triangles $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn build-sierpinski-triangles (p1 p2 p3 p4 level w dup? write!)
             write! $ if dup?
-              [] (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark
-              [] (: vertex p1 w) (: vertex p2 w) (: vertex p3 w) (: vertex p4 w) (: vertex p2 w) break-mark (: vertex p4 w) (: vertex p1 w) (: vertex p3 w) break-mark
+              [] (app.state/LinePoint :vertex p2 w) (app.state/LinePoint :vertex p3 w) (app.state/LinePoint :vertex p4 w) (app.state/LinePoint :vertex p2 w) break-mark
+              [] (app.state/LinePoint :vertex p1 w) (app.state/LinePoint :vertex p2 w) (app.state/LinePoint :vertex p3 w) (app.state/LinePoint :vertex p4 w) (app.state/LinePoint :vertex p2 w) break-mark (app.state/LinePoint :vertex p4 w) (app.state/LinePoint :vertex p1 w) (app.state/LinePoint :vertex p3 w) break-mark
             if (&> level 0)
               let
                   p1-2 $ v-scale (&v+ p1 p2) 0.5
@@ -1941,14 +1947,14 @@
             , &unit
           :examples $ []
           :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number Number Bool
-            Fn (List Enum) (-> Unit)
+            Fn (List app.state/LineItem) (-> Unit)
             -> Unit
         'comp-triangles $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-triangles ()
             comp-polylines $ {} (:shader wgsl-triangles)
               :writer $ fn (write!)
                 hint-fn $ Fn
-                  Fn (List Enum) (-> Unit)
+                  Fn (List app.state/LineItem) (-> Unit)
                   -> Unit
                 build-sierpinski-triangles (v3 1000 0 0) (v3 -500 0 -800) (v3 -500 0 800) (v3 0 1200 0) 10 0.1 false write!
                 , &unit
@@ -2110,12 +2116,12 @@
         'theme-color $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn theme-color (theme)
             match theme
-              :white $ :: :rgba 0.9 0.9 0.9 0.98
-              :dark $ :: :rgba 0.04 0 0.1 0.98
-              :gray $ :: :rgba 0.3 0.3 0.3 0.98
-              _ $ :: :rgba 0.04 0 0.1 0.98
+              :white $ lagopus.config/ClearColor :rgba 0.9 0.9 0.9 0.98
+              :dark $ lagopus.config/ClearColor :rgba 0.04 0 0.1 0.98
+              :gray $ lagopus.config/ClearColor :rgba 0.3 0.3 0.3 0.98
+              _ $ lagopus.config/ClearColor :rgba 0.04 0 0.1 0.98
           :examples $ []
-          :schema $ quote $ Fn Tag (-> Enum)
+          :schema $ quote $ Fn Tag (-> lagopus.config/ClearColor)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -2162,36 +2168,55 @@
           :require $ |@calcit/std :as std
     'app.state $ %{} 'FileEntry
       :defs $ {}
+        'LineItem $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion LineItem app.state/LinePoint lagopus.comp.curves/PolylineBreak
+          :examples $ []
+          :schema $ quote UnionDef
+        'LinePoint $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum LinePoint (:vertex quaternion.vector/V3 Number)
+          :examples $ []
+          :schema $ quote EnumDef
         'LocalState $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum LocalState (:hh Number) (:hopf-base quaternion.vector/V3)
           :examples $ []
           :schema $ quote EnumDef
+        'MarkedItem $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion MarkedItem app.state/MarkedPoint lagopus.comp.curves/PolylineBreak
+          :examples $ []
+          :schema $ quote UnionDef
+        'MarkedPoint $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum MarkedPoint (:vertex quaternion.vector/V3 Number Number)
+          :examples $ []
+          :schema $ quote EnumDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
-            :state
-              quote $ List Tag
-              , app.state/LocalState
+            :state (List Tag) app.state/LocalState
             :tab Tag Tag
             :tau Number
             :toggle
             :switch
           :examples $ []
           :schema $ quote EnumDef
+        'PositionVertex $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum PositionVertex
+            :vertex $ List Number
+          :examples $ []
+          :schema $ quote EnumDef
         'StateCursor $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StateCursor
-            :cursor $ quote $ List Tag
-            :data $ quote $ Option app.state/LocalState
+            :cursor $ List Tag
+            :data $ Option app.state/LocalState
           :examples $ []
           :schema $ quote StructDef
         'StateTree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StateTree
-            :data $ quote $ Option app.state/LocalState
-            :branches $ quote $ Map Tag app.state/StateTree
+            :data $ Option app.state/LocalState
+            :branches $ Map Tag app.state/StateTree
           :examples $ []
           :schema $ quote StructDef
         'Store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Store (:states app.state/StateTree) (:tab Tag) (:theme Tag) (:show-tabs? Bool) (:show-controls? Bool)
-            :tau $ quote $ Option Number
+            :tau $ Option Number
           :examples $ []
           :schema $ quote StructDef
         'base-at $ %{} 'CodeEntry (:doc |)

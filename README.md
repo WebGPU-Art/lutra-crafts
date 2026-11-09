@@ -2,13 +2,14 @@
 
 WebGPU 几何与动画示例：[原 Demo](https://r.tiye.me/Triadica/lutra-crafts)。
 
-使用者影响：CLI / `@calcit/procs` 配对正式 **0.34.3**，需要重新安装依赖并构建。
-原场景、几何公式、shader、随机取样顺序和 `hud!` 页面错误提示保留。
-本次用官方 formatter 迁移类型标注存储语法；124 个完整定义视图规范化前后完全一致，
-没有改变执行代码、schema、测试或其他元数据。
+### Calcit 0.38.0 使用者影响
 
-模块配对精确正式 Lagopus 0.5.16、Memof 0.0.44、Quaternion 0.2.20、JS-FFI 0.2.10、
-Respo 0.19.1、UI 0.14.0；UI 传递的 Router 0.11.1 沿用其已发布图。
+重新安装依赖并构建。普通折线和带标记折线使用各自的顶点与断点 union，
+位置专用顶点使用独立的名义类型。直接接收这些 writer 数据的调用方需使用对应类型。
+原场景、几何公式、shader、随机取样顺序和 `hud!` 页面错误提示保持。
+
+模块配对 Lagopus 0.5.17、Memof 0.0.47、Quaternion 0.2.23、JS-FFI 0.2.13、
+Respo 0.19.5、UI 0.15.2，传递 Router 0.12.2。
 源码仅 `calcit.cirru` / `deps.cirru`，生成 js-out/dist 与旧 compact/package Snapshot 不入库。
 `@calcit/std` 仍由真实随机数适配层使用，保留现有返回值检查，不机械替换随机数实现。
 
@@ -34,16 +35,11 @@ yarn vite
 
 ### 迁移验收
 
-正式 0.32.1 的 Caps 七模块 strict／toolchain、immutable 安装、406/406 全定义（含依赖）、
-27 个项目命名空间 124/124、完整 strict passed / diagnostics=[]、原三项几何附加测试、
-原 CDN 前缀构建与 canonical 幂等通过。deprecated-call、dynamic-method、应用 unsafe 为零；
-这不代表依赖中的宿主信任边界清零。没有放宽门禁、原断言或基线。
+Calcit 0.38.0 下，Caps 校验了七个正式模块。不可变安装、418 个定义、完整 strict、
+原三项几何测试、CDN 构建和 canonical 检查均通过。
 
-实际默认 Concenytic、Cube、Fireworks、Prime Walk 与 Ball 已显示；正常刷新回原默认场景。
-Ball 的 `?tab=flower-ball` 直接启动及刷新仍可见，控制台 warn/error 为空。
-Fireworks 与 Ball 切换各出现一次自动化点击超时，随后确认实际选择和绘制已成功；
-Ball 仍需数秒构造，不把局部成功写成所有场景均流畅或问题 #27 全部解决。
-未做全部场景、物理 gamepad 或 remote-control 验收，不以画面代替几何正确性证明。
+隔离 Chrome 验证默认 Concenytic、点击 Cube，以及直接打开 Ball 后实际绘制，页面无异常。
+其余场景、物理手柄及远程控制未在本轮验收。Ball 场景构造耗时仍见下方跟踪。
 
 性能与可见性继续跟踪 [问题 #27](https://github.com/WebGPU-Art/lutra-crafts/issues/27)。
 该问题属于应用场景构造／绘制路径；本轮无新增编译器缺陷，不追加下游专用 fix/proof。
