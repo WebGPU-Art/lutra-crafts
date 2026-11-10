@@ -1104,10 +1104,6 @@
             app.util :refer $ random-number
     'app.comp.nav $ %{} 'FileEntry
       :defs $ {}
-        'NavTab $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct NavTab (:key Tag) (:title String) (:theme Tag)
-          :examples $ []
-          :schema $ quote StructDef
         'comp-nav $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-nav (store)
             let
@@ -1125,7 +1121,7 @@
                           {}
                             :class-name $ str-spaced style-tab css/font-fancy!
                             :on-click $ fn (e d!)
-                              d! $ Op :tab t $ :theme pair
+                              d! $ Op :tab pair
                             :style $ if (= tab t)
                               {} $ :color :white
                               {}
@@ -1156,7 +1152,7 @@
           :code $ quote $ def tabs
             [] (NavTab :key :cube :title |Cube :theme :light) (NavTab :key :helicoid :title |Helicoid :theme :dark) (NavTab :key :hyperbolic-helicoid :title |Hyperbolic-helicoid :theme :light) (NavTab :key :globe :title |Globe :theme :light) (NavTab :key :fur :title |Fur :theme :light) (NavTab :key :petal-wireframe :title |Petal-wireframe :theme :light) (NavTab :key :mums :title |Mums :theme :light) (NavTab :key :flower-ball :title |Ball :theme :light) (NavTab :key :blow :title |Blow :theme :light) (NavTab :key :triangles :title |Triangles :theme :light) (NavTab :key :segments :title |Segments :theme :light) (NavTab :key :quaternion-fold :title |Quaternion-fold :theme :dark) (NavTab :key :hopf :title |Hopf :theme :dark) (NavTab :key :fireworks :title |Fireworks :theme :dark) (NavTab :key :blinks :title |Blinks :theme :dark) (NavTab :key :split-triangles :title "|Split Triangles" :theme :light) (NavTab :key :cubes-tree :title "|Cubes tree" :theme :light) (NavTab :key :prime-walk :title "|Prime Walk" :theme :dark) (NavTab :key :prime-pyramid :title "|Prime pyramid" :theme :dark) (NavTab :key :tree-1 :title "|Tree 1" :theme :dark) (NavTab :key :tree-2 :title "|Tree 2" :theme :dark) (NavTab :key :tree-3 :title "|Tree 3" :theme :dark) (NavTab :key :sedimentary :title |Sedimentary :theme :dark) (NavTab :key :concentric :title |Concenytic :theme :dark) (NavTab :key :snowing :title |Snowing :theme :dark)
           :examples $ []
-          :schema $ quote $ List app.comp.nav/NavTab
+          :schema $ quote $ List app.state/NavTab
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.nav
           :require
@@ -1166,7 +1162,7 @@
             respo-ui.css :as css
             respo.util.format :refer $ hsl
             app.config :refer $ hide-tabs?
-            app.state :refer $ Op
+            app.state :refer $ Op NavTab
     'app.comp.patels $ %{} 'FileEntry
       :defs $ {}
         'build-quadratic-curve $ %{} 'CodeEntry (:doc |)
@@ -2188,10 +2184,14 @@
           :code $ quote $ defenum MarkedPoint (:vertex quaternion.vector/V3 Number Number)
           :examples $ []
           :schema $ quote EnumDef
+        'NavTab $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct NavTab (:key Tag) (:title String) (:theme Tag)
+          :examples $ []
+          :schema $ quote StructDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
             :state (List Tag) app.state/LocalState
-            :tab Tag Tag
+            :tab app.state/NavTab
             :tau Number
             :toggle
             :switch
@@ -2288,8 +2288,10 @@
             match op
               (:state cursor state)
                 assoc store :states $ put-state (:states store) cursor state
-              (:tab tab theme)
-                -> store (assoc :tab tab) (assoc :theme theme)
+              (:tab tab)
+                -> store
+                  assoc :tab $ :key tab
+                  assoc :theme $ :theme tab
               (:tau tau)
                 assoc store :tau $ Option :some tau
               (:toggle)
