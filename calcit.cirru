@@ -537,7 +537,7 @@
                 branch-next cube3 write! $ dec level
             , &unit
           :examples $ []
-          :schema $ quote $ Fn app.comp.cubes-tree/Cube
+          :schema $ quote $ Fn Cube
             Fn (List app.state/MarkedItem) (-> Unit)
             , Number (-> Unit)
           :tests $ [] $ %{} 'TestEntry (:name |cube-writer)
@@ -581,7 +581,7 @@
                 :cube p0 p1 p2 p3 p4 p5 p6 p7
                 write! $ [] (app.state/MarkedPoint :vertex p0 w l) (app.state/MarkedPoint :vertex p1 w l) (app.state/MarkedPoint :vertex p2 w l) (app.state/MarkedPoint :vertex p3 w l) (app.state/MarkedPoint :vertex p0 w l) (app.state/MarkedPoint :vertex p4 w l) (app.state/MarkedPoint :vertex p5 w l) (app.state/MarkedPoint :vertex p6 w l) (app.state/MarkedPoint :vertex p7 w l) (app.state/MarkedPoint :vertex p4 w l) break-mark (app.state/MarkedPoint :vertex p1 w l) (app.state/MarkedPoint :vertex p5 w l) break-mark (app.state/MarkedPoint :vertex p2 w l) (app.state/MarkedPoint :vertex p6 w l) break-mark (app.state/MarkedPoint :vertex p3 w l) (app.state/MarkedPoint :vertex p7 w l) break-mark
           :examples $ []
-          :schema $ quote $ Fn app.comp.cubes-tree/Cube
+          :schema $ quote $ Fn Cube
             Fn (List app.state/MarkedItem) (-> Unit)
             -> Unit
         'rotate-d1 $ %{} 'CodeEntry (:doc |)
@@ -617,7 +617,7 @@
                   v+ p0 p40 $ v-scale p60' scale
                   v+ p0 p40 $ v-scale p70' scale
           :examples $ []
-          :schema $ quote $ Fn app.comp.cubes-tree/Cube Number Number (-> app.comp.cubes-tree/Cube)
+          :schema $ quote $ Fn Cube Number Number (-> Cube)
         'rotate-d2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-d2 (cube ratio scale)
             match cube $
@@ -651,7 +651,7 @@
                   v+ p1 p51 $ v-scale p61' scale
                   v+ p1 p51 $ v-scale p71' scale
           :examples $ []
-          :schema $ quote $ Fn app.comp.cubes-tree/Cube Number Number (-> app.comp.cubes-tree/Cube)
+          :schema $ quote $ Fn Cube Number Number (-> Cube)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.cubes-tree
           :require
@@ -1004,7 +1004,7 @@
                       v-length rh
                   Circle :circle center rh rv
           :examples $ []
-          :schema $ quote $ Fn quaternion.vector/V3 (-> app.comp.hopf-fiber/Circle)
+          :schema $ quote $ Fn quaternion.vector/V3 (-> Circle)
         'v-length2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn v-length2 (a)
             match a $
@@ -1152,7 +1152,7 @@
           :code $ quote $ def tabs
             [] (NavTab :key :cube :title |Cube :theme :light) (NavTab :key :helicoid :title |Helicoid :theme :dark) (NavTab :key :hyperbolic-helicoid :title |Hyperbolic-helicoid :theme :light) (NavTab :key :globe :title |Globe :theme :light) (NavTab :key :fur :title |Fur :theme :light) (NavTab :key :petal-wireframe :title |Petal-wireframe :theme :light) (NavTab :key :mums :title |Mums :theme :light) (NavTab :key :flower-ball :title |Ball :theme :light) (NavTab :key :blow :title |Blow :theme :light) (NavTab :key :triangles :title |Triangles :theme :light) (NavTab :key :segments :title |Segments :theme :light) (NavTab :key :quaternion-fold :title |Quaternion-fold :theme :dark) (NavTab :key :hopf :title |Hopf :theme :dark) (NavTab :key :fireworks :title |Fireworks :theme :dark) (NavTab :key :blinks :title |Blinks :theme :dark) (NavTab :key :split-triangles :title "|Split Triangles" :theme :light) (NavTab :key :cubes-tree :title "|Cubes tree" :theme :light) (NavTab :key :prime-walk :title "|Prime Walk" :theme :dark) (NavTab :key :prime-pyramid :title "|Prime pyramid" :theme :dark) (NavTab :key :tree-1 :title "|Tree 1" :theme :dark) (NavTab :key :tree-2 :title "|Tree 2" :theme :dark) (NavTab :key :tree-3 :title "|Tree 3" :theme :dark) (NavTab :key :sedimentary :title |Sedimentary :theme :dark) (NavTab :key :concentric :title |Concenytic :theme :dark) (NavTab :key :snowing :title |Snowing :theme :dark)
           :examples $ []
-          :schema $ quote $ List app.state/NavTab
+          :schema $ quote $ List NavTab
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.nav
           :require
@@ -2022,7 +2022,7 @@
               turn-tag $ .unwrap-or (get-env |tab) |concentric
               , :theme :dark :show-tabs? true :show-controls? true
           :examples $ []
-          :schema $ quote $ Ref app.state/Store
+          :schema $ quote $ Ref Store
         'canvas $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def canvas
             .unwrap $ query-selector |canvas
@@ -2037,12 +2037,12 @@
               if (not= next-store store) (reset! *store next-store)
             , &unit
           :examples $ []
-          :schema $ quote $ Fn app.state/Op (-> Unit)
+          :schema $ quote $ Fn Op (-> Unit)
         'log-op! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn log-op! (op) (js/console.log op) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ quote $ Fn app.state/Op (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn Op (-> Unit) (:features :js-ffi)
         'loop-paint! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn loop-paint! ()
             request-animation-frame! $ fn (_timestamp) (paintLagopusTree) (loop-paint!) &unit
@@ -2228,22 +2228,22 @@
                   (:hopf-base base) base
                   _ $ raise |Expected-Hopf-state
           :examples $ []
-          :schema $ quote $ Fn app.state/StateCursor (-> quaternion.vector/V3)
+          :schema $ quote $ Fn StateCursor (-> quaternion.vector/V3)
         'cursor-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn cursor-state (tree cursor)
             StateCursor :cursor cursor :data $ state-at tree cursor
           :examples $ []
-          :schema $ quote $ Fn app.state/StateTree (List Tag) (-> app.state/StateCursor)
+          :schema $ quote $ Fn StateTree (List Tag) (-> StateCursor)
         'empty-tree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn empty-tree ()
-            StateTree :data (Option :none) :branches $ {}
+            StateTree :data None :branches $ {}
           :examples $ []
-          :schema $ quote $ Fn (-> app.state/StateTree)
+          :schema $ quote $ Fn (-> StateTree)
         'put-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-state (tree cursor value)
             match (destruct-list cursor)
               (:none)
-                assoc tree :data $ Option :some value
+                assoc tree :data $ Some value
               (:some key more)
                 assoc tree :branches $ assoc (:branches tree) key $ put-state
                   .unwrap-or
@@ -2251,7 +2251,7 @@
                     empty-tree
                   , more value
           :examples $ []
-          :schema $ quote $ Fn app.state/StateTree (List Tag) app.state/LocalState (-> app.state/StateTree)
+          :schema $ quote $ Fn StateTree (List Tag) LocalState (-> StateTree)
         'state-at $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn state-at (tree cursor)
             match (destruct-list cursor)
@@ -2263,8 +2263,8 @@
                   , more
               (:none) (:data tree)
           :examples $ []
-          :schema $ quote $ Fn app.state/StateTree (List Tag)
-            -> $ Option app.state/LocalState
+          :schema $ quote $ Fn StateTree (List Tag)
+            -> $ Option LocalState
         'tau-at $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn tau-at (states)
             match (:data states)
@@ -2274,11 +2274,11 @@
                   (:hh tau) tau
                   _ $ raise |Expected-helicoid-state
           :examples $ []
-          :schema $ quote $ Fn app.state/StateCursor (-> Number)
+          :schema $ quote $ Fn StateCursor (-> Number)
         'warn-op! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn warn-op! (op) (js/console.warn "|Unknown op:" op) &unit
           :examples $ []
-          :schema $ quote $ Fn app.state/Op (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn Op (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.state
     'app.updater $ %{} 'FileEntry
@@ -2293,7 +2293,7 @@
                   assoc :tab $ :key tab
                   assoc :theme $ :theme tab
               (:tau tau)
-                assoc store :tau $ Option :some tau
+                assoc store :tau $ Some tau
               (:toggle)
                 assoc store :show-tabs? $ not $ :show-tabs? store
               _ $ do (warn-op! op) store
