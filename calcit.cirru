@@ -884,7 +884,7 @@
                     :color $ [] 0.7 0.6 0.5 1.0
                   fn (delta d!)
                     hint-fn $ Fn quaternion.complex/Complex
-                      Fn app.state/Op $ -> Unit
+                      Fn Op $ -> Unit
                       -> Unit
                     match delta $
                       :complex dx _dy
@@ -940,7 +940,7 @@
                       :color $ [] 1.6 0.6 1.0 1.0
                     fn (move d!)
                       hint-fn $ Fn quaternion.vector/V3
-                        Fn app.state/Op $ -> Unit
+                        Fn Op $ -> Unit
                         -> Unit
                       d! $ Op :state cursor $ LocalState :hopf-base move
                   , js/null
