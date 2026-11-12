@@ -398,7 +398,7 @@
                   eprintln "|Unknown tab" $ :tab store
                   group nil
           :examples $ []
-          :schema $ quote $ Fn app.state/Store (-> JsObject)
+          :schema $ quote $ Fn app.state/Store (-> JsObject) (:features :io)
         'comp-fur $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-fur ()
             comp-curves $ {} (:shader wgsl-fur)
@@ -1395,7 +1395,7 @@
                     , 0.1 write!
                   , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io)
         'fold-line3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn fold-line3
             level base v a b c full' minimal-seg write!
@@ -2037,7 +2037,7 @@
               if (not= next-store store) (reset! *store next-store)
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Op (-> Unit)
+          :schema $ quote $ Fn Op (-> Unit) (:features :state)
         'log-op! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn log-op! (op) (js/console.log op) &unit
           :examples $ []
@@ -2079,7 +2079,7 @@
             ; paintLagopusTree
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
             .unwrap $ respo-browser/query-selector |.app
@@ -2095,7 +2095,7 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             let
@@ -2108,7 +2108,7 @@
               , &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'theme-color $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn theme-color (theme)
             match theme
