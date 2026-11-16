@@ -5,7 +5,7 @@
   :entries $ {} $ :default
     {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
-      :modules $ [] |memof/ |quaternion/ |lagopus/ |respo.calcit/ |respo-ui.calcit/ |js-ffi/
+      :modules $ [] |quaternion/ |lagopus/ |respo.calcit/ |respo-ui.calcit/ |js-ffi/
       :type-slots $ {} $ :dispatch-op 'app.state/Op
   :files $ {}
     'app.cmop.sedimentary $ %{} 'FileEntry
@@ -73,7 +73,6 @@
             |../shaders/sedimentary.wgsl :default sedimentary-shader
             |../shaders/concentric.wgsl :default concentric-shader
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -107,7 +106,6 @@
             lagopus.alias :refer $ group object
             |../shaders/blinks.wgsl :default wgsl-blinks
             lagopus.comp.curves :refer $ comp-curves
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -147,7 +145,6 @@
             lagopus.alias :refer $ group object
             |../shaders/blow.wgsl :default wgsl-blow
             lagopus.comp.curves :refer $ comp-curves
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -350,7 +347,6 @@
             |../shaders/tree-2-dark.wgsl :default wgsl-tree-2-dark
             |../shaders/tree-3-strip.wgsl :default wgsl-tree-3-strip
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -426,7 +422,6 @@
             lagopus.comp.button :refer $ comp-button
             lagopus.comp.curves :refer $ comp-curves
             lagopus.comp.spots :refer $ comp-spots
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.comp.cube-combo :refer $ comp-cubes
             app.config :refer $ hide-tabs?
@@ -517,7 +512,6 @@
             lagopus.comp.button :refer $ comp-button
             lagopus.comp.curves :refer $ comp-curves
             lagopus.comp.spots :refer $ comp-spots
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ v3 &v+
             app.random :as random
     'app.comp.cubes-tree $ %{} 'FileEntry
@@ -658,7 +652,6 @@
             lagopus.alias :refer $ group object
             |../shaders/split-triangles.wgsl :default wgsl-split-triangles
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v-dot v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -705,7 +698,6 @@
             lagopus.alias :refer $ group object
             |../shaders/fireworks.wgsl :default wgsl-fireworks
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -790,7 +782,6 @@
             lagopus.alias :refer $ group object
             |../shaders/flower-ball.wgsl :default wgsl-flower-ball
             lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -815,7 +806,6 @@
             lagopus.comp.button :refer $ comp-button
             lagopus.comp.curves :refer $ comp-curves
             lagopus.comp.spots :refer $ comp-spots
-            memof.once :refer $ memof1-call
             quaternion.core :refer $ c+ v+
             |@calcit/std :refer $ rand rand-shift
             lagopus.comp.sphere :refer $ comp-sphere
@@ -900,7 +890,6 @@
             lagopus.comp.button :refer $ comp-button comp-slider
             lagopus.comp.curves :refer $ comp-curves
             lagopus.comp.spots :refer $ comp-spots
-            memof.once :refer $ memof1-call
             quaternion.core :refer $ c+ v+
             |@calcit/std :refer $ rand rand-shift
             lagopus.comp.plate :refer $ comp-plate
@@ -1030,7 +1019,6 @@
             lagopus.alias :refer $ group object
             |../shaders/hopf.wgsl :default wgsl-hopf
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark comp-axis
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v- v-normalize v-cross v3
             quaternion.complex :refer $ complex
             app.config :refer $ hide-tabs?
@@ -1097,7 +1085,6 @@
             lagopus.alias :refer $ group object
             |../shaders/mums.wgsl :default wgsl-mums
             lagopus.comp.curves :refer $ comp-curves
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             lagopus.cursor :refer $ >>
             lagopus.math :refer $ fibo-grid-range rotate-3d
@@ -1226,7 +1213,6 @@
             lagopus.alias :refer $ group object
             |../shaders/petal-wireframe.wgsl :default wgsl-petal-wireframe
             lagopus.comp.curves :refer $ comp-curves
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -1363,7 +1349,6 @@
             lagopus.alias :refer $ group object
             |../shaders/prime-walk.wgsl :default wgsl-prime-walk
             lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark comp-polylines-marked
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -1465,7 +1450,6 @@
             lagopus.alias :refer $ group object object-writer
             |../shaders/petal-wireframe.wgsl :default wgsl-petal-wireframe
             lagopus.comp.curves :refer $ comp-polylines break-mark
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -1581,7 +1565,6 @@
             lagopus.alias :refer $ group object
             |../shaders/petal-wireframe.wgsl :default wgsl-petal-wireframe
             lagopus.comp.curves :refer $ comp-polylines break-mark
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -1906,7 +1889,6 @@
             lagopus.alias :refer $ group object
             |../shaders/split-triangles.wgsl :default wgsl-split-triangles
             lagopus.comp.curves :refer $ comp-curves comp-polylines comp-polylines-marked break-mark
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -1966,7 +1948,6 @@
             lagopus.alias :refer $ group object
             |../shaders/triangles.wgsl :default wgsl-triangles
             lagopus.comp.curves :refer $ comp-curves comp-polylines break-mark
-            memof.once :refer $ memof1-call
             quaternion.vector :refer $ v+ &v+ v-scale v-length &v- v-normalize v-cross v3
             app.config :refer $ hide-tabs?
             lagopus.cursor :refer $ >>
@@ -2088,7 +2069,7 @@
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
-              do (reset-memof1-caches!) (render-app!) (clear-cache!) (remove-watch! *store :change)
+              do (render-app!) (clear-cache!) (remove-watch! *store :change)
                 add-watch! *store :change $ fn (next store) (render-app!)
                 println |Reloaded.
                 hud! |ok~ |OK
@@ -2100,8 +2081,10 @@
           :code $ quote $ defn render-app! ()
             let
                 store @*store
-                tree $ memof1-call-unary comp-container store
-                nav $ memof1-call-unary comp-nav store
+                tree $ comp-container store
+                nav $ assert-type
+                  respo.memo/with-memo-frame $ fn () $ respo.memo/memo-comp-by :header comp-nav store
+                  , respo.schema/Component
               reset-clear-color! $ .unwrap-or bg-color $ theme-color (:theme store)
               renderLagopusTree tree dispatch!
               render! mount-target nav dispatch!
@@ -2127,7 +2110,6 @@
             app.config :refer $ dev? mobile? bloom? remote-control?
             |bottom-tip :default hud!
             |./calcit.build-errors :default build-errors
-            memof.once :refer $ memof1-call-unary reset-memof1-caches!
             lagopus.util :refer $ handle-compilation reset-clear-color!
             app.updater :refer $ updater
             |@triadica/lagopus/lib/remote-control.mjs :refer $ setupRemoteControl
