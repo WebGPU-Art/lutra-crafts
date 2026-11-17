@@ -38,7 +38,7 @@
                     * 0.01 $ - (performance-now) t0 20000
                     , 0 0 0
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'comp-sedimentary $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-sedimentary ()
             let
@@ -65,7 +65,7 @@
                         write! break-mark
                   :get-params $ fn () $ shader-params 0 0 0 0
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.cmop.sedimentary
           :require
@@ -99,7 +99,7 @@
                       direction $ v-cross v1 v2
                     [] (:: :vertex p0 direction) (:: :vertex p1 direction) (:: :vertex p2 direction)
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.blinks
           :require
@@ -138,7 +138,7 @@
                           + a gap l
                           dec step
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.blow
           :require
@@ -187,7 +187,7 @@
                   - v $ round-js v
                   , 0 0 0
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'comp-tree-2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-2 ()
             let
@@ -287,7 +287,7 @@
                       , 0 0 0
                 comp-tree-1
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'comp-tree-3 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-3 ()
             let
@@ -316,7 +316,7 @@
                 comp-tree-dark-area r0 h0
                 ; comp-tree-1
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'comp-tree-dark-area $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-tree-dark-area (r0 h0)
             object $ {} (:shader wgsl-tree-2-dark) (:topology :triangle-list)
@@ -337,7 +337,7 @@
                         * (- r0 4) (cos angle2)
                         , 0 $ * (- r0 4) (sin angle2)
           :examples $ []
-          :schema $ quote $ Fn Number Number (-> JsObject)
+          :schema $ quote $ Fn Number Number (-> JsObject) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.christmas-tree
           :require
@@ -394,7 +394,7 @@
                   eprintln "|Unknown tab" $ :tab store
                   group nil
           :examples $ []
-          :schema $ quote $ Fn app.state/Store (-> JsObject) (:features :io)
+          :schema $ quote $ Fn app.state/Store (-> JsObject) (:features :io :state)
         'comp-fur $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-fur ()
             comp-curves $ {} (:shader wgsl-fur)
@@ -412,7 +412,7 @@
                           :position $ v+ base $ v3 0 (* 2 hi) 0
                           :width 0.6
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -503,7 +503,7 @@
                       -> indices $ map $ fn (x)
                         + x $ * 8 idx
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.cube-combo
           :require
@@ -533,7 +533,7 @@
           :examples $ []
           :schema $ quote $ Fn Cube
             Fn (List app.state/MarkedItem) (-> Unit)
-            , Number (-> Unit)
+            , Number (-> Unit) (:features :io)
           :tests $ [] $ %{} 'TestEntry (:name |cube-writer)
             :code $ quote $ branch-next
               Cube :cube (quaternion.vector/v3 0 0 0) (quaternion.vector/v3 1 0 0) (quaternion.vector/v3 1 0 -1) (quaternion.vector/v3 0 0 -1) (quaternion.vector/v3 0 1 0) (quaternion.vector/v3 1 1 0) (quaternion.vector/v3 1 1 -1) (quaternion.vector/v3 0 1 -1)
@@ -555,7 +555,7 @@
                   branch-next cube write! 10
                 , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'reflect $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reflect (a base)
             let
@@ -565,7 +565,7 @@
                 a-drop $ &v- a a-perp
               &v- a-perp a-drop
           :examples $ []
-          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 (-> quaternion.vector/V3)
+          :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 (-> quaternion.vector/V3) (:features :io)
         'render-cube $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-cube (cube write!)
             let
@@ -611,7 +611,7 @@
                   v+ p0 p40 $ v-scale p60' scale
                   v+ p0 p40 $ v-scale p70' scale
           :examples $ []
-          :schema $ quote $ Fn Cube Number Number (-> Cube)
+          :schema $ quote $ Fn Cube Number Number (-> Cube) (:features :io)
         'rotate-d2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rotate-d2 (cube ratio scale)
             match cube $
@@ -645,7 +645,7 @@
                   v+ p1 p51 $ v-scale p61' scale
                   v+ p1 p51 $ v-scale p71' scale
           :examples $ []
-          :schema $ quote $ Fn Cube Number Number (-> Cube)
+          :schema $ quote $ Fn Cube Number Number (-> Cube) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.cubes-tree
           :require
@@ -691,7 +691,7 @@
                           write! break-mark
                       recur $ inc n
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.fireworks
           :require
@@ -734,6 +734,7 @@
           :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number Number Number Number
             Fn (List app.state/LineItem) (-> Unit)
             -> Unit
+            :features :io
         'comp-flower-ball $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-flower-ball ()
             let
@@ -771,7 +772,7 @@
                         , parts elevation decay iteration write!
                   , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'v-zero $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def v-zero (v3 0 0 0)
           :examples $ []
@@ -793,7 +794,7 @@
             comp-sphere $ {} (; :topology :line-strip) (:shader wgsl-globe) (:iteration 7) (:radius 1800)
               :color $ [] 0.6 0.9 0.7
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'wgsl-globe $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def wgsl-globe (inline-shader |globe)
           :examples $ []
@@ -855,7 +856,7 @@
               ; :y-direction $ [] 0 1 0
               :chromatism 0.14
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io)
         'comp-hyperbolic-helicoid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-hyperbolic-helicoid (states)
             let
@@ -881,7 +882,7 @@
                       d! $ Op :state cursor $ LocalState :hh
                         + tau $ * 0.01 dx
           :examples $ []
-          :schema $ quote $ Fn app.state/StateCursor (-> JsObject)
+          :schema $ quote $ Fn app.state/StateCursor (-> JsObject) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.helicoid
           :require
@@ -975,7 +976,7 @@
                                           , ring-idx
                                 write! break-mark
           :examples $ []
-          :schema $ quote $ Fn app.state/StateCursor Bool (-> JsObject) (:features :js-ffi)
+          :schema $ quote $ Fn app.state/StateCursor Bool (-> JsObject) (:features :io :js-ffi :state)
         'decide-circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decide-circle (v0)
             let
@@ -993,7 +994,7 @@
                       v-length rh
                   Circle :circle center rh rv
           :examples $ []
-          :schema $ quote $ Fn quaternion.vector/V3 (-> Circle)
+          :schema $ quote $ Fn quaternion.vector/V3 (-> Circle) (:features :io)
         'v-length2 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn v-length2 (a)
             match a $
@@ -1049,7 +1050,7 @@
                       -> path $ map $ fn (p2)
                         {} (:position p2) (:width 2)
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io)
         'roll-curve $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-curve (v0 axis0 delta)
             let
@@ -1079,6 +1080,7 @@
           :examples $ []
           :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 Number
             -> $ List quaternion.vector/V3
+            :features :io
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.mums
           :require
@@ -1175,6 +1177,7 @@
           :examples $ []
           :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 Number quaternion.vector/V3
             -> $ List quaternion.vector/V3
+            :features :io
         'comp-petal-wireframe $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-petal-wireframe ()
             let
@@ -1206,7 +1209,7 @@
                       map points $ fn (p)
                         {} (:position p) (:width 1.)
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.patels
           :require
@@ -1232,7 +1235,7 @@
                 * 0.8 $ - (now-ms) start-time 8000
                 , 0 0 0
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'comp-prime-walk $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-prime-walk ()
             comp-polylines-marked $ {} (:shader wgsl-prime-walk)
@@ -1246,7 +1249,7 @@
                 * 0.4 $ - (now-ms) start-time 8000
                 , 0 0 0
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'cube-middle-moves $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def cube-middle-moves
             [] (v3 1 0 0) (v3 0 1 0) (v3 0 0 -1) (v3 1 0 0) (v3 0 -1 0) (v3 0 0 -1) (v3 -1 0 0) (v3 0 -1 0) (v3 0 0 1) (v3 -1 0 0) (v3 0 1 0) (v3 0 0 1)
@@ -1487,7 +1490,7 @@
                   fold-fractal (v3 0 0 0) target (v3 0 0 1) p1 p2 p3 p4 p5 level write!
                   , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'fold-fractal $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn fold-fractal
             base target right p1 p2 p3 p4 p5 level write!
@@ -1547,6 +1550,7 @@
           :schema $ quote $ Fn quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 quaternion.vector/V3 Number
             Fn (List app.state/LineItem) (-> Unit)
             -> Unit
+            :features :io
         'middle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn middle (base target)
             v-scale (&v+ base target) 0.5
@@ -1628,7 +1632,7 @@
                   &* 0.08 $ - (performance-now) start-time
                 :compute-options $ particle-options item-count
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'particle-options $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn particle-options (item-count)
             let
@@ -1864,7 +1868,7 @@
                     , 0 true write!
                 , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'split-triangles $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn split-triangles (p1 p2 p3 p4 level root? write!)
             let
@@ -1937,7 +1941,7 @@
                 build-sierpinski-triangles (v3 1000 0 0) (v3 -500 0 -800) (v3 -500 0 800) (v3 0 1200 0) 10 0.1 false write!
                 , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io :state)
         'third $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def third (&/ 1 3)
           :examples $ []
