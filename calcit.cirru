@@ -2091,7 +2091,7 @@
                   , respo.schema/Component
               reset-clear-color! $ .unwrap-or bg-color $ theme-color (:theme store)
               renderLagopusTree tree dispatch!
-              render! mount-target nav dispatch!
+              render! mount-target nav $ fn (op) (dispatch! op)
               , &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
