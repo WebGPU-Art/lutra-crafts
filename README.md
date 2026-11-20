@@ -2,6 +2,11 @@
 
 WebGPU 几何与动画示例：[原 Demo](https://r.tiye.me/Triadica/lutra-crafts)。
 
+### Calcit 0.44.0 使用者影响
+
+使用配对的 Calcit 和 `@calcit/procs` 0.44.0 重新安装依赖并构建。
+现有正式模块版本和场景逻辑保持不变；下方 0.42.1 验收记录为历史记录。
+
 ### Calcit 0.42.1 使用者影响
 
 使用配对的 Calcit 和 `@calcit/procs` 0.42.1 重新安装依赖并构建。普通折线和带标记折线使用各自的顶点与断点 union，
