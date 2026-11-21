@@ -362,37 +362,38 @@
                 states $ :states store
                 show? $ :show-tabs? store
               ; js/console.log $ :tab store
-              group nil $ match (:tab store)
-                :cube $ comp-cubes
-                :helicoid $ comp-helicoid
-                :hyperbolic-helicoid $ comp-hyperbolic-helicoid $ cursor-state states ([] :hh)
-                :globe $ comp-globe
-                :fur $ comp-fur
-                :petal-wireframe $ comp-petal-wireframe
-                :mums $ comp-mums
-                :flower-ball $ with-cpu-time $ comp-flower-ball
-                :blow $ comp-blow
-                :triangles $ comp-triangles
-                :segments $ comp-segments-fractal
-                :quaternion-fold $ comp-quaternion-fold
-                :hopf $ comp-hopf-fiber
-                  cursor-state states $ [] :hopf
-                  , show?
-                :fireworks $ comp-fireworks
-                :blinks $ comp-blinks
-                :split-triangles $ comp-split-triangles
-                :cubes-tree $ comp-cubes-tree
-                :prime-walk $ comp-prime-walk
-                :prime-pyramid $ comp-prime-pyramid
-                :tree-1 $ comp-tree-1
-                :tree-2 $ comp-tree-2
-                :tree-3 $ comp-tree-3
-                :sedimentary $ comp-sedimentary
-                :concentric $ comp-concentric
-                :snowing $ comp-snowflakes-demo
-                _ $ do
-                  eprintln "|Unknown tab" $ :tab store
-                  group nil
+              group ({})
+                match (:tab store)
+                  :cube $ comp-cubes
+                  :helicoid $ comp-helicoid
+                  :hyperbolic-helicoid $ comp-hyperbolic-helicoid $ cursor-state states ([] :hh)
+                  :globe $ comp-globe
+                  :fur $ comp-fur
+                  :petal-wireframe $ comp-petal-wireframe
+                  :mums $ comp-mums
+                  :flower-ball $ with-cpu-time $ comp-flower-ball
+                  :blow $ comp-blow
+                  :triangles $ comp-triangles
+                  :segments $ comp-segments-fractal
+                  :quaternion-fold $ comp-quaternion-fold
+                  :hopf $ comp-hopf-fiber
+                    cursor-state states $ [] :hopf
+                    , show?
+                  :fireworks $ comp-fireworks
+                  :blinks $ comp-blinks
+                  :split-triangles $ comp-split-triangles
+                  :cubes-tree $ comp-cubes-tree
+                  :prime-walk $ comp-prime-walk
+                  :prime-pyramid $ comp-prime-pyramid
+                  :tree-1 $ comp-tree-1
+                  :tree-2 $ comp-tree-2
+                  :tree-3 $ comp-tree-3
+                  :sedimentary $ comp-sedimentary
+                  :concentric $ comp-concentric
+                  :snowing $ comp-snowflakes-demo
+                  _ $ do
+                    eprintln "|Unknown tab" $ :tab store
+                    group $ {}
           :examples $ []
           :schema $ quote $ Fn app.state/Store (-> JsObject) (:features :io :state)
         'comp-fur $ %{} 'CodeEntry (:doc |)
@@ -660,36 +661,37 @@
       :defs $ {} $ 'comp-fireworks
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-fireworks ()
-            group nil $ comp-polylines-marked $ {} (:shader wgsl-fireworks)
-              :writer $ fn (write!)
-                loop
-                    n 0
-                  if (&< n 2000)
-                    let
-                        base $ v3 (random/rand-shift 0 20000) (random/rand-shift 0 2080) (random/rand-shift 0 20000)
-                        color $ random/rand 10
-                        w $ &+ 2 $ random/rand 6
-                      ->
-                        fibo-grid-range $ random/rand-int-between 40 400
-                        each $ fn (v)
-                          let
-                              a1 $ random/rand 4
-                              a2 $ random/rand 4
-                              upper $ random/rand-int 12
-                            loop
-                                i 0
-                              let
-                                  n $ &+ i $ &+ 3 a2
-                                  t $ &* 2.2 n
-                                  p $ v+ base
-                                    v-scale v $ &* 6 $ &* t a1
-                                    v-scale (v3 0 -0.4 0)
-                                      &* (&* t t) 0.5
-                                write! $ : vertex p w color
-                                if (&< i upper)
-                                  recur $ inc i
-                          write! break-mark
-                      recur $ inc n
+            group ({})
+              comp-polylines-marked $ {} (:shader wgsl-fireworks)
+                :writer $ fn (write!)
+                  loop
+                      n 0
+                    if (&< n 2000)
+                      let
+                          base $ v3 (random/rand-shift 0 20000) (random/rand-shift 0 2080) (random/rand-shift 0 20000)
+                          color $ random/rand 10
+                          w $ &+ 2 $ random/rand 6
+                        ->
+                          fibo-grid-range $ random/rand-int-between 40 400
+                          each $ fn (v)
+                            let
+                                a1 $ random/rand 4
+                                a2 $ random/rand 4
+                                upper $ random/rand-int 12
+                              loop
+                                  i 0
+                                let
+                                    n $ &+ i $ &+ 3 a2
+                                    t $ &* 2.2 n
+                                    p $ v+ base
+                                      v-scale v $ &* 6 $ &* t a1
+                                      v-scale (v3 0 -0.4 0)
+                                        &* (&* t t) 0.5
+                                  write! $ : vertex p w color
+                                  if (&< i upper)
+                                    recur $ inc i
+                            write! break-mark
+                        recur $ inc n
           :examples $ []
           :schema $ quote $ Fn (-> JsObject) (:features :io :state)
       :ns $ %{} 'NsEntry (:doc |)
@@ -862,7 +864,7 @@
             let
                 cursor $ :cursor states
                 tau $ tau-at states
-              group nil
+              group ({})
                 object $ {} (:shader hyperbolic-helicoid-wgsl)
                   :topology $ do :triangle-list :line-strip
                   :attrs-list $ [] $ :: :float32x2 :position
@@ -922,7 +924,7 @@
                 base $ base-at states
                 rh $ v-normalize $ v-cross base (v3 0 1 0)
                 rv $ v-normalize $ v-cross rh base
-              group nil
+              group ({})
                 if show? (comp-axis) js/null
                 if show?
                   comp-drag-point
@@ -966,7 +968,7 @@
                                         ratio $ * 2 idx $ / &PI n
                                       match circle $
                                         :circle center rh rv
-                                        do nil $ write! $ app.state/MarkedPoint :vertex
+                                        write! $ app.state/MarkedPoint :vertex
                                           v-scale
                                             v+ center
                                               v-scale rh $ cos ratio
@@ -1507,7 +1509,7 @@
                 point5 $ &v+ base $ v-scale (apply-basis p5 forward upward right) l
                 m $ middle base target
               if (&> level 1)
-                do nil
+                do
                   ; write! $ [] (: vertex base w) (: vertex point1 w) (: vertex point2 w) (: vertex point3 w) (: vertex point4 w) (: vertex target w) break-mark
                   let
                       right1 $ v-normalize $ safe-right
