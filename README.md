@@ -2,10 +2,10 @@
 
 WebGPU 几何与动画示例：[原 Demo](https://r.tiye.me/Triadica/lutra-crafts)。
 
-### Calcit 0.44.0 使用者影响
+### Calcit 0.45.1 使用者影响
 
-使用配对的 Calcit 和 `@calcit/procs` 0.44.0 重新安装依赖并构建。
-正式依赖更新至 Lagopus 0.5.18、Quaternion 0.2.26、JS-FFI 0.2.19、Respo 0.19.13 和 UI 0.15.7；场景逻辑保持不变。下方旧版本及验收记录为历史记录，本次未重新验收真实 WebGPU。
+使用配对的 Calcit 和 `@calcit/procs` 0.45.1 重新安装依赖并构建。
+正式依赖更新至 Lagopus 0.5.19、Quaternion 0.2.27、JS-FFI 0.2.24、Respo 0.19.18 和 UI 0.16.5；场景逻辑保持不变。下方旧版本及验收记录为历史记录，本次未重新验收真实 WebGPU。
 
 ### Calcit 0.42.1 使用者影响
 
